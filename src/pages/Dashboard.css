@@ -571,8 +571,9 @@
     z-index: 1000;
 }
 
+.taskboard .modal-content,
 .modal-content {
-    background: white;
+    background: #ffffff !important;
     border-radius: 16px;
     width: 90%;
     max-width: 480px;
@@ -580,59 +581,81 @@
     overflow: hidden;
 }
 
+.taskboard .modal-header,
 .modal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 1.25rem 1.5rem;
     border-bottom: 1px solid #e5e7eb;
+    background: #ffffff;
 }
 
+.taskboard .modal-header h3,
 .modal-header h3 {
     font-size: 1.25rem;
     font-weight: 600;
-    color: #1f2937;
+    color: #1f2937 !important;
 }
 
+.taskboard .modal-body,
 .modal-body {
     padding: 1.5rem;
+    background: #ffffff;
 }
 
+.taskboard .form-group,
 .form-group {
     margin-bottom: 1.25rem;
 }
 
+.taskboard .form-group label,
 .form-group label {
     display: block;
     font-weight: 500;
-    color: #374151;
+    color: #374151 !important;
     margin-bottom: 0.5rem;
 }
 
-.form-group input,
-.form-group textarea,
-.form-group select {
+.taskboard .form-group input,
+.taskboard .form-group textarea,
+.taskboard .form-group select,
+.modal-content .form-group input,
+.modal-content .form-group textarea,
+.modal-content .form-group select {
     width: 100%;
     padding: 0.75rem 1rem;
-    border: 1px solid #e5e7eb;
+    border: 1px solid #d1d5db !important;
     border-radius: 8px;
     font-size: 1rem;
-    color: #1f2937;
+    color: #1f2937 !important;
+    background: #ffffff !important;
     transition: border-color 0.2s;
 }
 
-.form-group input:focus,
-.form-group textarea:focus,
-.form-group select:focus {
+.taskboard .form-group input:focus,
+.taskboard .form-group textarea:focus,
+.taskboard .form-group select:focus,
+.modal-content .form-group input:focus,
+.modal-content .form-group textarea:focus,
+.modal-content .form-group select:focus {
     outline: none;
-    border-color: #6366f1;
+    border-color: #6366f1 !important;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
 }
 
-.form-group textarea {
+.taskboard .form-group input::placeholder,
+.modal-content .form-group input::placeholder {
+    color: #9ca3af;
+}
+
+.taskboard .form-group textarea,
+.modal-content .form-group textarea {
     min-height: 100px;
     resize: vertical;
 }
 
+.taskboard .modal-footer,
 .modal-footer {
     display: flex;
     justify-content: flex-end;
@@ -640,6 +663,33 @@
     padding: 1rem 1.5rem;
     background: #f9fafb;
     border-top: 1px solid #e5e7eb;
+}
+
+.taskboard .modal-footer .btn,
+.modal-footer .btn {
+    padding: 0.625rem 1.25rem;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    background: #e5e7eb;
+    color: #374151 !important;
+}
+
+.taskboard .modal-footer .btn:hover,
+.modal-footer .btn:hover {
+    background: #d1d5db;
+}
+
+.taskboard .modal-footer .btn-primary,
+.modal-footer .btn-primary {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+    color: white !important;
+}
+
+.taskboard .modal-footer .btn-primary:hover,
+.modal-footer .btn-primary:hover {
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
 }
 
 .btn {
