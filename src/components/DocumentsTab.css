@@ -11,26 +11,38 @@
     align-items: flex-start;
     flex-wrap: wrap;
     gap: 1rem;
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
 }
 
 .documents-header h2 {
     font-size: 1.5rem;
     margin-bottom: 0.5rem;
+    color: #1f2937;
 }
 
 /* Empty State */
 .empty-state {
     text-align: center;
     padding: 4rem 2rem;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
 }
 
 .empty-icon {
-    color: var(--dark-text-secondary);
+    color: #9ca3af;
     margin-bottom: 1rem;
 }
 
 .empty-state h3 {
     margin-bottom: 0.5rem;
+    color: #374151;
+}
+
+.empty-state p {
+    color: #6b7280;
 }
 
 /* Documents List */
@@ -45,21 +57,25 @@
     align-items: center;
     gap: 1rem;
     padding: 1.5rem;
-    transition: var(--transition);
+    transition: all 0.2s;
     cursor: pointer;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
 }
 
 .document-item:hover {
     transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border-color: #c7d2fe;
 }
 
 .doc-icon {
     width: 48px;
     height: 48px;
-    background: rgba(139, 92, 246, 0.2);
-    color: var(--purple);
-    border-radius: var(--radius-md);
+    background: #ede9fe;
+    color: #8b5cf6;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -74,12 +90,15 @@
     font-size: 1rem;
     font-weight: 500;
     margin-bottom: 0.25rem;
+    color: #1f2937;
 }
 
 .doc-meta {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
+    color: #6b7280;
+    font-size: 0.875rem;
 }
 
 .doc-actions {
@@ -87,74 +106,85 @@
     gap: 0.5rem;
 }
 
-.btn-delete:hover {
-    background: rgba(239, 68, 68, 0.2);
-    color: var(--danger);
+.btn-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
 }
 
-/* Modal Styles */
+.btn-icon:hover {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.btn-delete:hover {
+    background: #fee2e2;
+    color: #ef4444;
+}
+
+/* Modal Styles - Scoped to ensure light theme */
 .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.5);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 1000;
-    animation: fadeIn 0.2s ease-out;
 }
 
+.documents-tab .modal-content,
 .modal-content {
-    background: var(--dark-card);
-    border-radius: var(--radius-lg);
+    background: #ffffff;
+    border-radius: 16px;
     width: 90%;
     max-width: 500px;
     max-height: 90vh;
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    animation: slideUp 0.3s ease-out;
-}
-
-@keyframes slideUp {
-    from {
-        transform: translateY(50px);
-        opacity: 0;
-    }
-
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 }
 
 .modal-header {
     padding: 1.5rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid #e5e7eb;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    background: #ffffff;
 }
 
 .modal-header h3 {
     font-size: 1.25rem;
     margin: 0;
+    color: #1f2937;
 }
 
 .modal-body {
     padding: 2rem;
     overflow-y: auto;
+    background: #ffffff;
 }
 
 .modal-footer {
     padding: 1.5rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid #e5e7eb;
     display: flex;
     justify-content: flex-end;
     gap: 1rem;
+    background: #f9fafb;
 }
 
 /* Upload Area */
@@ -168,20 +198,20 @@
     align-items: center;
     justify-content: center;
     padding: 3rem 2rem;
-    border: 2px dashed rgba(255, 255, 255, 0.2);
-    border-radius: var(--radius-lg);
+    border: 2px dashed #e5e7eb;
+    border-radius: 12px;
     cursor: pointer;
-    transition: var(--transition);
-    background: rgba(255, 255, 255, 0.02);
+    transition: all 0.2s;
+    background: #f9fafb;
 }
 
 .upload-label:hover {
-    border-color: var(--primary-blue);
-    background: rgba(37, 99, 235, 0.1);
+    border-color: #6366f1;
+    background: #f5f3ff;
 }
 
 .upload-icon {
-    color: var(--primary-blue);
+    color: #6366f1;
     margin-bottom: 1rem;
 }
 
@@ -189,6 +219,12 @@
     font-weight: 500;
     margin-bottom: 0.5rem;
     text-align: center;
+    color: #374151;
+}
+
+.upload-hint {
+    color: #9ca3af;
+    font-size: 0.875rem;
 }
 
 /* Upload Progress */
@@ -199,7 +235,7 @@
 .progress-bar-large {
     width: 100%;
     height: 8px;
-    background: rgba(255, 255, 255, 0.1);
+    background: #e5e7eb;
     border-radius: 1rem;
     overflow: hidden;
     margin-bottom: 0.5rem;
@@ -207,24 +243,34 @@
 
 .progress-bar-large .progress-fill {
     height: 100%;
-    background: var(--primary-blue);
+    background: #6366f1;
     border-radius: 1rem;
     transition: width 0.3s ease;
 }
 
 /* Button in Modal */
 .modal-footer .btn {
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--dark-text-primary);
+    background: #e5e7eb;
+    color: #374151;
     padding: 0.75rem 1.5rem;
     border: none;
-    border-radius: var(--radius-md);
+    border-radius: 8px;
     cursor: pointer;
-    transition: var(--transition);
+    transition: all 0.2s;
+    font-weight: 500;
 }
 
 .modal-footer .btn:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.15);
+    background: #d1d5db;
+}
+
+.modal-footer .btn-primary {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+}
+
+.modal-footer .btn-primary:hover:not(:disabled) {
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
 }
 
 .modal-footer .btn:disabled {
@@ -271,14 +317,21 @@
 }
 
 .btn-secondary {
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--dark-text-primary);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: #ffffff;
+    color: #374151;
+    border: 1px solid #e5e7eb;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.3);
+    background: #f9fafb;
+    border-color: #d1d5db;
 }
 
 /* Empty Actions */
@@ -300,23 +353,23 @@
     width: 100%;
     min-height: 300px;
     padding: 1rem;
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: var(--radius-md);
-    color: var(--dark-text-primary);
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    color: #1f2937;
     font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
     font-size: 0.9rem;
     line-height: 1.6;
     resize: vertical;
-    transition: var(--transition);
+    transition: all 0.2s;
 }
 
 .document-editor:focus {
     outline: none;
-    border-color: var(--primary-blue);
-    background: rgba(0, 0, 0, 0.4);
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
 }
 
 .document-editor::placeholder {
-    color: var(--dark-text-secondary);
+    color: #9ca3af;
 }
