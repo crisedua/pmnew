@@ -28,7 +28,9 @@ function DocumentEditor() {
 
     const editor = useEditor({
         extensions: [
-            StarterKit,
+            StarterKit.configure({
+                // Underline is not in StarterKit, but we configure to avoid any conflicts
+            }),
             Placeholder.configure({
                 placeholder: 'Comienza a escribir tu documento...',
             }),
