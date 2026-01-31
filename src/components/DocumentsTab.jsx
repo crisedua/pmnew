@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { FileText, Download, Trash2, Upload, X, File, Pencil } from 'lucide-react';
+import { FileText, Download, Trash2, Upload, X, File, Pencil, Brain } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { processDocumentForKnowledgeBase } from '../lib/knowledgeBase';
 import './DocumentsTab.css';
 
 function DocumentsTab({ documents, projectId, onDocumentsUpdate }) {
@@ -71,8 +72,8 @@ function DocumentsTab({ documents, projectId, onDocumentsUpdate }) {
                 publicUrl = urlData.publicUrl;
             }
 
-            // Insert document record
-            const { error: dbError } = await supabase
+            // Insert document record and get the ID
+            const { data: docData, error: dbError } = await supabase
                 .from('documents')
                 .insert({
                     project_id: projectId,
@@ -81,9 +82,22 @@ function DocumentsTab({ documents, projectId, onDocumentsUpdate }) {
                     file_size: selectedFile.size,
                     file_type: selectedFile.type || 'application/octet-stream',
                     uploaded_by: 'Usuario Actual'
-                });
+                })
+                .select()
+                .single();
 
             if (dbError) throw dbError;
+
+            // Process document for AI Knowledge Base (async, don't wait)
+            if (docData?.id) {
+                processDocumentForKnowledgeBase(supabase, docData.id, selectedFile)
+                    .then(result => {
+                        if (result.success) {
+                            console.log(`✅ Document indexed for AI: ${result.chunksProcessed} chunks`);
+                        }
+                    })
+                    .catch(err => console.warn('Knowledge base indexing failed:', err));
+            }
 
             // Refresh documents list
             if (onDocumentsUpdate) {

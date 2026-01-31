@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MessageSquare, Send, X, Sparkles, Bot, FileText, Plus } from 'lucide-react';
+import { MessageSquare, Send, X, Sparkles, Bot, FileText, Plus, Search } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { callOpenAI } from '../lib/openai';
+import { searchKnowledgeBase } from '../lib/knowledgeBase';
 import './AIAssistant.css';
 
 function AIAssistant({ areaId, projects = [], tasks = [], documents = [], onAction }) {
@@ -9,7 +10,7 @@ function AIAssistant({ areaId, projects = [], tasks = [], documents = [], onActi
     const [messages, setMessages] = useState([
         {
             role: 'assistant',
-            content: 'Hola 👋 Soy tu asistente de proyecto con AI. Puedo ayudarte a crear tareas, analizar información y responder preguntas sobre tus proyectos. ¿Qué necesitas?'
+            content: 'Hola 👋 Soy tu asistente de proyecto con AI. Puedo ayudarte a crear tareas, analizar documentos, y responder preguntas sobre tu información. ¿Qué necesitas?'
         }
     ]);
     const [inputValue, setInputValue] = useState('');
@@ -72,8 +73,25 @@ function AIAssistant({ areaId, projects = [], tasks = [], documents = [], onActi
         {
             type: 'function',
             function: {
+                name: 'search_documents',
+                description: 'Search through document contents using AI knowledge base. Use this to answer questions about document content, find specific information, or analyze documents.',
+                parameters: {
+                    type: 'object',
+                    properties: {
+                        query: {
+                            type: 'string',
+                            description: 'The search query or question about document contents'
+                        }
+                    },
+                    required: ['query']
+                }
+            }
+        },
+        {
+            type: 'function',
+            function: {
                 name: 'analyze_document',
-                description: 'Analyze or get information about a document',
+                description: 'Get metadata and basic information about a specific document',
                 parameters: {
                     type: 'object',
                     properties: {
@@ -137,6 +155,32 @@ function AIAssistant({ areaId, projects = [], tasks = [], documents = [], onActi
                     };
                 }
 
+                case 'search_documents': {
+                    const { query } = args;
+
+                    // Search the knowledge base
+                    const results = await searchKnowledgeBase(supabase, query, areaId, 5);
+
+                    if (results.length === 0) {
+                        return {
+                            success: true,
+                            message: 'No encontré información relevante en los documentos.',
+                            results: []
+                        };
+                    }
+
+                    // Return the relevant chunks
+                    return {
+                        success: true,
+                        message: `Encontré ${results.length} fragmentos relevantes.`,
+                        results: results.map(r => ({
+                            document: r.document_name,
+                            content: r.content,
+                            relevance: Math.round(r.similarity * 100) + '%'
+                        }))
+                    };
+                }
+
                 case 'analyze_document': {
                     const { document_name } = args;
                     const doc = documents.find(d =>
@@ -180,7 +224,7 @@ function AIAssistant({ areaId, projects = [], tasks = [], documents = [], onActi
             // Build context for the AI
             const systemMessage = {
                 role: 'system',
-                content: `Eres un asistente de gestión de proyectos. Tienes acceso a los siguientes datos del área actual:
+                content: `Eres un asistente de gestión de proyectos con acceso a una base de conocimiento de documentos. Tienes acceso a:
 
 PROYECTOS (${projects.length}):
 ${projects.map(p => `- ${p.name} (${p.status})`).join('\n')}
@@ -191,7 +235,14 @@ ${tasks.slice(0, 10).map(t => `- ${t.title} [${t.status}] (${t.priority})`).join
 DOCUMENTOS (${documents.length}):
 ${documents.map(d => `- ${d.name}`).join('\n')}
 
-Responde en español de manera profesional y concisa. Usa las funciones disponibles cuando el usuario solicite crear tareas, ver pendientes, o analizar documentos.`
+CAPACIDADES:
+- Crear tareas con prioridades
+- Ver tareas pendientes
+- BUSCAR EN DOCUMENTOS: Usa search_documents para buscar información dentro del contenido de los documentos subidos
+- Analizar metadatos de documentos
+
+Cuando el usuario pregunte sobre el contenido de documentos, usa search_documents para buscar en la base de conocimiento.
+Responde en español de manera profesional y concisa.`
             };
 
             // Add to conversation history
@@ -309,9 +360,14 @@ Responde en español de manera profesional y concisa. Usa las funciones disponib
                             <Plus size={12} /> Crear tarea
                         </button>
                         {documents.length > 0 && (
-                            <button onClick={() => setInputValue(`Analizar ${documents[0].name}`)}>
-                                <FileText size={12} /> Analizar Doc
-                            </button>
+                            <>
+                                <button onClick={() => setInputValue('¿Qué dicen los documentos sobre el presupuesto?')}>
+                                    <Search size={12} /> Buscar en docs
+                                </button>
+                                <button onClick={() => setInputValue(`Analizar ${documents[0].name}`)}>
+                                    <FileText size={12} /> Ver documento
+                                </button>
+                            </>
                         )}
                     </div>
                 )}
