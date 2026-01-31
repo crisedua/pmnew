@@ -4,6 +4,9 @@
 -- 1. Enable the pgvector extension
 CREATE EXTENSION IF NOT EXISTS vector;
 
+-- 1.5. Add content column to documents table for online editing
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS content TEXT;
+
 -- 2. Create document chunks table for storing embeddings
 CREATE TABLE IF NOT EXISTS document_chunks (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,

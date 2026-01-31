@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { FileText, Download, Trash2, Upload, X, File, Pencil, Brain } from 'lucide-react';
+import { FileText, Download, Trash2, Upload, X, File, Pencil, Plus, Eye } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { processDocumentForKnowledgeBase } from '../lib/knowledgeBase';
+import { processDocumentForKnowledgeBase, generateEmbedding, chunkText } from '../lib/knowledgeBase';
 import './DocumentsTab.css';
 
 function DocumentsTab({ documents, projectId, onDocumentsUpdate }) {
@@ -11,6 +11,14 @@ function DocumentsTab({ documents, projectId, onDocumentsUpdate }) {
     const [uploadProgress, setUploadProgress] = useState(0);
     const [editingDoc, setEditingDoc] = useState(null);
     const [editName, setEditName] = useState('');
+
+    // New states for document creation/editing
+    const [showCreateModal, setShowCreateModal] = useState(false);
+    const [showViewModal, setShowViewModal] = useState(false);
+    const [docTitle, setDocTitle] = useState('');
+    const [docContent, setDocContent] = useState('');
+    const [viewingDoc, setViewingDoc] = useState(null);
+    const [isSaving, setIsSaving] = useState(false);
 
     const formatFileSize = (bytes) => {
         if (!bytes) return 'N/A';
@@ -176,6 +184,121 @@ function DocumentsTab({ documents, projectId, onDocumentsUpdate }) {
         }
     };
 
+    // Create a new online document
+    const handleCreateDocument = async () => {
+        if (!docTitle.trim() || !docContent.trim()) return;
+
+        setIsSaving(true);
+        try {
+            // Create document record
+            const { data: docData, error: dbError } = await supabase
+                .from('documents')
+                .insert({
+                    project_id: projectId,
+                    name: docTitle.trim() + '.txt',
+                    file_url: null,
+                    file_size: new Blob([docContent]).size,
+                    file_type: 'text/plain',
+                    uploaded_by: 'Usuario Actual',
+                    content: docContent // Store content directly
+                })
+                .select()
+                .single();
+
+            if (dbError) throw dbError;
+
+            // Index for AI knowledge base
+            if (docData?.id) {
+                const chunks = chunkText(docContent);
+                for (let i = 0; i < chunks.length; i++) {
+                    try {
+                        const embedding = await generateEmbedding(chunks[i]);
+                        await supabase.from('document_chunks').insert({
+                            document_id: docData.id,
+                            content: chunks[i],
+                            embedding: embedding,
+                            chunk_index: i,
+                            metadata: { file_name: docTitle, chunk_of: chunks.length }
+                        });
+                    } catch (e) {
+                        console.warn('Embedding error:', e);
+                    }
+                }
+            }
+
+            setShowCreateModal(false);
+            setDocTitle('');
+            setDocContent('');
+            if (onDocumentsUpdate) {
+                await onDocumentsUpdate();
+            }
+        } catch (error) {
+            console.error('Error creating document:', error);
+            alert('Error al crear documento: ' + error.message);
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    // View document content
+    const handleViewDocument = async (doc) => {
+        setViewingDoc(doc);
+        setDocTitle(doc.name.replace(/\.[^/.]+$/, '')); // Remove extension
+        setDocContent(doc.content || '');
+        setShowViewModal(true);
+    };
+
+    // Save edited content
+    const handleSaveContent = async () => {
+        if (!viewingDoc) return;
+
+        setIsSaving(true);
+        try {
+            const { error } = await supabase
+                .from('documents')
+                .update({
+                    name: docTitle.trim() + (docTitle.includes('.') ? '' : '.txt'),
+                    content: docContent,
+                    file_size: new Blob([docContent]).size
+                })
+                .eq('id', viewingDoc.id);
+
+            if (error) throw error;
+
+            // Re-index for AI
+            // First delete old chunks
+            await supabase.from('document_chunks').delete().eq('document_id', viewingDoc.id);
+
+            // Then create new ones
+            const chunks = chunkText(docContent);
+            for (let i = 0; i < chunks.length; i++) {
+                try {
+                    const embedding = await generateEmbedding(chunks[i]);
+                    await supabase.from('document_chunks').insert({
+                        document_id: viewingDoc.id,
+                        content: chunks[i],
+                        embedding: embedding,
+                        chunk_index: i,
+                        metadata: { file_name: docTitle, chunk_of: chunks.length }
+                    });
+                } catch (e) {
+                    console.warn('Embedding error:', e);
+                }
+            }
+
+            setShowViewModal(false);
+            setViewingDoc(null);
+            if (onDocumentsUpdate) {
+                await onDocumentsUpdate();
+            }
+        } catch (error) {
+            console.error('Error saving document:', error);
+            alert('Error al guardar: ' + error.message);
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
     const getFileIcon = (fileType) => {
         if (!fileType) return <File size={24} />;
 
@@ -196,13 +319,22 @@ function DocumentsTab({ documents, projectId, onDocumentsUpdate }) {
                         {documents.length} documento{documents.length !== 1 ? 's' : ''} adjunto{documents.length !== 1 ? 's' : ''}
                     </p>
                 </div>
-                <button
-                    className="btn btn-primary"
-                    onClick={() => setShowUploadModal(true)}
-                >
-                    <Upload size={18} />
-                    Subir Documento
-                </button>
+                <div className="header-actions">
+                    <button
+                        className="btn btn-secondary"
+                        onClick={() => setShowCreateModal(true)}
+                    >
+                        <Plus size={18} />
+                        Crear Documento
+                    </button>
+                    <button
+                        className="btn btn-primary"
+                        onClick={() => setShowUploadModal(true)}
+                    >
+                        <Upload size={18} />
+                        Subir Archivo
+                    </button>
+                </div>
             </div>
 
             {documents.length === 0 ? (
@@ -210,15 +342,24 @@ function DocumentsTab({ documents, projectId, onDocumentsUpdate }) {
                     <FileText size={48} className="empty-icon" />
                     <h3>No hay documentos</h3>
                     <p className="text-secondary">
-                        Sube tu primer documento para comenzar.
+                        Crea un documento nuevo o sube un archivo.
                     </p>
-                    <button
-                        className="btn btn-primary mt-lg"
-                        onClick={() => setShowUploadModal(true)}
-                    >
-                        <Upload size={18} />
-                        Subir Documento
-                    </button>
+                    <div className="empty-actions">
+                        <button
+                            className="btn btn-secondary"
+                            onClick={() => setShowCreateModal(true)}
+                        >
+                            <Plus size={18} />
+                            Crear Documento
+                        </button>
+                        <button
+                            className="btn btn-primary"
+                            onClick={() => setShowUploadModal(true)}
+                        >
+                            <Upload size={18} />
+                            Subir Archivo
+                        </button>
+                    </div>
                 </div>
             ) : (
                 <div className="documents-list">
@@ -239,6 +380,15 @@ function DocumentsTab({ documents, projectId, onDocumentsUpdate }) {
                             </div>
 
                             <div className="doc-actions">
+                                {doc.content && (
+                                    <button
+                                        className="btn-icon"
+                                        title="Ver/Editar contenido"
+                                        onClick={() => handleViewDocument(doc)}
+                                    >
+                                        <Eye size={18} />
+                                    </button>
+                                )}
                                 <button
                                     className="btn-icon"
                                     title="Editar nombre"
@@ -377,6 +527,130 @@ function DocumentsTab({ documents, projectId, onDocumentsUpdate }) {
                                 disabled={!editName.trim()}
                             >
                                 Guardar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Create Document Modal */}
+            {showCreateModal && (
+                <div className="modal-overlay" onClick={() => !isSaving && setShowCreateModal(false)}>
+                    <div className="modal-content modal-large" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h3>Crear Documento</h3>
+                            <button
+                                className="btn-icon"
+                                onClick={() => setShowCreateModal(false)}
+                                disabled={isSaving}
+                            >
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        <div className="modal-body">
+                            <div className="form-group">
+                                <label>Título del documento</label>
+                                <input
+                                    type="text"
+                                    value={docTitle}
+                                    onChange={(e) => setDocTitle(e.target.value)}
+                                    placeholder="Ej: Notas de reunión, Especificaciones..."
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Contenido</label>
+                                <textarea
+                                    className="document-editor"
+                                    value={docContent}
+                                    onChange={(e) => setDocContent(e.target.value)}
+                                    placeholder="Escribe el contenido del documento aquí..."
+                                    rows={15}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="modal-footer">
+                            <button
+                                className="btn"
+                                onClick={() => {
+                                    setShowCreateModal(false);
+                                    setDocTitle('');
+                                    setDocContent('');
+                                }}
+                                disabled={isSaving}
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                className="btn btn-primary"
+                                onClick={handleCreateDocument}
+                                disabled={!docTitle.trim() || !docContent.trim() || isSaving}
+                            >
+                                {isSaving ? 'Guardando...' : 'Crear Documento'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* View/Edit Document Modal */}
+            {showViewModal && viewingDoc && (
+                <div className="modal-overlay" onClick={() => !isSaving && setShowViewModal(false)}>
+                    <div className="modal-content modal-large" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h3>Editar Documento</h3>
+                            <button
+                                className="btn-icon"
+                                onClick={() => {
+                                    setShowViewModal(false);
+                                    setViewingDoc(null);
+                                }}
+                                disabled={isSaving}
+                            >
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        <div className="modal-body">
+                            <div className="form-group">
+                                <label>Título</label>
+                                <input
+                                    type="text"
+                                    value={docTitle}
+                                    onChange={(e) => setDocTitle(e.target.value)}
+                                    placeholder="Título del documento"
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Contenido</label>
+                                <textarea
+                                    className="document-editor"
+                                    value={docContent}
+                                    onChange={(e) => setDocContent(e.target.value)}
+                                    placeholder="Contenido del documento..."
+                                    rows={15}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="modal-footer">
+                            <button
+                                className="btn"
+                                onClick={() => {
+                                    setShowViewModal(false);
+                                    setViewingDoc(null);
+                                }}
+                                disabled={isSaving}
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                className="btn btn-primary"
+                                onClick={handleSaveContent}
+                                disabled={!docTitle.trim() || isSaving}
+                            >
+                                {isSaving ? 'Guardando...' : 'Guardar Cambios'}
                             </button>
                         </div>
                     </div>
