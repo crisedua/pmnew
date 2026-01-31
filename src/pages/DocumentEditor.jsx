@@ -111,47 +111,85 @@ function DocumentEditor() {
         const textContent = editor.getText();
 
         try {
-            if (isNewDoc) {
-                // Create new document
-                const { data, error } = await supabase
-                    .from('documents')
-                    .insert({
-                        project_id: projectId,
-                        name: title.trim() + '.html',
-                        file_url: null,
-                        file_size: new Blob([content]).size,
-                        file_type: 'text/html',
-                        uploaded_by: 'Usuario Actual',
-                        content: content
-                    })
-                    .select()
-                    .single();
+            // Try saving with content column, fallback to file_url if column doesn't exist
+            const documentData = {
+                project_id: projectId,
+                name: title.trim() + '.html',
+                file_size: new Blob([content]).size,
+                file_type: 'text/html',
+            };
 
-                if (error) throw error;
+            // Try to include content column
+            try {
+                if (isNewDoc) {
+                    const { data, error } = await supabase
+                        .from('documents')
+                        .insert({
+                            ...documentData,
+                            content: content
+                        })
+                        .select()
+                        .single();
 
-                setDocument(data);
-                setIsNewDoc(false);
+                    if (error) {
+                        // If content column doesn't exist, save without it
+                        if (error.message.includes('content') || error.code === '42703') {
+                            const { data: fallbackData, error: fallbackError } = await supabase
+                                .from('documents')
+                                .insert({
+                                    ...documentData,
+                                    file_url: `data:text/html;base64,${btoa(unescape(encodeURIComponent(content)))}`
+                                })
+                                .select()
+                                .single();
 
-                // Update URL without reload
-                window.history.replaceState(null, '', `/document/${data.id}`);
+                            if (fallbackError) throw fallbackError;
+                            setDocument(fallbackData);
+                            setIsNewDoc(false);
+                            window.history.replaceState(null, '', `/document/${fallbackData.id}`);
+                            await indexDocument(fallbackData.id, textContent);
+                        } else {
+                            throw error;
+                        }
+                    } else {
+                        setDocument(data);
+                        setIsNewDoc(false);
+                        window.history.replaceState(null, '', `/document/${data.id}`);
+                        await indexDocument(data.id, textContent);
+                    }
+                } else {
+                    // Update existing document
+                    const { error } = await supabase
+                        .from('documents')
+                        .update({
+                            name: title.trim() + '.html',
+                            content: content,
+                            file_size: new Blob([content]).size
+                        })
+                        .eq('id', id);
 
-                // Index for AI
-                await indexDocument(data.id, textContent);
-            } else {
-                // Update existing document
-                const { error } = await supabase
-                    .from('documents')
-                    .update({
-                        name: title.trim() + '.html',
-                        content: content,
-                        file_size: new Blob([content]).size
-                    })
-                    .eq('id', id);
+                    if (error) {
+                        // Fallback without content column
+                        if (error.message.includes('content') || error.code === '42703') {
+                            const { error: fallbackError } = await supabase
+                                .from('documents')
+                                .update({
+                                    name: title.trim() + '.html',
+                                    file_url: `data:text/html;base64,${btoa(unescape(encodeURIComponent(content)))}`,
+                                    file_size: new Blob([content]).size
+                                })
+                                .eq('id', id);
 
-                if (error) throw error;
+                            if (fallbackError) throw fallbackError;
+                        } else {
+                            throw error;
+                        }
+                    }
 
-                // Re-index for AI
-                await indexDocument(id, textContent);
+                    await indexDocument(id, textContent);
+                }
+            } catch (dbError) {
+                throw dbError;
             }
 
             setLastSaved(new Date());
