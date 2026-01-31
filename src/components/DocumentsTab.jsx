@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FileText, Download, Trash2, Upload, X, File } from 'lucide-react';
+import { FileText, Download, Trash2, Upload, X, File, Pencil } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import './DocumentsTab.css';
 
@@ -8,6 +8,8 @@ function DocumentsTab({ documents, projectId, onDocumentsUpdate }) {
     const [showUploadModal, setShowUploadModal] = useState(false);
     const [selectedFile, setSelectedFile] = useState(null);
     const [uploadProgress, setUploadProgress] = useState(0);
+    const [editingDoc, setEditingDoc] = useState(null);
+    const [editName, setEditName] = useState('');
 
     const formatFileSize = (bytes) => {
         if (!bytes) return 'N/A';
@@ -133,6 +135,33 @@ function DocumentsTab({ documents, projectId, onDocumentsUpdate }) {
         }
     };
 
+    const handleEdit = (doc) => {
+        setEditingDoc(doc);
+        setEditName(doc.name);
+    };
+
+    const handleSaveEdit = async () => {
+        if (!editingDoc || !editName.trim()) return;
+
+        try {
+            const { error } = await supabase
+                .from('documents')
+                .update({ name: editName.trim() })
+                .eq('id', editingDoc.id);
+
+            if (error) throw error;
+
+            setEditingDoc(null);
+            setEditName('');
+            if (onDocumentsUpdate) {
+                await onDocumentsUpdate();
+            }
+        } catch (error) {
+            console.error('Error updating document:', error);
+            alert('Error al actualizar el documento: ' + error.message);
+        }
+    };
+
     const getFileIcon = (fileType) => {
         if (!fileType) return <File size={24} />;
 
@@ -196,6 +225,13 @@ function DocumentsTab({ documents, projectId, onDocumentsUpdate }) {
                             </div>
 
                             <div className="doc-actions">
+                                <button
+                                    className="btn-icon"
+                                    title="Editar nombre"
+                                    onClick={() => handleEdit(doc)}
+                                >
+                                    <Pencil size={18} />
+                                </button>
                                 <button
                                     className="btn-icon"
                                     title="Descargar"
@@ -282,6 +318,51 @@ function DocumentsTab({ documents, projectId, onDocumentsUpdate }) {
                                 disabled={!selectedFile || isUploading}
                             >
                                 {isUploading ? 'Subiendo...' : 'Subir'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Edit Modal */}
+            {editingDoc && (
+                <div className="modal-overlay" onClick={() => setEditingDoc(null)}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h3>Editar Documento</h3>
+                            <button
+                                className="btn-icon"
+                                onClick={() => setEditingDoc(null)}
+                            >
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        <div className="modal-body">
+                            <div className="form-group">
+                                <label>Nombre del documento</label>
+                                <input
+                                    type="text"
+                                    value={editName}
+                                    onChange={(e) => setEditName(e.target.value)}
+                                    placeholder="Nombre del documento"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="modal-footer">
+                            <button
+                                className="btn"
+                                onClick={() => setEditingDoc(null)}
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                className="btn btn-primary"
+                                onClick={handleSaveEdit}
+                                disabled={!editName.trim()}
+                            >
+                                Guardar
                             </button>
                         </div>
                     </div>
