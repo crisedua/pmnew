@@ -107,8 +107,14 @@ export function Register() {
 
             if (error) throw error;
 
-            alert('Registro exitoso! Por favor inicia sesión.');
-            navigate('/login');
+            if (data.session) {
+                // Email confirmation is disabled, user is logged in
+                navigate('/dashboard');
+            } else {
+                // Fallback if email confirmation is still enabled
+                alert('Registro exitoso! Por favor inicia sesión.');
+                navigate('/login');
+            }
         } catch (error) {
             setError(error.message);
         } finally {
