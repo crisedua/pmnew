@@ -122,3 +122,78 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* Invitations Section */
+.invitations-section {
+    margin-top: 2rem;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 1.5rem;
+}
+
+.invitations-section h3 {
+    font-size: 1.125rem;
+    color: #1f2937;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.invitations-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.invitation-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    background: #f9fafb;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    gap: 1rem;
+}
+
+.invite-info {
+    flex: 1;
+}
+
+.invite-email {
+    font-weight: 500;
+    color: #374151;
+}
+
+.invite-meta {
+    font-size: 0.85rem;
+    color: #6b7280;
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.25rem;
+}
+
+.invite-role {
+    text-transform: capitalize;
+    color: #6366f1;
+    background: #ede9fe;
+    padding: 0.125rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.invite-status {
+    font-size: 0.85rem;
+    font-style: italic;
+    color: #f59e0b;
+    background: #fef3c7;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+}
+
+.flex-between {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}

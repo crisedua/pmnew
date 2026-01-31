@@ -16,6 +16,7 @@ function ProjectDetail() {
     const [tasks, setTasks] = useState([]);
     const [documents, setDocuments] = useState([]);
     const [team, setTeam] = useState([]);
+    const [invitations, setInvitations] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -61,6 +62,19 @@ function ProjectDetail() {
 
             if (teamError) throw teamError;
             setTeam(teamData || []);
+
+            // Fetch invitations
+            const { data: invitesData, error: invitesError } = await supabase
+                .from('project_invitations')
+                .select('*')
+                .eq('project_id', id)
+                .order('created_at', { ascending: false });
+
+            if (invitesError) {
+                // Don't fail the whole page if invites fail (table might not exist yet)
+                console.warn('Error fetching invites (table might be missing):', invitesError);
+            }
+            setInvitations(invitesData || []);
 
         } catch (error) {
             console.error('Error fetching project data:', error);
@@ -165,7 +179,12 @@ function ProjectDetail() {
                         />
                     )}
                     {activeTab === 'equipo' && (
-                        <TeamTab team={team} />
+                        <TeamTab
+                            team={team}
+                            invitations={invitations}
+                            projectId={id}
+                            onUpdate={fetchProjectData}
+                        />
                     )}
                 </div>
             </main>
