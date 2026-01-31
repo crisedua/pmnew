@@ -19,7 +19,6 @@ function ProjectDetail() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        document.body.className = 'dark';
         fetchProjectData();
     }, [id]);
 

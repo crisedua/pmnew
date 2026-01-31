@@ -37,7 +37,6 @@ function Dashboard() {
     });
 
     useEffect(() => {
-        document.body.className = 'dark';
         checkUser();
     }, []);
 
