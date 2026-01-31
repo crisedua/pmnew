@@ -140,7 +140,7 @@ function Dashboard() {
             fetchAreas(); // Refresh list
         } catch (error) {
             console.error('Error creating area:', error);
-            alert('Error creating area');
+            alert('Error creating area: ' + (error.message || JSON.stringify(error)));
         } finally {
             setIsCreating(false);
         }
@@ -169,7 +169,7 @@ function Dashboard() {
             fetchProjects(selectedArea.id);
         } catch (error) {
             console.error('Error creating project:', error);
-            alert('Error creating project');
+            alert('Error creating project: ' + (error.message || JSON.stringify(error)));
         } finally {
             setIsCreating(false);
         }
