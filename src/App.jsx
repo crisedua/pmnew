@@ -5,6 +5,7 @@ import Landing from './pages/Landing';
 import Dashboard from './pages/Dashboard';
 import ProjectDetail from './pages/ProjectDetail';
 import DocumentEditor from './pages/DocumentEditor';
+import JoinProject from './pages/JoinProject';
 import { Login, Register } from './pages/Auth';
 
 function ProtectedRoute({ children }) {
@@ -58,6 +59,7 @@ function App() {
             <DocumentEditor />
           </ProtectedRoute>
         } />
+        <Route path="/join/:id" element={<JoinProject />} />
       </Routes>
     </Router>
   );

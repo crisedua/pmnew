@@ -1,0 +1,107 @@
+.join-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fc;
+    padding: 2rem;
+    color: #1f2937;
+}
+
+.join-card {
+    background: #ffffff;
+    padding: 3rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    max-width: 450px;
+    width: 100%;
+    text-align: center;
+    border: 1px solid #e5e7eb;
+}
+
+.join-card.error {
+    border-top: 5px solid #ef4444;
+}
+
+.project-icon {
+    width: 80px;
+    height: 80px;
+    background: #ede9fe;
+    color: #6366f1;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+}
+
+.join-card h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.invite-details {
+    margin-bottom: 2rem;
+}
+
+.invite-details p {
+    color: #6b7280;
+    margin-bottom: 0.75rem;
+}
+
+.project-box {
+    background: #f3f4f6;
+    padding: 1rem;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.project-name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.project-role {
+    font-size: 0.875rem;
+    color: #6366f1;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.auth-notice,
+.action-area {
+    margin-top: 2rem;
+}
+
+.auth-notice p,
+.action-area p {
+    margin-bottom: 1.5rem;
+    color: #4b5563;
+}
+
+.full-width {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1rem;
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+    color: #6366f1;
+    margin-bottom: 1rem;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}

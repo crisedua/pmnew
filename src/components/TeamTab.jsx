@@ -125,6 +125,17 @@ function TeamTab({ team = [], invitations = [], projectId, onUpdate }) {
                                 >
                                     <X size={18} />
                                 </button>
+                                <button
+                                    className="btn-icon"
+                                    title="Copiar enlace de invitación"
+                                    onClick={() => {
+                                        const url = `${window.location.origin}/join/${invite.id}`;
+                                        navigator.clipboard.writeText(url);
+                                        alert('Enlace copiado al portapapeles');
+                                    }}
+                                >
+                                    <Plus size={18} style={{ transform: 'rotate(45deg)' }} />
+                                </button>
                             </div>
                         ))}
                     </div>
