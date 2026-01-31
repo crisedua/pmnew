@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FileText, Download, Trash2, Upload, X, File, Pencil, Plus, Eye } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { processDocumentForKnowledgeBase, generateEmbedding, chunkText } from '../lib/knowledgeBase';
 import './DocumentsTab.css';
 
 function DocumentsTab({ documents, projectId, onDocumentsUpdate }) {
+    const navigate = useNavigate();
     const [isUploading, setIsUploading] = useState(false);
     const [showUploadModal, setShowUploadModal] = useState(false);
     const [selectedFile, setSelectedFile] = useState(null);
@@ -322,7 +324,7 @@ function DocumentsTab({ documents, projectId, onDocumentsUpdate }) {
                 <div className="header-actions">
                     <button
                         className="btn btn-secondary"
-                        onClick={() => setShowCreateModal(true)}
+                        onClick={() => navigate(`/document/new?projectId=${projectId}`)}
                     >
                         <Plus size={18} />
                         Crear Documento
@@ -347,7 +349,7 @@ function DocumentsTab({ documents, projectId, onDocumentsUpdate }) {
                     <div className="empty-actions">
                         <button
                             className="btn btn-secondary"
-                            onClick={() => setShowCreateModal(true)}
+                            onClick={() => navigate(`/document/new?projectId=${projectId}`)}
                         >
                             <Plus size={18} />
                             Crear Documento
@@ -383,8 +385,8 @@ function DocumentsTab({ documents, projectId, onDocumentsUpdate }) {
                                 {doc.content && (
                                     <button
                                         className="btn-icon"
-                                        title="Ver/Editar contenido"
-                                        onClick={() => handleViewDocument(doc)}
+                                        title="Editar documento"
+                                        onClick={() => navigate(`/document/${doc.id}`)}
                                     >
                                         <Eye size={18} />
                                     </button>

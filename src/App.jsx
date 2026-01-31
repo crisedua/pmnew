@@ -4,6 +4,7 @@ import { supabase } from './lib/supabase';
 import Landing from './pages/Landing';
 import Dashboard from './pages/Dashboard';
 import ProjectDetail from './pages/ProjectDetail';
+import DocumentEditor from './pages/DocumentEditor';
 import { Login, Register } from './pages/Auth';
 
 function ProtectedRoute({ children }) {
@@ -49,6 +50,12 @@ function App() {
         <Route path="/project/:id" element={
           <ProtectedRoute>
             <ProjectDetail />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/document/:id" element={
+          <ProtectedRoute>
+            <DocumentEditor />
           </ProtectedRoute>
         } />
       </Routes>
