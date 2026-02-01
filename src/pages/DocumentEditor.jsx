@@ -60,15 +60,18 @@ function DocumentEditor() {
 
     const autoSaveTimeout = React.useRef(null);
 
+    const [contentLoaded, setContentLoaded] = useState(false);
+
     useEffect(() => {
         checkUser();
         if (id === 'new') {
             setIsNewDoc(true);
             setTitle('Documento sin título');
-            // Get project ID from URL params
             const urlParams = new URLSearchParams(window.location.search);
             setProjectId(urlParams.get('projectId'));
+            setContentLoaded(true); // New docs are empty, so considered loaded
         } else {
+            setContentLoaded(false); // Reset for new doc load
             loadDocument();
             loadComments();
         }
@@ -79,6 +82,21 @@ function DocumentEditor() {
             }
         };
     }, [id]);
+
+    // Sync document content to editor when both are ready
+    useEffect(() => {
+        if (editor && document && !contentLoaded) {
+            if (document.content) {
+                // Check if content is HTML or plain text
+                if (document.content.startsWith('<')) {
+                    editor.commands.setContent(document.content);
+                } else {
+                    editor.commands.setContent(`<p>${document.content.replace(/\n/g, '</p><p>')}</p>`);
+                }
+            }
+            setContentLoaded(true);
+        }
+    }, [editor, document, contentLoaded]);
 
     const checkUser = async () => {
         const { data: { user } } = await supabase.auth.getUser();
@@ -152,15 +170,7 @@ function DocumentEditor() {
             setDocument(data);
             setTitle(data.name.replace(/\.[^/.]+$/, ''));
             setProjectId(data.project_id);
-
-            if (editor && data.content) {
-                // Check if content is HTML or plain text
-                if (data.content.startsWith('<')) {
-                    editor.commands.setContent(data.content);
-                } else {
-                    editor.commands.setContent(`<p>${data.content.replace(/\n/g, '</p><p>')}</p>`);
-                }
-            }
+            // Content setting moved to useEffect
         } catch (error) {
             console.error('Error loading document:', error);
             alert('Error al cargar el documento');
@@ -178,12 +188,12 @@ function DocumentEditor() {
         const content = editor.getHTML();
         const textContent = editor.getText();
 
-        console.log('Saving document...', { 
-            isNewDoc, 
-            projectId, 
-            title, 
+        console.log('Saving document...', {
+            isNewDoc,
+            projectId,
+            title,
             contentLength: content.length,
-            documentId: document?.id || id 
+            documentId: document?.id || id
         });
 
         try {
@@ -213,9 +223,9 @@ function DocumentEditor() {
                 setIsNewDoc(false);
                 // Update URL without page reload
                 window.history.replaceState(null, '', `/document/${data.id}?projectId=${projectId}`);
-                
+
                 // Index in background without blocking
-                indexDocument(data.id, textContent).catch(e => 
+                indexDocument(data.id, textContent).catch(e =>
                     console.warn('Background indexing failed:', e)
                 );
             } else {
@@ -233,11 +243,11 @@ function DocumentEditor() {
                     console.error('Update error:', error);
                     throw error;
                 }
-                
+
                 console.log('Document updated successfully');
-                
+
                 // Index in background without blocking
-                indexDocument(document?.id || id, textContent).catch(e => 
+                indexDocument(document?.id || id, textContent).catch(e =>
                     console.warn('Background indexing failed:', e)
                 );
             }
