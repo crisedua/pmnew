@@ -616,9 +616,10 @@ function Dashboard() {
             )}
 
             {/* AI Assistant */}
-            {selectedArea && (
+            {selectedArea && user && (
                 <AIAssistant
                     areaId={selectedArea.id}
+                    userId={user.id}
                     projects={projects}
                     tasks={allTasks}
                     documents={[]}

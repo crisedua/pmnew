@@ -6,6 +6,7 @@ import ProjectSummary from '../components/ProjectSummary';
 import TasksView from '../components/TasksView';
 import DocumentsTab from '../components/DocumentsTab';
 import TeamTab from '../components/TeamTab';
+import AIAssistant from '../components/AIAssistant';
 import './ProjectDetail.css';
 
 function ProjectDetail() {
@@ -17,11 +18,18 @@ function ProjectDetail() {
     const [documents, setDocuments] = useState([]);
     const [team, setTeam] = useState([]);
     const [invitations, setInvitations] = useState([]);
+    const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        checkUser();
         fetchProjectData();
     }, [id]);
+
+    const checkUser = async () => {
+        const { data: { user } } = await supabase.auth.getUser();
+        setUser(user);
+    };
 
     const fetchProjectData = async () => {
         try {
@@ -205,6 +213,18 @@ function ProjectDetail() {
                     )}
                 </div>
             </main>
+
+            {/* AI Assistant */}
+            {project && user && (
+                <AIAssistant
+                    areaId={project.area_id}
+                    userId={user.id}
+                    projects={[project]}
+                    tasks={tasks}
+                    documents={documents}
+                    onAction={fetchProjectData}
+                />
+            )}
         </div>
     );
 }

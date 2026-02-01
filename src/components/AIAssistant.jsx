@@ -1,22 +1,97 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MessageSquare, Send, X, Sparkles, Bot, FileText, Plus, Search } from 'lucide-react';
+import { MessageSquare, Send, X, Sparkles, Bot, FileText, Plus, Search, Mic, MicOff } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { callOpenAI } from '../lib/openai';
 import { searchKnowledgeBase } from '../lib/knowledgeBase';
 import './AIAssistant.css';
 
-function AIAssistant({ areaId, projects = [], tasks = [], documents = [], onAction }) {
+function AIAssistant({ areaId, projects = [], tasks = [], documents = [], onAction, userId = null }) {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([
         {
             role: 'assistant',
-            content: 'Hola 👋 Soy tu asistente de proyecto con AI. Puedo ayudarte a crear tareas, analizar documentos, y responder preguntas sobre tu información. ¿Qué necesitas?'
+            content: 'Hola 👋 Soy tu asistente de proyecto con AI. Puedo ayudarte a crear tareas, analizar documentos, responder preguntas sobre tus proyectos y áreas, y mucho más. ¿Qué necesitas?'
         }
     ]);
     const [inputValue, setInputValue] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
+    const [userAreas, setUserAreas] = useState([]);
+    const [isListening, setIsListening] = useState(false);
     const messagesEndRef = useRef(null);
     const conversationHistory = useRef([]);
+    const recognitionRef = useRef(null);
+
+    // Fetch user's areas on mount
+    useEffect(() => {
+        if (userId) {
+            fetchUserAreas();
+        }
+    }, [userId]);
+
+    // Initialize speech recognition
+    useEffect(() => {
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognitionRef.current = new SpeechRecognition();
+            recognitionRef.current.continuous = false;
+            recognitionRef.current.interimResults = false;
+            recognitionRef.current.lang = 'es-ES'; // Spanish
+
+            recognitionRef.current.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                setInputValue(transcript);
+                setIsListening(false);
+            };
+
+            recognitionRef.current.onerror = (event) => {
+                console.error('Speech recognition error:', event.error);
+                setIsListening(false);
+            };
+
+            recognitionRef.current.onend = () => {
+                setIsListening(false);
+            };
+        }
+
+        return () => {
+            if (recognitionRef.current) {
+                recognitionRef.current.stop();
+            }
+        };
+    }, []);
+
+    const fetchUserAreas = async () => {
+        try {
+            const { data, error } = await supabase
+                .from('area_members')
+                .select('area_id, areas(id, name, description)')
+                .eq('user_id', userId);
+
+            if (error) throw error;
+            setUserAreas(data?.map(am => am.areas) || []);
+        } catch (error) {
+            console.error('Error fetching user areas:', error);
+        }
+    };
+
+    const toggleVoiceInput = () => {
+        if (!recognitionRef.current) {
+            alert('Tu navegador no soporta reconocimiento de voz. Intenta con Chrome o Edge.');
+            return;
+        }
+
+        if (isListening) {
+            recognitionRef.current.stop();
+            setIsListening(false);
+        } else {
+            try {
+                recognitionRef.current.start();
+                setIsListening(true);
+            } catch (error) {
+                console.error('Error starting speech recognition:', error);
+            }
+        }
+    };
 
     useEffect(() => {
         scrollToBottom();
@@ -62,10 +137,49 @@ function AIAssistant({ areaId, projects = [], tasks = [], documents = [], onActi
             type: 'function',
             function: {
                 name: 'get_pending_tasks',
-                description: 'Get list of pending/incomplete tasks',
+                description: 'Get list of pending/incomplete tasks across all projects or a specific project',
                 parameters: {
                     type: 'object',
-                    properties: {},
+                    properties: {
+                        project_name: {
+                            type: 'string',
+                            description: 'Optional: filter by project name'
+                        }
+                    },
+                    required: []
+                }
+            }
+        },
+        {
+            type: 'function',
+            function: {
+                name: 'get_project_summary',
+                description: 'Get summary and statistics for a specific project or all projects',
+                parameters: {
+                    type: 'object',
+                    properties: {
+                        project_name: {
+                            type: 'string',
+                            description: 'Optional: specific project name to get details for'
+                        }
+                    },
+                    required: []
+                }
+            }
+        },
+        {
+            type: 'function',
+            function: {
+                name: 'get_area_info',
+                description: 'Get information about user areas, including projects and members',
+                parameters: {
+                    type: 'object',
+                    properties: {
+                        area_name: {
+                            type: 'string',
+                            description: 'Optional: specific area name'
+                        }
+                    },
                     required: []
                 }
             }
@@ -74,13 +188,17 @@ function AIAssistant({ areaId, projects = [], tasks = [], documents = [], onActi
             type: 'function',
             function: {
                 name: 'search_documents',
-                description: 'Search through document contents using AI knowledge base. Use this to answer questions about document content, find specific information, or analyze documents.',
+                description: 'Search through document contents using AI knowledge base across all areas the user has access to. Use this to answer questions about document content, find specific information, or analyze documents.',
                 parameters: {
                     type: 'object',
                     properties: {
                         query: {
                             type: 'string',
                             description: 'The search query or question about document contents'
+                        },
+                        area_name: {
+                            type: 'string',
+                            description: 'Optional: limit search to specific area'
                         }
                     },
                     required: ['query']
@@ -90,17 +208,17 @@ function AIAssistant({ areaId, projects = [], tasks = [], documents = [], onActi
         {
             type: 'function',
             function: {
-                name: 'analyze_document',
-                description: 'Get metadata and basic information about a specific document',
+                name: 'list_documents',
+                description: 'List all documents available in projects, optionally filtered by project or area',
                 parameters: {
                     type: 'object',
                     properties: {
-                        document_name: {
+                        project_name: {
                             type: 'string',
-                            description: 'Name of the document to analyze'
+                            description: 'Optional: filter by project name'
                         }
                     },
-                    required: ['document_name']
+                    required: []
                 }
             }
         }
@@ -144,22 +262,139 @@ function AIAssistant({ areaId, projects = [], tasks = [], documents = [], onActi
                 }
 
                 case 'get_pending_tasks': {
-                    const pendingTasks = tasks.filter(t => t.status !== 'Complete');
+                    const { project_name } = args;
+                    let filteredTasks = tasks.filter(t => t.status !== 'Complete');
+
+                    if (project_name) {
+                        const project = projects.find(p =>
+                            p.name.toLowerCase().includes(project_name.toLowerCase())
+                        );
+                        if (project) {
+                            filteredTasks = filteredTasks.filter(t => t.project_id === project.id);
+                        }
+                    }
+
                     return {
                         success: true,
-                        tasks: pendingTasks.map(t => ({
+                        total: filteredTasks.length,
+                        tasks: filteredTasks.map(t => ({
                             title: t.title,
                             priority: t.priority,
-                            status: t.status
+                            status: t.status,
+                            project: projects.find(p => p.id === t.project_id)?.name || 'Unknown'
                         }))
                     };
                 }
 
-                case 'search_documents': {
-                    const { query } = args;
+                case 'get_project_summary': {
+                    const { project_name } = args;
 
-                    // Search the knowledge base
-                    const results = await searchKnowledgeBase(supabase, query, areaId, 5);
+                    if (project_name) {
+                        const project = projects.find(p =>
+                            p.name.toLowerCase().includes(project_name.toLowerCase())
+                        );
+
+                        if (!project) {
+                            return { success: false, message: 'Proyecto no encontrado.' };
+                        }
+
+                        const projectTasks = tasks.filter(t => t.project_id === project.id);
+                        const completed = projectTasks.filter(t => t.status === 'Complete').length;
+                        const inProgress = projectTasks.filter(t => t.status === 'In Progress').length;
+                        const todo = projectTasks.filter(t => t.status === 'To Do').length;
+
+                        return {
+                            success: true,
+                            project: {
+                                name: project.name,
+                                status: project.status,
+                                description: project.description,
+                                tasks: {
+                                    total: projectTasks.length,
+                                    completed,
+                                    inProgress,
+                                    todo
+                                },
+                                progress: projectTasks.length > 0 
+                                    ? Math.round((completed / projectTasks.length) * 100) 
+                                    : 0
+                            }
+                        };
+                    } else {
+                        // Summary of all projects
+                        const summary = projects.map(p => {
+                            const projectTasks = tasks.filter(t => t.project_id === p.id);
+                            const completed = projectTasks.filter(t => t.status === 'Complete').length;
+                            return {
+                                name: p.name,
+                                status: p.status,
+                                totalTasks: projectTasks.length,
+                                completed,
+                                progress: projectTasks.length > 0 
+                                    ? Math.round((completed / projectTasks.length) * 100) 
+                                    : 0
+                            };
+                        });
+
+                        return {
+                            success: true,
+                            totalProjects: projects.length,
+                            projects: summary
+                        };
+                    }
+                }
+
+                case 'get_area_info': {
+                    const { area_name } = args;
+
+                    if (area_name) {
+                        const area = userAreas.find(a =>
+                            a.name.toLowerCase().includes(area_name.toLowerCase())
+                        );
+
+                        if (!area) {
+                            return { success: false, message: 'Área no encontrada.' };
+                        }
+
+                        // Get projects in this area
+                        const areaProjects = projects.filter(p => p.area_id === area.id);
+
+                        return {
+                            success: true,
+                            area: {
+                                name: area.name,
+                                description: area.description,
+                                projectCount: areaProjects.length,
+                                projects: areaProjects.map(p => p.name)
+                            }
+                        };
+                    } else {
+                        // List all areas
+                        return {
+                            success: true,
+                            totalAreas: userAreas.length,
+                            areas: userAreas.map(a => ({
+                                name: a.name,
+                                description: a.description
+                            }))
+                        };
+                    }
+                }
+
+                case 'search_documents': {
+                    const { query, area_name } = args;
+
+                    // Determine which area to search
+                    let searchAreaId = areaId;
+                    if (area_name) {
+                        const area = userAreas.find(a =>
+                            a.name.toLowerCase().includes(area_name.toLowerCase())
+                        );
+                        if (area) searchAreaId = area.id;
+                    }
+
+                    // Search the knowledge base (searches across all user's areas if no area specified)
+                    const results = await searchKnowledgeBase(supabase, query, searchAreaId, 5);
 
                     if (results.length === 0) {
                         return {
@@ -181,24 +416,37 @@ function AIAssistant({ areaId, projects = [], tasks = [], documents = [], onActi
                     };
                 }
 
-                case 'analyze_document': {
-                    const { document_name } = args;
-                    const doc = documents.find(d =>
-                        d.name.toLowerCase().includes(document_name.toLowerCase())
-                    );
+                case 'list_documents': {
+                    const { project_name } = args;
 
-                    if (!doc) {
-                        return { success: false, message: 'Documento no encontrado.' };
+                    // Fetch all documents from user's areas
+                    let query = supabase
+                        .from('documents')
+                        .select('*, projects(name, area_id)')
+                        .in('projects.area_id', userAreas.map(a => a.id));
+
+                    if (project_name) {
+                        const project = projects.find(p =>
+                            p.name.toLowerCase().includes(project_name.toLowerCase())
+                        );
+                        if (project) {
+                            query = query.eq('project_id', project.id);
+                        }
                     }
+
+                    const { data: docs, error } = await query;
+
+                    if (error) throw error;
 
                     return {
                         success: true,
-                        document: {
-                            name: doc.name,
-                            type: doc.file_type,
-                            size: doc.file_size,
-                            uploaded_by: doc.uploaded_by
-                        }
+                        total: docs?.length || 0,
+                        documents: docs?.map(d => ({
+                            name: d.name,
+                            type: d.file_type,
+                            project: d.projects?.name,
+                            size: d.file_size ? `${Math.round(d.file_size / 1024)} KB` : 'N/A'
+                        })) || []
                     };
                 }
 
@@ -226,22 +474,26 @@ function AIAssistant({ areaId, projects = [], tasks = [], documents = [], onActi
                 role: 'system',
                 content: `Eres un asistente de gestión de proyectos con acceso a una base de conocimiento de documentos. Tienes acceso a:
 
+ÁREAS DEL USUARIO (${userAreas.length}):
+${userAreas.map(a => `- ${a.name}: ${a.description || 'Sin descripción'}`).join('\n')}
+
 PROYECTOS (${projects.length}):
 ${projects.map(p => `- ${p.name} (${p.status})`).join('\n')}
 
 TAREAS (${tasks.length}):
 ${tasks.slice(0, 10).map(t => `- ${t.title} [${t.status}] (${t.priority})`).join('\n')}
-
-DOCUMENTOS (${documents.length}):
-${documents.map(d => `- ${d.name}`).join('\n')}
+${tasks.length > 10 ? `... y ${tasks.length - 10} tareas más` : ''}
 
 CAPACIDADES:
-- Crear tareas con prioridades
-- Ver tareas pendientes
-- BUSCAR EN DOCUMENTOS: Usa search_documents para buscar información dentro del contenido de los documentos subidos
-- Analizar metadatos de documentos
+- Crear tareas con prioridades en cualquier proyecto
+- Ver tareas pendientes por proyecto o en general
+- Obtener resúmenes de proyectos con estadísticas
+- Ver información de áreas y sus proyectos
+- BUSCAR EN DOCUMENTOS: Usa search_documents para buscar información dentro del contenido de los documentos subidos en todas las áreas del usuario
+- Listar documentos disponibles por proyecto o área
 
 Cuando el usuario pregunte sobre el contenido de documentos, usa search_documents para buscar en la base de conocimiento.
+Puedes buscar en documentos de todas las áreas a las que el usuario tiene acceso.
 Responde en español de manera profesional y concisa.`
             };
 
@@ -350,36 +602,39 @@ Responde en español de manera profesional y concisa.`
                     <div ref={messagesEndRef} />
                 </div>
 
-                {/* Suggested Actions */}
-                {messages.length < 3 && (
-                    <div className="ai-suggestions">
-                        <button onClick={() => setInputValue('¿Qué tareas tengo pendientes?')}>
-                            📋 ¿Qué está pendiente?
-                        </button>
-                        <button onClick={() => setInputValue('Crear tarea: Revisar presupuesto')}>
-                            <Plus size={12} /> Crear tarea
-                        </button>
-                        {documents.length > 0 && (
-                            <>
-                                <button onClick={() => setInputValue('¿Qué dicen los documentos sobre el presupuesto?')}>
-                                    <Search size={12} /> Buscar en docs
-                                </button>
-                                <button onClick={() => setInputValue(`Analizar ${documents[0].name}`)}>
-                                    <FileText size={12} /> Ver documento
-                                </button>
-                            </>
-                        )}
-                    </div>
-                )}
+                {/* Suggested Actions - Always visible when assistant is open */}
+                <div className="ai-suggestions">
+                    <button onClick={() => setInputValue('¿Qué tareas tengo pendientes?')}>
+                        📋 ¿Qué está pendiente?
+                    </button>
+                    <button onClick={() => setInputValue('Dame un resumen de todos mis proyectos')}>
+                        📊 Resumen de proyectos
+                    </button>
+                    <button onClick={() => setInputValue('¿En qué áreas estoy trabajando?')}>
+                        🏢 Mis áreas
+                    </button>
+                    <button onClick={() => setInputValue('Busca información sobre presupuesto en los documentos')}>
+                        <Search size={12} /> Buscar en docs
+                    </button>
+                </div>
 
                 <form className="ai-input-area" onSubmit={handleSend}>
                     <input
                         type="text"
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value)}
-                        placeholder="Escribe una pregunta o comando..."
+                        placeholder={isListening ? "Escuchando..." : "Escribe o habla tu pregunta..."}
                         autoFocus
+                        disabled={isListening}
                     />
+                    <button 
+                        type="button"
+                        className={`btn-voice ${isListening ? 'listening' : ''}`}
+                        onClick={toggleVoiceInput}
+                        title={isListening ? "Detener grabación" : "Usar voz"}
+                    >
+                        {isListening ? <MicOff size={18} /> : <Mic size={18} />}
+                    </button>
                     <button type="submit" disabled={!inputValue.trim() || isProcessing}>
                         <Send size={18} />
                     </button>

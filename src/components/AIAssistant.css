@@ -215,12 +215,40 @@
     justify-content: center;
     cursor: pointer;
     transition: var(--transition);
+    flex-shrink: 0;
 }
 
 .ai-input-area button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
     background: rgba(255, 255, 255, 0.1);
+}
+
+.ai-input-area .btn-voice {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ai-input-area .btn-voice:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--primary-blue);
+}
+
+.ai-input-area .btn-voice.listening {
+    background: #ef4444;
+    border-color: #ef4444;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.8;
+        transform: scale(1.05);
+    }
 }
 
 @keyframes fadeIn {
