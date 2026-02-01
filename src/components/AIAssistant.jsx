@@ -469,19 +469,32 @@ function AIAssistant({ areaId, projects = [], tasks = [], documents = [], onActi
         setIsProcessing(true);
 
         try {
+            // Build context for the AI - handle empty arrays safely
+            const areasText = userAreas.length > 0 
+                ? userAreas.map(a => `- ${a?.name || 'Sin nombre'}: ${a?.description || 'Sin descripción'}`).join('\n')
+                : '- Ninguna área disponible';
+            
+            const projectsText = projects.length > 0
+                ? projects.map(p => `- ${p?.name || 'Sin nombre'} (${p?.status || 'Sin estado'})`).join('\n')
+                : '- Ningún proyecto disponible';
+            
+            const tasksText = tasks.length > 0
+                ? tasks.slice(0, 10).map(t => `- ${t?.title || 'Sin título'} [${t?.status || 'Sin estado'}] (${t?.priority || 'Sin prioridad'})`).join('\n')
+                : '- Ninguna tarea disponible';
+
             // Build context for the AI
             const systemMessage = {
                 role: 'system',
                 content: `Eres un asistente de gestión de proyectos con acceso a una base de conocimiento de documentos. Tienes acceso a:
 
 ÁREAS DEL USUARIO (${userAreas.length}):
-${userAreas.map(a => `- ${a.name}: ${a.description || 'Sin descripción'}`).join('\n')}
+${areasText}
 
 PROYECTOS (${projects.length}):
-${projects.map(p => `- ${p.name} (${p.status})`).join('\n')}
+${projectsText}
 
 TAREAS (${tasks.length}):
-${tasks.slice(0, 10).map(t => `- ${t.title} [${t.status}] (${t.priority})`).join('\n')}
+${tasksText}
 ${tasks.length > 10 ? `... y ${tasks.length - 10} tareas más` : ''}
 
 CAPACIDADES:
@@ -504,6 +517,12 @@ Responde en español de manera profesional y concisa.`
                 systemMessage,
                 ...conversationHistory.current
             ];
+
+            console.log('Sending to OpenAI:', { 
+                messageCount: aiMessages.length,
+                hasTools: !!tools,
+                systemMessageLength: systemMessage.content.length 
+            });
 
             // Call OpenAI
             const response = await callOpenAI(aiMessages, tools);
@@ -551,9 +570,25 @@ Responde en español de manera profesional y concisa.`
 
         } catch (error) {
             console.error('Error processing message:', error);
+            
+            let errorMessage = 'Lo siento, tuve un problema procesando tu mensaje.';
+            
+            // Check for specific error types
+            if (error.message.includes('API key not configured')) {
+                errorMessage = '⚠️ La clave de OpenAI no está configurada. Por favor, agrega VITE_OPENAI_API_KEY a tu archivo .env';
+            } else if (error.message.includes('401')) {
+                errorMessage = '⚠️ Clave de API de OpenAI inválida. Verifica tu VITE_OPENAI_API_KEY en el archivo .env';
+            } else if (error.message.includes('400')) {
+                errorMessage = '⚠️ Error en la solicitud a OpenAI. Verifica que tu clave API sea válida y tenga los permisos necesarios.';
+            } else if (error.message.includes('429')) {
+                errorMessage = '⚠️ Has excedido el límite de solicitudes. Intenta de nuevo en unos momentos.';
+            } else if (error.message.includes('500') || error.message.includes('503')) {
+                errorMessage = '⚠️ OpenAI está experimentando problemas. Intenta de nuevo en unos momentos.';
+            }
+            
             setMessages(prev => [...prev, {
                 role: 'assistant',
-                content: 'Lo siento, tuve un problema procesando tu mensaje. ¿Puedes intentar de nuevo?'
+                content: errorMessage + '\n\n¿Puedes intentar de nuevo?'
             }]);
         } finally {
             setIsProcessing(false);
