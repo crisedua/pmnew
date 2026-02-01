@@ -10,7 +10,7 @@ import {
     ArrowLeft, Save, Bold, Italic, Underline as UnderlineIcon,
     Strikethrough, AlignLeft, AlignCenter, AlignRight, AlignJustify,
     List, ListOrdered, Quote, Heading1, Heading2, Heading3,
-    Highlighter, Undo, Redo, FileText, Check
+    Highlighter, Undo, Redo, FileText, Check, MessageSquare, Send, Trash2
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { generateEmbedding, chunkText } from '../lib/knowledgeBase';
@@ -25,6 +25,10 @@ function DocumentEditor() {
     const [lastSaved, setLastSaved] = useState(null);
     const [isNewDoc, setIsNewDoc] = useState(false);
     const [projectId, setProjectId] = useState(null);
+    const [showComments, setShowComments] = useState(false);
+    const [comments, setComments] = useState([]);
+    const [newComment, setNewComment] = useState('');
+    const [user, setUser] = useState(null);
 
     const editor = useEditor({
         extensions: [
@@ -57,6 +61,7 @@ function DocumentEditor() {
     const autoSaveTimeout = React.useRef(null);
 
     useEffect(() => {
+        checkUser();
         if (id === 'new') {
             setIsNewDoc(true);
             setTitle('Documento sin título');
@@ -65,6 +70,7 @@ function DocumentEditor() {
             setProjectId(urlParams.get('projectId'));
         } else {
             loadDocument();
+            loadComments();
         }
 
         return () => {
@@ -73,6 +79,65 @@ function DocumentEditor() {
             }
         };
     }, [id]);
+
+    const checkUser = async () => {
+        const { data: { user } } = await supabase.auth.getUser();
+        setUser(user);
+    };
+
+    const loadComments = async () => {
+        try {
+            const { data, error } = await supabase
+                .from('document_comments')
+                .select('*, profiles(full_name, email)')
+                .eq('document_id', id)
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+            setComments(data || []);
+        } catch (error) {
+            console.error('Error loading comments:', error);
+        }
+    };
+
+    const handleAddComment = async () => {
+        if (!newComment.trim() || !user) return;
+
+        try {
+            const { error } = await supabase
+                .from('document_comments')
+                .insert({
+                    document_id: id,
+                    user_id: user.id,
+                    content: newComment.trim()
+                });
+
+            if (error) throw error;
+
+            setNewComment('');
+            loadComments();
+        } catch (error) {
+            console.error('Error adding comment:', error);
+            alert('Error al agregar comentario: ' + error.message);
+        }
+    };
+
+    const handleDeleteComment = async (commentId) => {
+        if (!confirm('¿Eliminar este comentario?')) return;
+
+        try {
+            const { error } = await supabase
+                .from('document_comments')
+                .delete()
+                .eq('id', commentId);
+
+            if (error) throw error;
+            loadComments();
+        } catch (error) {
+            console.error('Error deleting comment:', error);
+            alert('Error al eliminar comentario');
+        }
+    };
 
     const loadDocument = async () => {
         try {
@@ -268,6 +333,14 @@ function DocumentEditor() {
                         </span>
                     )}
                     <button
+                        className="btn btn-secondary"
+                        onClick={() => setShowComments(!showComments)}
+                        title="Comentarios"
+                    >
+                        <MessageSquare size={18} />
+                        {comments.length > 0 && <span className="comment-badge">{comments.length}</span>}
+                    </button>
+                    <button
                         className="btn btn-primary"
                         onClick={() => handleSave(true)}
                         disabled={isSaving}
@@ -430,6 +503,76 @@ function DocumentEditor() {
                 <div className="editor-paper">
                     <EditorContent editor={editor} />
                 </div>
+
+                {/* Comments Sidebar */}
+                {showComments && !isNewDoc && (
+                    <div className="comments-sidebar">
+                        <div className="comments-header">
+                            <h3>Comentarios</h3>
+                            <button className="btn-icon" onClick={() => setShowComments(false)}>
+                                ×
+                            </button>
+                        </div>
+
+                        <div className="comments-list">
+                            {comments.map(comment => (
+                                <div key={comment.id} className="comment-item">
+                                    <div className="comment-header">
+                                        <div className="comment-author">
+                                            <div className="author-avatar">
+                                                {(comment.profiles?.full_name || comment.profiles?.email || 'U')[0].toUpperCase()}
+                                            </div>
+                                            <div className="author-info">
+                                                <strong>{comment.profiles?.full_name || comment.profiles?.email || 'Usuario'}</strong>
+                                                <span className="comment-time">
+                                                    {new Date(comment.created_at).toLocaleString('es', {
+                                                        day: 'numeric',
+                                                        month: 'short',
+                                                        hour: '2-digit',
+                                                        minute: '2-digit'
+                                                    })}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        {user && comment.user_id === user.id && (
+                                            <button
+                                                className="btn-icon-sm"
+                                                onClick={() => handleDeleteComment(comment.id)}
+                                                title="Eliminar"
+                                            >
+                                                <Trash2 size={14} />
+                                            </button>
+                                        )}
+                                    </div>
+                                    <p className="comment-content">{comment.content}</p>
+                                </div>
+                            ))}
+                            {comments.length === 0 && (
+                                <div className="empty-comments">
+                                    <MessageSquare size={48} />
+                                    <p>No hay comentarios aún</p>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="comment-input-area">
+                            <textarea
+                                value={newComment}
+                                onChange={(e) => setNewComment(e.target.value)}
+                                placeholder="Escribe un comentario..."
+                                rows="3"
+                            />
+                            <button
+                                className="btn btn-primary"
+                                onClick={handleAddComment}
+                                disabled={!newComment.trim()}
+                            >
+                                <Send size={16} />
+                                Comentar
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );
