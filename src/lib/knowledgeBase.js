@@ -1,23 +1,23 @@
 // AI Knowledge Base - Embedding and Search Utilities
 const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
 
-// Generate embeddings using OpenAI
+// Generate embeddings using OpenAI (via Vercel Serverless Function)
 export async function generateEmbedding(text) {
     try {
-        const response = await fetch('https://api.openai.com/v1/embeddings', {
+        // Use the server-side API route to protect the API key
+        const response = await fetch('/api/embeddings', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${OPENAI_API_KEY}`,
             },
             body: JSON.stringify({
-                model: 'text-embedding-3-small',
                 input: text.slice(0, 8000), // Limit input size
             }),
         });
 
         if (!response.ok) {
-            throw new Error(`Embedding API error: ${response.status}`);
+            const error = await response.json().catch(() => ({}));
+            throw new Error(`Embedding API error: ${response.status} - ${error.error?.message || error.error || 'Unknown error'}`);
         }
 
         const data = await response.json();
