@@ -1,33 +1,31 @@
--- AI Knowledge Base - Vector Search Setup
--- Run this in your Supabase SQL Editor
+-- 1. Optimize memory for this session (Fixes the 54000 error)
+SET maintenance_work_mem = '128MB';
 
--- 1. Enable the pgvector extension
+-- 2. Enable pgvector
 CREATE EXTENSION IF NOT EXISTS vector;
 
--- 1.5. Add content column to documents table for online editing
-ALTER TABLE documents ADD COLUMN IF NOT EXISTS content TEXT;
-
--- 2. Create document chunks table for storing embeddings
+-- 3. Create chunks table if it doesn't exist
 CREATE TABLE IF NOT EXISTS document_chunks (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     document_id UUID REFERENCES documents(id) ON DELETE CASCADE,
     content TEXT NOT NULL,
-    embedding vector(1536), -- OpenAI text-embedding-3-small dimension
+    embedding vector(1536),
     chunk_index INTEGER,
     metadata JSONB,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 3. Create index for fast similarity search
-CREATE INDEX IF NOT EXISTS document_chunks_embedding_idx 
+-- 4. Update Index (Now with enough memory)
+DROP INDEX IF EXISTS document_chunks_embedding_idx;
+CREATE INDEX document_chunks_embedding_idx 
 ON document_chunks 
 USING ivfflat (embedding vector_cosine_ops)
 WITH (lists = 100);
 
--- 4. Create similarity search function
+-- 5. Search Function
 CREATE OR REPLACE FUNCTION match_document_chunks(
     query_embedding vector(1536),
-    match_threshold float DEFAULT 0.7,
+    match_threshold float DEFAULT 0.5,
     match_count int DEFAULT 5,
     filter_area_id uuid DEFAULT NULL
 )
@@ -59,17 +57,13 @@ BEGIN
 END;
 $$;
 
--- 5. RLS for document_chunks
+-- 6. Safe Policy Creation
 ALTER TABLE document_chunks ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Users can view document chunks" ON document_chunks
-FOR SELECT TO authenticated
-USING (true);
+DROP POLICY IF EXISTS "Users can view document chunks" ON document_chunks;
+DROP POLICY IF EXISTS "Users can insert document chunks" ON document_chunks;
+DROP POLICY IF EXISTS "Users can delete document chunks" ON document_chunks;
 
-CREATE POLICY "Users can insert document chunks" ON document_chunks
-FOR INSERT TO authenticated
-WITH CHECK (true);
-
-CREATE POLICY "Users can delete document chunks" ON document_chunks
-FOR DELETE TO authenticated
-USING (true);
+CREATE POLICY "Users can view document chunks" ON document_chunks FOR SELECT TO authenticated USING (true);
+CREATE POLICY "Users can insert document chunks" ON document_chunks FOR INSERT TO authenticated WITH CHECK (true);
+CREATE POLICY "Users can delete document chunks" ON document_chunks FOR DELETE TO authenticated USING (true);
