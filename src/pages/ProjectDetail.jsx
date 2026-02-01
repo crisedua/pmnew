@@ -114,20 +114,37 @@ function ProjectDetail() {
         <div className="project-detail">
             {/* Header */}
             <header className="project-header">
-                <div className="container flex-between">
-                    <div className="flex gap-md">
-                        <button className="btn-icon" onClick={() => navigate('/dashboard')}>
+                <div className="container header-content">
+                    <div className="header-left">
+                        <button
+                            className="btn-icon back-btn"
+                            onClick={() => navigate('/dashboard')}
+                            title="Volver al Dashboard"
+                        >
                             <ArrowLeft size={20} />
                         </button>
-                        <div className="app-logo">📊</div>
-                        <div className="flex-col">
-                            <span className="app-title">{project.name}</span>
-                            <span className="app-subtitle">{project.institution}</span>
+                        <div className="project-identity">
+                            <div className="project-icon">📊</div>
+                            <div className="project-details">
+                                <h1 className="app-title">{project.name}</h1>
+                                <span className="app-subtitle">{project.institution}</span>
+                            </div>
                         </div>
                     </div>
-                    <div className="flex gap-md">
-                        <span className="user-email">edu@acme.com</span>
-                        <button className="btn-icon">
+
+                    <div className="header-right">
+                        <div className="user-profile-pill">
+                            <div className="avatar-circle">
+                                <span>CB</span>
+                            </div>
+                            <span className="user-email">
+                                <span className="email-prefix">CB</span>edu@acme.com
+                            </span>
+                        </div>
+                        <button
+                            className="btn-icon logout-btn"
+                            title="Cerrar sesión"
+                        >
                             <LogOut size={20} />
                         </button>
                     </div>
