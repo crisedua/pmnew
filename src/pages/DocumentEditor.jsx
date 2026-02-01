@@ -32,9 +32,7 @@ function DocumentEditor() {
 
     const editor = useEditor({
         extensions: [
-            StarterKit.configure({
-                // Underline is not in StarterKit, but we configure to avoid any conflicts
-            }),
+            StarterKit,
             Placeholder.configure({
                 placeholder: 'Comienza a escribir tu documento...',
             }),
@@ -195,7 +193,8 @@ function DocumentEditor() {
 
                 setDocument(data);
                 setIsNewDoc(false);
-                window.history.replaceState(null, '', `/document/${data.id}`);
+                // Update URL without page reload
+                window.history.replaceState(null, '', `/document/${data.id}?projectId=${projectId}`);
                 await indexDocument(data.id, textContent);
             } else {
                 const { error } = await supabase
@@ -205,10 +204,10 @@ function DocumentEditor() {
                         content: content,
                         file_size: new Blob([content]).size
                     })
-                    .eq('id', id);
+                    .eq('id', document?.id || id);
 
                 if (error) throw error;
-                await indexDocument(id, textContent);
+                await indexDocument(document?.id || id, textContent);
             }
 
             setLastSaved(new Date());
@@ -220,7 +219,7 @@ function DocumentEditor() {
         } finally {
             setIsSaving(false);
         }
-    }, [editor, projectId, title, isNewDoc, id]);
+    }, [editor, projectId, title, isNewDoc, id, document]);
 
     const indexDocument = async (docId, textContent) => {
         try {
