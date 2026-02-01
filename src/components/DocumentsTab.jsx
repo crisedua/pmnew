@@ -22,6 +22,16 @@ function DocumentsTab({ documents, projectId, onDocumentsUpdate }) {
     const [viewingDoc, setViewingDoc] = useState(null);
     const [isSaving, setIsSaving] = useState(false);
 
+    const [currentUser, setCurrentUser] = useState(null);
+
+    React.useEffect(() => {
+        const getUser = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            setCurrentUser(user);
+        };
+        getUser();
+    }, []);
+
     const formatFileSize = (bytes) => {
         if (!bytes) return 'N/A';
         const kb = bytes / 1024;
@@ -47,7 +57,7 @@ function DocumentsTab({ documents, projectId, onDocumentsUpdate }) {
     };
 
     const handleUpload = async () => {
-        if (!selectedFile) return;
+        if (!selectedFile || !currentUser) return;
 
         setIsUploading(true);
         setUploadProgress(0);
@@ -91,7 +101,7 @@ function DocumentsTab({ documents, projectId, onDocumentsUpdate }) {
                     file_url: publicUrl,
                     file_size: selectedFile.size,
                     file_type: selectedFile.type || 'application/octet-stream',
-                    uploaded_by: 'Usuario Actual'
+                    uploaded_by: currentUser.id
                 })
                 .select()
                 .single();
@@ -188,7 +198,7 @@ function DocumentsTab({ documents, projectId, onDocumentsUpdate }) {
 
     // Create a new online document
     const handleCreateDocument = async () => {
-        if (!docTitle.trim() || !docContent.trim()) return;
+        if (!docTitle.trim() || !docContent.trim() || !currentUser) return;
 
         setIsSaving(true);
         try {
@@ -201,7 +211,7 @@ function DocumentsTab({ documents, projectId, onDocumentsUpdate }) {
                     file_url: null,
                     file_size: new Blob([docContent]).size,
                     file_type: 'text/plain',
-                    uploaded_by: 'Usuario Actual',
+                    uploaded_by: currentUser.id,
                     content: docContent // Store content directly
                 })
                 .select()

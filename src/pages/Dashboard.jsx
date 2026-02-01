@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import AIAssistant from '../components/AIAssistant';
+import WhatsAppAnalyzer from '../components/WhatsAppAnalyzer';
 import './Dashboard.css';
 
 function Dashboard() {
@@ -21,6 +22,7 @@ function Dashboard() {
     const [loading, setLoading] = useState(true);
     const [expandedProjects, setExpandedProjects] = useState({});
     const [searchQuery, setSearchQuery] = useState('');
+    const [activeView, setActiveView] = useState('dashboard');
 
     // Modals
     const [showAreaModal, setShowAreaModal] = useState(false);
@@ -265,13 +267,19 @@ function Dashboard() {
                 </button>
 
                 <nav className="sidebar-nav">
-                    <a className="nav-item active">
+                    <a
+                        className={`nav-item ${activeView === 'dashboard' ? 'active' : ''}`}
+                        onClick={() => setActiveView('dashboard')}
+                    >
                         <LayoutDashboard size={18} />
                         Dashboard
                     </a>
-                    <a className="nav-item">
-                        <Inbox size={18} />
-                        Inbox
+                    <a
+                        className={`nav-item ${activeView === 'whatsapp' ? 'active' : ''}`}
+                        onClick={() => setActiveView('whatsapp')}
+                    >
+                        <MessageSquare size={18} />
+                        Análisis WhatsApp
                     </a>
                     <a className="nav-item">
                         <Users size={18} />
@@ -370,166 +378,181 @@ function Dashboard() {
 
                 {/* Dashboard Content */}
                 <div className="dashboard-content">
-                    <h1 className="page-title">Dashboard</h1>
-
-                    {/* Quick Actions */}
-                    <div className="quick-actions">
-                        <div className="action-card" onClick={() => setShowProjectModal(true)}>
-                            <div className="action-icon blue">
-                                <FolderPlus size={24} />
-                            </div>
-                            <div className="action-text">
-                                <strong>Crear Proyecto</strong>
-                                <span>Organiza tus tareas</span>
-                            </div>
-                        </div>
-                        <div className="action-card" onClick={() => projects[0] && navigate(`/project/${projects[0].id}`)}>
-                            <div className="action-icon purple">
-                                <CheckSquare size={24} />
-                            </div>
-                            <div className="action-text">
-                                <strong>Crear Tarea</strong>
-                                <span>Organiza tus tareas</span>
-                            </div>
-                        </div>
-                        <div className="action-card" onClick={() => copyInviteLink(selectedArea?.share_token)}>
-                            <div className="action-icon green">
-                                <UserPlus size={24} />
-                            </div>
-                            <div className="action-text">
-                                <strong>Invitar Equipo</strong>
-                                <span>Organiza tus tareas</span>
-                            </div>
-                        </div>
-                        <div className="action-card">
-                            <div className="action-icon orange">
-                                <MessageSquare size={24} />
-                            </div>
-                            <div className="action-text">
-                                <strong>Enviar Mensaje</strong>
-                                <span>Organiza tus tareas</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Task Tables */}
-                    <div className="tables-grid">
-                        {/* To Do This Week */}
-                        <div className="task-table-card">
-                            <h3>Por hacer esta semana</h3>
-                            <table className="task-table">
-                                <thead>
-                                    <tr>
-                                        <th>Nombre</th>
-                                        <th>Proyecto</th>
-                                        <th>Fecha</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {todoTasks.map(task => (
-                                        <tr key={task.id}>
-                                            <td>
-                                                <div className="task-name">
-                                                    <Flag size={14} style={{ color: getPriorityColor(task.priority) }} />
-                                                    {task.title}
-                                                </div>
-                                            </td>
-                                            <td>{task.projects?.name || '-'}</td>
-                                            <td>{formatDate(task.due_date) || 'Add date'}</td>
-                                        </tr>
-                                    ))}
-                                    {todoTasks.length === 0 && (
-                                        <tr>
-                                            <td colSpan="3" className="empty-cell">No hay tareas pendientes</td>
-                                        </tr>
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
-
-                        {/* To Review */}
-                        <div className="task-table-card">
-                            <h3>Por revisar</h3>
-                            <table className="task-table">
-                                <thead>
-                                    <tr>
-                                        <th>Nombre</th>
-                                        <th>Proyecto</th>
-                                        <th>Fecha</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {reviewTasks.map(task => (
-                                        <tr key={task.id}>
-                                            <td>
-                                                <div className="task-name">
-                                                    <Check size={14} className="check-green" />
-                                                    {task.title}
-                                                </div>
-                                            </td>
-                                            <td>{task.projects?.name || '-'}</td>
-                                            <td>{formatDate(task.due_date) || 'Add date'}</td>
-                                        </tr>
-                                    ))}
-                                    {reviewTasks.length === 0 && (
-                                        <tr>
-                                            <td colSpan="3" className="empty-cell">No hay tareas para revisar</td>
-                                        </tr>
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    {/* Recent Activity */}
-                    <div className="activity-section">
-                        <div className="section-header-row">
-                            <h3>Actividad Reciente</h3>
-                            <a className="view-all">Ver Todo</a>
-                        </div>
-                        <div className="activity-list">
-                            {projects.map(project => (
-                                <div key={project.id} className="activity-item">
-                                    <div className="activity-icon">
-                                        <Check size={14} />
-                                    </div>
-                                    <div className="activity-content">
-                                        <strong>{project.name}</strong> - {project.taskCount} tareas
-                                        <span className="activity-time">Progreso: {project.progress}%</span>
-                                    </div>
-                                </div>
-                            ))}
-                            {projects.length === 0 && (
-                                <div className="activity-item">
-                                    <span className="text-secondary">No hay actividad reciente</span>
+                    {activeView === 'whatsapp' ? (
+                        <>
+                            <h1 className="page-title">Análisis WhatsApp - {selectedArea?.name}</h1>
+                            {selectedArea ? (
+                                <WhatsAppAnalyzer areaId={selectedArea.id} />
+                            ) : (
+                                <div className="empty-state">
+                                    <p>Selecciona un área para comenzar.</p>
                                 </div>
                             )}
-                        </div>
-                    </div>
+                        </>
+                    ) : (
+                        <>
+                            <h1 className="page-title">Dashboard</h1>
 
-                    {/* Task Progress Overview */}
-                    <div className="progress-section">
-                        <div className="section-header-row">
-                            <h3>Resumen de Progreso</h3>
-                            <a className="view-all">Ver Todo</a>
-                        </div>
-                        <div className="progress-cards">
-                            {projects.map(project => (
-                                <div key={project.id} className="progress-card" onClick={() => navigate(`/project/${project.id}`)}>
-                                    <div className="progress-info">
-                                        <span className="progress-name">{project.name}</span>
-                                        <span className="progress-percent">{project.progress}%</span>
+                            {/* Quick Actions */}
+                            <div className="quick-actions">
+                                <div className="action-card" onClick={() => setShowProjectModal(true)}>
+                                    <div className="action-icon blue">
+                                        <FolderPlus size={24} />
                                     </div>
-                                    <div className="progress-bar-sm">
-                                        <div
-                                            className="progress-fill"
-                                            style={{ width: `${project.progress}%` }}
-                                        ></div>
+                                    <div className="action-text">
+                                        <strong>Crear Proyecto</strong>
+                                        <span>Organiza tus tareas</span>
                                     </div>
                                 </div>
-                            ))}
-                        </div>
-                    </div>
+                                <div className="action-card" onClick={() => projects[0] && navigate(`/project/${projects[0].id}`)}>
+                                    <div className="action-icon purple">
+                                        <CheckSquare size={24} />
+                                    </div>
+                                    <div className="action-text">
+                                        <strong>Crear Tarea</strong>
+                                        <span>Organiza tus tareas</span>
+                                    </div>
+                                </div>
+                                <div className="action-card" onClick={() => copyInviteLink(selectedArea?.share_token)}>
+                                    <div className="action-icon green">
+                                        <UserPlus size={24} />
+                                    </div>
+                                    <div className="action-text">
+                                        <strong>Invitar Equipo</strong>
+                                        <span>Organiza tus tareas</span>
+                                    </div>
+                                </div>
+                                <div className="action-card" onClick={() => setActiveView('whatsapp')}>
+                                    <div className="action-icon orange">
+                                        <MessageSquare size={24} />
+                                    </div>
+                                    <div className="action-text">
+                                        <strong>Analizar WhatsApp</strong>
+                                        <span>Organiza tus tareas</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Task Tables */}
+                            <div className="tables-grid">
+                                {/* To Do This Week */}
+                                <div className="task-table-card">
+                                    <h3>Por hacer esta semana</h3>
+                                    <table className="task-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Nombre</th>
+                                                <th>Proyecto</th>
+                                                <th>Fecha</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {todoTasks.map(task => (
+                                                <tr key={task.id}>
+                                                    <td>
+                                                        <div className="task-name">
+                                                            <Flag size={14} style={{ color: getPriorityColor(task.priority) }} />
+                                                            {task.title}
+                                                        </div>
+                                                    </td>
+                                                    <td>{task.projects?.name || '-'}</td>
+                                                    <td>{formatDate(task.due_date) || 'Add date'}</td>
+                                                </tr>
+                                            ))}
+                                            {todoTasks.length === 0 && (
+                                                <tr>
+                                                    <td colSpan="3" className="empty-cell">No hay tareas pendientes</td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                {/* To Review */}
+                                <div className="task-table-card">
+                                    <h3>Por revisar</h3>
+                                    <table className="task-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Nombre</th>
+                                                <th>Proyecto</th>
+                                                <th>Fecha</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {reviewTasks.map(task => (
+                                                <tr key={task.id}>
+                                                    <td>
+                                                        <div className="task-name">
+                                                            <Check size={14} className="check-green" />
+                                                            {task.title}
+                                                        </div>
+                                                    </td>
+                                                    <td>{task.projects?.name || '-'}</td>
+                                                    <td>{formatDate(task.due_date) || 'Add date'}</td>
+                                                </tr>
+                                            ))}
+                                            {reviewTasks.length === 0 && (
+                                                <tr>
+                                                    <td colSpan="3" className="empty-cell">No hay tareas para revisar</td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            {/* Recent Activity */}
+                            <div className="activity-section">
+                                <div className="section-header-row">
+                                    <h3>Actividad Reciente</h3>
+                                    <a className="view-all">Ver Todo</a>
+                                </div>
+                                <div className="activity-list">
+                                    {projects.map(project => (
+                                        <div key={project.id} className="activity-item">
+                                            <div className="activity-icon">
+                                                <Check size={14} />
+                                            </div>
+                                            <div className="activity-content">
+                                                <strong>{project.name}</strong> - {project.taskCount} tareas
+                                                <span className="activity-time">Progreso: {project.progress}%</span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                    {projects.length === 0 && (
+                                        <div className="activity-item">
+                                            <span className="text-secondary">No hay actividad reciente</span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Task Progress Overview */}
+                            <div className="progress-section">
+                                <div className="section-header-row">
+                                    <h3>Resumen de Progreso</h3>
+                                    <a className="view-all">Ver Todo</a>
+                                </div>
+                                <div className="progress-cards">
+                                    {projects.map(project => (
+                                        <div key={project.id} className="progress-card" onClick={() => navigate(`/project/${project.id}`)}>
+                                            <div className="progress-info">
+                                                <span className="progress-name">{project.name}</span>
+                                                <span className="progress-percent">{project.progress}%</span>
+                                            </div>
+                                            <div className="progress-bar-sm">
+                                                <div
+                                                    className="progress-fill"
+                                                    style={{ width: `${project.progress}%` }}
+                                                ></div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </>
+                    )}
                 </div>
             </main>
 
