@@ -167,11 +167,22 @@ function DocumentEditor() {
     };
 
     const handleSave = useCallback(async (showFeedback = true) => {
-        if (!editor || !projectId) return;
+        if (!editor || !projectId) {
+            console.log('Cannot save: editor or projectId missing', { editor: !!editor, projectId });
+            return;
+        }
 
         setIsSaving(true);
         const content = editor.getHTML();
         const textContent = editor.getText();
+
+        console.log('Saving document...', { 
+            isNewDoc, 
+            projectId, 
+            title, 
+            contentLength: content.length,
+            documentId: document?.id || id 
+        });
 
         try {
             const documentData = {
@@ -183,20 +194,30 @@ function DocumentEditor() {
             };
 
             if (isNewDoc) {
+                console.log('Creating new document...');
                 const { data, error } = await supabase
                     .from('documents')
                     .insert(documentData)
                     .select()
                     .single();
 
-                if (error) throw error;
+                if (error) {
+                    console.error('Insert error:', error);
+                    throw error;
+                }
 
+                console.log('Document created:', data.id);
                 setDocument(data);
                 setIsNewDoc(false);
                 // Update URL without page reload
                 window.history.replaceState(null, '', `/document/${data.id}?projectId=${projectId}`);
-                await indexDocument(data.id, textContent);
+                
+                // Index in background without blocking
+                indexDocument(data.id, textContent).catch(e => 
+                    console.warn('Background indexing failed:', e)
+                );
             } else {
+                console.log('Updating existing document:', document?.id || id);
                 const { error } = await supabase
                     .from('documents')
                     .update({
@@ -206,11 +227,23 @@ function DocumentEditor() {
                     })
                     .eq('id', document?.id || id);
 
-                if (error) throw error;
-                await indexDocument(document?.id || id, textContent);
+                if (error) {
+                    console.error('Update error:', error);
+                    throw error;
+                }
+                
+                console.log('Document updated successfully');
+                
+                // Index in background without blocking
+                indexDocument(document?.id || id, textContent).catch(e => 
+                    console.warn('Background indexing failed:', e)
+                );
             }
 
             setLastSaved(new Date());
+            if (showFeedback) {
+                console.log('Document saved successfully at', new Date().toLocaleTimeString());
+            }
         } catch (error) {
             console.error('Error saving document:', error);
             if (showFeedback) {
@@ -222,6 +255,12 @@ function DocumentEditor() {
     }, [editor, projectId, title, isNewDoc, id, document]);
 
     const indexDocument = async (docId, textContent) => {
+        // Run indexing in background without blocking save
+        if (!textContent || textContent.trim().length === 0) {
+            console.log('No content to index');
+            return;
+        }
+
         try {
             // Delete old chunks
             await supabase.from('document_chunks').delete().eq('document_id', docId);
@@ -231,19 +270,23 @@ function DocumentEditor() {
             for (let i = 0; i < chunks.length; i++) {
                 try {
                     const embedding = await generateEmbedding(chunks[i]);
-                    await supabase.from('document_chunks').insert({
-                        document_id: docId,
-                        content: chunks[i],
-                        embedding: embedding,
-                        chunk_index: i,
-                        metadata: { file_name: title, chunk_of: chunks.length }
-                    });
+                    if (embedding) {
+                        await supabase.from('document_chunks').insert({
+                            document_id: docId,
+                            content: chunks[i],
+                            embedding: embedding,
+                            chunk_index: i,
+                            metadata: { file_name: title, chunk_of: chunks.length }
+                        });
+                    }
                 } catch (e) {
-                    console.warn('Embedding error:', e);
+                    console.warn('Embedding error for chunk', i, ':', e.message);
+                    // Continue with next chunk even if this one fails
                 }
             }
         } catch (e) {
-            console.warn('Indexing error:', e);
+            console.warn('Indexing error:', e.message);
+            // Don't throw - indexing is optional
         }
     };
 
