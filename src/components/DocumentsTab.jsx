@@ -63,9 +63,11 @@ function DocumentsTab({ documents, projectId, onDocumentsUpdate }) {
         setUploadProgress(0);
 
         try {
-            // Create a unique file name
+            // Create a unique, sanitized file name
             const fileExt = selectedFile.name.split('.').pop();
-            const fileName = `${Date.now()}_${selectedFile.name}`;
+            const originalName = selectedFile.name.split('.')[0];
+            const sanitizedName = originalName.replace(/[^a-zA-Z0-9]/g, '_');
+            const fileName = `${Date.now()}_${sanitizedName}.${fileExt}`;
             const filePath = `${projectId}/${fileName}`;
 
             // Upload to Supabase Storage

@@ -46,46 +46,34 @@ export function chunkText(text, chunkSize = 1000, overlap = 200) {
 // Extract text from various file types
 export async function extractTextFromFile(file) {
     return new Promise((resolve, reject) => {
+        // Supported text types
+        const textTypes = [
+            'text/plain', 'application/json', 'text/markdown', 'text/csv',
+            'application/javascript', 'text/html', 'text/css'
+        ];
+        const textExtensions = ['.txt', '.json', '.md', '.markdown', '.csv', '.js', '.jsx', '.html', '.css'];
+
+        const isText = textTypes.includes(file.type) || textExtensions.some(ext => file.name.toLowerCase().endsWith(ext));
+
+        if (!isText) {
+            console.warn(`File type ${file.type} (${file.name}) not supported for client-side indexing.`);
+            resolve(''); // Return empty to skip indexing
+            return;
+        }
+
         const reader = new FileReader();
 
         reader.onload = async (e) => {
             try {
                 const content = e.target.result;
-
-                // Handle different file types
-                if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
-                    resolve(content);
-                } else if (file.type === 'application/json' || file.name.endsWith('.json')) {
-                    try {
-                        const json = JSON.parse(content);
-                        resolve(JSON.stringify(json, null, 2));
-                    } catch {
-                        resolve(content);
-                    }
-                } else if (file.name.endsWith('.md') || file.name.endsWith('.markdown')) {
-                    resolve(content);
-                } else if (file.name.endsWith('.csv')) {
-                    resolve(content);
-                } else if (file.type.includes('pdf')) {
-                    // For PDFs, we'd need a library like pdf.js
-                    // For now, return a placeholder
-                    resolve(`[PDF Document: ${file.name}] - PDF text extraction requires additional setup.`);
-                } else {
-                    // For other files, try to read as text
-                    resolve(content || `[Binary file: ${file.name}]`);
-                }
+                resolve(content);
             } catch (error) {
                 reject(error);
             }
         };
 
         reader.onerror = () => reject(new Error('Failed to read file'));
-
-        if (file.type.includes('pdf')) {
-            reader.readAsArrayBuffer(file);
-        } else {
-            reader.readAsText(file);
-        }
+        reader.readAsText(file);
     });
 }
 
