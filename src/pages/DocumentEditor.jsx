@@ -32,7 +32,9 @@ function DocumentEditor() {
 
     const editor = useEditor({
         extensions: [
-            StarterKit,
+            StarterKit.configure({
+                strike: true,
+            }),
             Placeholder.configure({
                 placeholder: 'Comienza a escribir tu documento...',
             }),
