@@ -187,6 +187,7 @@ function ProjectDetail() {
                             project={project}
                             tasks={tasks}
                             documents={documents}
+                            onUpdate={fetchProjectData}
                         />
                     )}
                     {activeTab === 'tareas' && (

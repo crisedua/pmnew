@@ -1,8 +1,19 @@
-import React from 'react';
-import { CheckCircle, Clock, Circle, FileText, Edit } from 'lucide-react';
+import React, { useState } from 'react';
+import { CheckCircle, Clock, Circle, FileText, Edit, X } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 import './ProjectSummary.css';
 
-function ProjectSummary({ project, tasks, documents }) {
+function ProjectSummary({ project, tasks, documents, onUpdate }) {
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [editForm, setEditForm] = useState({
+        name: project.name || '',
+        description: project.description || '',
+        status: project.status || 'En Progreso',
+        due_date: project.due_date || '',
+        institution: project.institution || ''
+    });
+    const [isSaving, setIsSaving] = useState(false);
+
     const completedTasks = tasks.filter(t => t.status === 'Complete').length;
     const inProgressTasks = tasks.filter(t => t.status === 'In Progress').length;
     const pendingTasks = tasks.filter(t => t.status === 'To Do').length;
@@ -15,13 +26,51 @@ function ProjectSummary({ project, tasks, documents }) {
         return date.toISOString().split('T')[0];
     };
 
+    const handleEditClick = () => {
+        setEditForm({
+            name: project.name || '',
+            description: project.description || '',
+            status: project.status || 'En Progreso',
+            due_date: project.due_date || '',
+            institution: project.institution || ''
+        });
+        setShowEditModal(true);
+    };
+
+    const handleSave = async () => {
+        setIsSaving(true);
+        try {
+            const { error } = await supabase
+                .from('projects')
+                .update({
+                    name: editForm.name,
+                    description: editForm.description,
+                    status: editForm.status,
+                    due_date: editForm.due_date || null,
+                    institution: editForm.institution,
+                    updated_at: new Date().toISOString()
+                })
+                .eq('id', project.id);
+
+            if (error) throw error;
+
+            setShowEditModal(false);
+            if (onUpdate) onUpdate();
+        } catch (error) {
+            console.error('Error updating project:', error);
+            alert('Error al actualizar el proyecto: ' + error.message);
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
     return (
         <div className="project-summary">
             {/* Project Info Card */}
             <div className="info-card card">
                 <div className="info-header">
                     <h2>Información del Proyecto</h2>
-                    <button className="btn-icon">
+                    <button className="btn-icon" onClick={handleEditClick}>
                         <Edit size={20} />
                     </button>
                 </div>
@@ -131,6 +180,78 @@ function ProjectSummary({ project, tasks, documents }) {
                     </div>
                 </div>
             </div>
+
+            {/* Edit Modal */}
+            {showEditModal && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h3>Editar Proyecto</h3>
+                            <button className="btn-icon" onClick={() => setShowEditModal(false)}>
+                                <X size={20} />
+                            </button>
+                        </div>
+                        <div className="modal-body">
+                            <div className="form-group">
+                                <label>Nombre del Proyecto</label>
+                                <input
+                                    type="text"
+                                    value={editForm.name}
+                                    onChange={e => setEditForm({ ...editForm, name: e.target.value })}
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Descripción</label>
+                                <textarea
+                                    value={editForm.description}
+                                    onChange={e => setEditForm({ ...editForm, description: e.target.value })}
+                                    rows="3"
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Estado</label>
+                                <select
+                                    value={editForm.status}
+                                    onChange={e => setEditForm({ ...editForm, status: e.target.value })}
+                                >
+                                    <option>En Progreso</option>
+                                    <option>Planificación</option>
+                                    <option>Completado</option>
+                                    <option>En Pausa</option>
+                                </select>
+                            </div>
+                            <div className="form-group">
+                                <label>Fecha Límite</label>
+                                <input
+                                    type="date"
+                                    value={editForm.due_date}
+                                    onChange={e => setEditForm({ ...editForm, due_date: e.target.value })}
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Institución</label>
+                                <input
+                                    type="text"
+                                    value={editForm.institution}
+                                    onChange={e => setEditForm({ ...editForm, institution: e.target.value })}
+                                />
+                            </div>
+                        </div>
+                        <div className="modal-footer">
+                            <button className="btn" onClick={() => setShowEditModal(false)}>
+                                Cancelar
+                            </button>
+                            <button
+                                className="btn btn-primary"
+                                onClick={handleSave}
+                                disabled={isSaving || !editForm.name.trim()}
+                            >
+                                {isSaving ? 'Guardando...' : 'Guardar Cambios'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
