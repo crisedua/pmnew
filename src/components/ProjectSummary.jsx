@@ -9,8 +9,7 @@ function ProjectSummary({ project, tasks, documents, onUpdate }) {
         name: project.name || '',
         description: project.description || '',
         status: project.status || 'En Progreso',
-        due_date: project.due_date || '',
-        institution: project.institution || ''
+        due_date: project.due_date || ''
     });
     const [isSaving, setIsSaving] = useState(false);
 
@@ -31,8 +30,7 @@ function ProjectSummary({ project, tasks, documents, onUpdate }) {
             name: project.name || '',
             description: project.description || '',
             status: project.status || 'En Progreso',
-            due_date: project.due_date || '',
-            institution: project.institution || ''
+            due_date: project.due_date || ''
         });
         setShowEditModal(true);
     };
@@ -47,7 +45,6 @@ function ProjectSummary({ project, tasks, documents, onUpdate }) {
                     description: editForm.description,
                     status: editForm.status,
                     due_date: editForm.due_date || null,
-                    institution: editForm.institution,
                     updated_at: new Date().toISOString()
                 })
                 .eq('id', project.id);
@@ -92,10 +89,6 @@ function ProjectSummary({ project, tasks, documents, onUpdate }) {
                     <div className="info-item">
                         <h4 className="info-label text-secondary">Fecha Límite</h4>
                         <p>{formatDate(project.due_date)}</p>
-                    </div>
-                    <div className="info-item">
-                        <h4 className="info-label text-secondary">Institución</h4>
-                        <p>{project.institution || 'N/A'}</p>
                     </div>
                 </div>
             </div>
@@ -226,14 +219,6 @@ function ProjectSummary({ project, tasks, documents, onUpdate }) {
                                     type="date"
                                     value={editForm.due_date}
                                     onChange={e => setEditForm({ ...editForm, due_date: e.target.value })}
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label>Institución</label>
-                                <input
-                                    type="text"
-                                    value={editForm.institution}
-                                    onChange={e => setEditForm({ ...editForm, institution: e.target.value })}
                                 />
                             </div>
                         </div>
