@@ -26,7 +26,26 @@ function JoinProject() {
             const { data: { user: currentUser } } = await supabase.auth.getUser();
             setUser(currentUser);
 
-            // 2. Get invitation details
+            // 2. Try to find area by share_token first (for area invitations)
+            const { data: areaData, error: areaError } = await supabase
+                .from('areas')
+                .select('*')
+                .eq('share_token', id)
+                .single();
+
+            if (areaData && !areaError) {
+                // This is an area invitation
+                setProject({ name: areaData.name, description: areaData.description });
+                setInvitation({ 
+                    area_id: areaData.id, 
+                    role: 'member',
+                    type: 'area'
+                });
+                setLoading(false);
+                return;
+            }
+
+            // 3. If not an area, try project invitation
             const { data: inviteData, error: inviteError } = await supabase
                 .from('project_invitations')
                 .select('*, projects(*)')
@@ -41,7 +60,7 @@ function JoinProject() {
                 throw new Error(`Esta invitación ya ha sido ${inviteData.status === 'accepted' ? 'aceptada' : 'cancelada'}.`);
             }
 
-            setInvitation(inviteData);
+            setInvitation({ ...inviteData, type: 'project' });
             setProject(inviteData.projects);
 
         } catch (err) {
@@ -62,40 +81,66 @@ function JoinProject() {
 
         setIsJoining(true);
         try {
-            // 1. Add to team_members
-            const { error: teamError } = await supabase
-                .from('team_members')
-                .insert({
-                    project_id: invitation.project_id,
-                    user_id: user.id,
-                    role: invitation.role,
-                    email: user.email,
-                    name: user.user_metadata?.full_name || user.email.split('@')[0]
-                });
+            if (invitation.type === 'area') {
+                // Joining an area
+                const { error: areaMemberError } = await supabase
+                    .from('area_members')
+                    .insert({
+                        area_id: invitation.area_id,
+                        user_id: user.id,
+                        role: invitation.role
+                    });
 
-            if (teamError) {
-                // Check if already in team
-                if (teamError.code === '23505') { // unique violation
-                    // Continue to mark invite as accepted anyway
-                } else {
-                    throw teamError;
+                if (areaMemberError) {
+                    // Check if already a member
+                    if (areaMemberError.code === '23505') { // unique violation
+                        // Already a member, just redirect
+                        navigate('/dashboard');
+                        return;
+                    } else {
+                        throw areaMemberError;
+                    }
                 }
+
+                // Success! Redirect to dashboard
+                navigate('/dashboard');
+            } else {
+                // Joining a project
+                // 1. Add to team_members
+                const { error: teamError } = await supabase
+                    .from('team_members')
+                    .insert({
+                        project_id: invitation.project_id,
+                        user_id: user.id,
+                        role: invitation.role,
+                        email: user.email,
+                        name: user.user_metadata?.full_name || user.email.split('@')[0]
+                    });
+
+                if (teamError) {
+                    // Check if already in team
+                    if (teamError.code === '23505') { // unique violation
+                        // Continue to mark invite as accepted anyway
+                    } else {
+                        throw teamError;
+                    }
+                }
+
+                // 2. Mark invitation as accepted
+                const { error: inviteUpdateError } = await supabase
+                    .from('project_invitations')
+                    .update({ status: 'accepted' })
+                    .eq('id', id);
+
+                if (inviteUpdateError) throw inviteUpdateError;
+
+                // 3. Success!
+                navigate(`/project/${invitation.project_id}`);
             }
 
-            // 2. Mark invitation as accepted
-            const { error: inviteUpdateError } = await supabase
-                .from('project_invitations')
-                .update({ status: 'accepted' })
-                .eq('id', id);
-
-            if (inviteUpdateError) throw inviteUpdateError;
-
-            // 3. Success!
-            navigate(`/project/${invitation.project_id}`);
-
         } catch (err) {
-            console.error('Error joining project:', err);
-            alert('Error al unirse al proyecto: ' + err.message);
+            console.error('Error joining:', err);
+            alert('Error al unirse: ' + err.message);
         } finally {
             setIsJoining(false);
         }
@@ -129,13 +174,16 @@ function JoinProject() {
                 <div className="project-icon">
                     <UserPlus size={40} />
                 </div>
-                <h1>Invitación al Proyecto</h1>
+                <h1>Invitación {invitation?.type === 'area' ? 'al Área' : 'al Proyecto'}</h1>
                 <div className="invite-details">
                     <p>Has sido invitado a colaborar en:</p>
                     <div className="project-box">
                         <span className="project-name">{project?.name}</span>
                         <span className="project-role">{invitation?.role}</span>
                     </div>
+                    {project?.description && (
+                        <p className="project-description">{project.description}</p>
+                    )}
                 </div>
 
                 {!user ? (
