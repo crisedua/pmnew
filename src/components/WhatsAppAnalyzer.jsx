@@ -36,28 +36,38 @@ function WhatsAppAnalyzer({ areaId }) {
 
         setIsAnalyzing(true);
         try {
-            // 1. Analyze with OpenAI
+            // 1. Analyze with OpenAI - Threaded Analysis Mode
             const systemPrompt = {
                 role: 'system',
-                content: `Eres un asistente experto en gestión de proyectos y análisis de comunicaciones.
-                Tu objetivo es procesar registros de chat de WhatsApp (que pueden incluir timestamps y números de teléfono) y extraer información de alto valor para un Project Manager.
+                content: `Eres un asistente experto en gestión de proyectos.
+                Analiza el registro de WhatsApp y AGRÚPALO POR TEMAS DE DISCUSIÓN (HILOS).
+                
+                Instrucciones:
+                1. Identifica los distintos "Topic Threads" o temas tratados.
+                2. Para CADA tema, extrae: Título, Resumen, Participantes específicos de ese tema, Acuerdos y Tareas.
+                3. Genera un "Global Overview" con el sentimiento general y un resumen meta.
+                4. Identifica personas por contexto (ej. asocia números a nombres mencionados).
 
-                INSTRUCCIONES CLAVE:
-                1. **Identificación de Personas**: Si aparecen números de teléfono (ej. +56 9...), intenta inferir el nombre de la persona basándote en el contexto (ej. si alguien dice "Gracias Ricardo", y el mensaje anterior era del número X, asume que X es Ricardo). Usa los nombres reales en el reporte.
-                2. **Resumen**: Provee un resumen ejecutivo completo (no breve) que explique el contexto, el conflicto o tema principal, y la resolución o estado actual.
-                3. **Puntos Clave**: Lista los argumentos principales, preocupaciones o temas discutidos.
-                4. **Acuerdos y Decisiones**: Separa claramente las decisiones tomadas o acuerdos de "palabra" (ej. "Coincidimos en que vale la pena...").
-                5. **Tareas (Action Items)**: Lista tareas específicas, quién es el responsable (si se sabe) y el estado (pendiente, completado, etc.).
-                6. **Sentimiento**: Analiza la dinámica emocional (ej. "Constructiva pero tensa", "Colaborativa", "Conflicto abierto").
-
-                FORMATO DE SALIDA (JSON ESTRICTO):
+                FORMATO JSON ESTRICTO:
                 {
-                    "summary": "Resumen detallado...",
-                    "participants": ["Ricardo", "Alexis", ...],
-                    "key_points": ["Punto 1", "Punto 2"],
-                    "agreements": ["Acuerdo 1...", "Decisión tomada..."],
-                    "action_items": [{"task": "Descripción de la tarea", "owner": "Nombre o 'Por definir'", "status": "Pendiente/En proceso"}],
-                    "sentiment": "Descripción del sentimiento"
+                    "global_overview": {
+                        "summary": "Resumen general de toda la conversación...",
+                        "sentiment": "Sentimiento general...",
+                        "main_participants": ["Nombre1", "Nombre2"]
+                    },
+                    "topics": [
+                        {
+                            "title": "Tema 1: Nombre del tema",
+                            "summary": "Resumen específico de este hilo...",
+                            "participants": ["Persona A", "Persona B"],
+                            "agreements": ["Acuerdo 1", "Acuerdo 2"],
+                            "action_items": [{"task": "Tarea...", "owner": "Responsable", "status": "Pendiente"}]
+                        },
+                         {
+                            "title": "Tema 2: ...",
+                            ...
+                        }
+                    ]
                 }`
             };
 
@@ -66,16 +76,15 @@ function WhatsAppAnalyzer({ areaId }) {
                 content: inputText
             };
 
-            // Call OpenAI
             const response = await callOpenAI([systemPrompt, userMessage]);
 
-            // Parse JSON response
             let analysisData;
             try {
                 const content = response.content.replace(/```json/g, '').replace(/```/g, '').trim();
                 analysisData = JSON.parse(content);
             } catch (e) {
-                console.warn('Failed to parse JSON, saving raw content', e);
+                console.warn('Failed to parse JSON', e);
+                // Fallback for flat structure or error
                 analysisData = { raw_analysis: response.content };
             }
 
@@ -85,7 +94,7 @@ function WhatsAppAnalyzer({ areaId }) {
                 .insert({
                     area_id: areaId,
                     content: inputText,
-                    analysis: analysisData
+                    analysis: analysisData // Can store nested JSONB
                 })
                 .select()
                 .single();
@@ -97,8 +106,8 @@ function WhatsAppAnalyzer({ areaId }) {
             setExpandedIds(prev => [...prev, data.id]);
 
         } catch (error) {
-            console.error('Error analyzing conversation:', error);
-            alert('Error al analizar la conversación: ' + error.message);
+            console.error('Error analyzing:', error);
+            alert('Error: ' + error.message);
         } finally {
             setIsAnalyzing(false);
         }
@@ -195,7 +204,64 @@ function WhatsAppAnalyzer({ areaId }) {
                                                     <h5>Análisis:</h5>
                                                     <p>{analysis.raw_analysis}</p>
                                                 </div>
+                                            ) : analysis.topics ? (
+                                                // NEW THREADED VIEW
+                                                <div className="wa-threaded-content">
+                                                    {/* Global Overview */}
+                                                    <div className="wa-global-overview">
+                                                        <h5>🌎 Visión General</h5>
+                                                        <p>{analysis.global_overview?.summary}</p>
+                                                        <div className="wa-meta-row">
+                                                            <span className="wa-tag sentiment">{analysis.global_overview?.sentiment}</span>
+                                                            <span className="wa-tag participants">
+                                                                👥 {analysis.global_overview?.main_participants?.join(', ')}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Topics */}
+                                                    <div className="wa-topics-grid">
+                                                        {analysis.topics.map((topic, idx) => (
+                                                            <div key={idx} className="wa-topic-card">
+                                                                <div className="topic-header">
+                                                                    <h6>📌 {topic.title}</h6>
+                                                                </div>
+                                                                <div className="topic-body">
+                                                                    <p className="topic-summary">{topic.summary}</p>
+
+                                                                    {topic.agreements && topic.agreements.length > 0 && (
+                                                                        <div className="topic-section">
+                                                                            <strong className="text-success">🤝 Acuerdos:</strong>
+                                                                            <ul>
+                                                                                {topic.agreements.map((a, i) => <li key={i}>{a}</li>)}
+                                                                            </ul>
+                                                                        </div>
+                                                                    )}
+
+                                                                    {topic.action_items && topic.action_items.length > 0 && (
+                                                                        <div className="topic-section">
+                                                                            <strong className="text-warning">✅ Tareas:</strong>
+                                                                            <ul>
+                                                                                {topic.action_items.map((task, i) => (
+                                                                                    <li key={i}>
+                                                                                        {task.owner ? <b>{task.owner}: </b> : ''}
+                                                                                        {task.task}
+                                                                                    </li>
+                                                                                ))}
+                                                                            </ul>
+                                                                        </div>
+                                                                    )}
+
+                                                                    <div className="topic-footer">
+                                                                        <small>🗣 {topic.participants?.join(', ')}</small>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
                                             ) : (
+                                                // LEGACY FLAT VIEW
                                                 <div className="wa-structured-content">
                                                     {analysis.summary && (
                                                         <div className="wa-section">

@@ -156,3 +156,130 @@
         transform: rotate(360deg);
     }
 }
+/* CSS for Threaded WhatsApp Analysis */
+.wa-threaded-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Global Overview Card */
+.wa-global-overview {
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    border: 1px solid #bbf7d0;
+    border-radius: 12px;
+    padding: 1.25rem;
+}
+
+.wa-global-overview h5 {
+    color: #166534;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+}
+
+.wa-meta-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+}
+
+.wa-tag {
+    font-size: 0.8rem;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-weight: 500;
+}
+
+.wa-tag.sentiment {
+    background-color: #fef08a; /* yellow-200 */
+    color: #854d0e;
+}
+
+.wa-tag.participants {
+    background-color: #e0e7ff; /* indigo-100 */
+    color: #3730a3;
+}
+
+/* Topics Grid */
+.wa-topics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+}
+
+.wa-topic-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.wa-topic-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.topic-header {
+    background: #f9fafb;
+    padding: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.topic-header h6 {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.topic-body {
+    padding: 1rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.topic-summary {
+    font-size: 0.9rem;
+    color: #4b5563;
+    line-height: 1.5;
+}
+
+.topic-section {
+    font-size: 0.85rem;
+}
+
+.topic-section strong {
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.topic-section ul {
+    margin: 0;
+    padding-left: 1.25rem;
+    color: #374151;
+}
+
+.topic-section li {
+    margin-bottom: 0.25rem;
+}
+
+.text-success { color: #16a34a; }
+.text-warning { color: #d97706; }
+
+.topic-footer {
+    margin-top: auto;
+    padding-top: 0.75rem;
+    border-top: 1px solid #f3f4f6;
+    color: #6b7280;
+    font-size: 0.8rem;
+}
+
