@@ -90,7 +90,20 @@ function Dashboard() {
 
             setAreas(areasList);
 
-            if (areasList.length > 0 && !selectedArea) {
+            // Check for areaId in URL query params
+            const searchParams = new URLSearchParams(window.location.search);
+            const targetAreaId = searchParams.get('areaId');
+
+            if (targetAreaId) {
+                const targetArea = areasList.find(a => a.id === targetAreaId);
+                if (targetArea) {
+                    setSelectedArea(targetArea);
+                    // Optional: Clean up URL
+                    window.history.replaceState({}, '', '/dashboard');
+                } else if (areasList.length > 0 && !selectedArea) {
+                    setSelectedArea(areasList[0]);
+                }
+            } else if (areasList.length > 0 && !selectedArea) {
                 setSelectedArea(areasList[0]);
             }
 

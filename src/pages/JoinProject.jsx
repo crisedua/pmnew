@@ -36,8 +36,8 @@ function JoinProject() {
             if (areaData && !areaError) {
                 // This is an area invitation
                 setProject({ name: areaData.name, description: areaData.description });
-                setInvitation({ 
-                    area_id: areaData.id, 
+                setInvitation({
+                    area_id: areaData.id,
                     role: 'member',
                     type: 'area'
                 });
@@ -102,8 +102,8 @@ function JoinProject() {
                     }
                 }
 
-                // Success! Redirect to dashboard
-                navigate('/dashboard');
+                // Success! Redirect to dashboard with selected area
+                navigate(`/dashboard?areaId=${invitation.area_id}`);
             } else {
                 // Joining a project
                 // 1. Add to team_members
