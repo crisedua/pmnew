@@ -111,9 +111,19 @@ export function Register() {
                 // Email confirmation is disabled, user is logged in
                 navigate('/dashboard');
             } else {
-                // Fallback if email confirmation is still enabled
-                alert('Registro exitoso! Por favor inicia sesión.');
-                navigate('/login');
+                // Start: Attempt manual login immediately as fallback
+                const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
+                    email,
+                    password
+                });
+
+                if (loginData?.session) {
+                    navigate('/dashboard');
+                } else {
+                    // Fallback: If login fails (likely due to email confirmation required)
+                    alert('Registro exitoso. Si tienes activada la confirmación de email, por favor verifícalo. Si no, inicia sesión.');
+                    navigate('/login');
+                }
             }
         } catch (error) {
             setError(error.message);
