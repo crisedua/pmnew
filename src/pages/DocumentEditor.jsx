@@ -307,7 +307,14 @@ function DocumentEditor() {
             clearTimeout(autoSaveTimeout.current);
         }
         handleSave(false);
-        setTimeout(() => navigate(-1), 500);
+
+        setTimeout(() => {
+            if (projectId) {
+                navigate(`/project/${projectId}?tab=documentos`);
+            } else {
+                navigate(-1);
+            }
+        }, 500);
     };
 
     if (!editor) {

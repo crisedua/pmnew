@@ -12,7 +12,10 @@ import './ProjectDetail.css';
 function ProjectDetail() {
     const { id } = useParams();
     const navigate = useNavigate();
-    const [activeTab, setActiveTab] = useState('resumen');
+    const [activeTab, setActiveTab] = useState(() => {
+        const params = new URLSearchParams(window.location.search);
+        return params.get('tab') || 'resumen';
+    });
     const [project, setProject] = useState(null);
     const [tasks, setTasks] = useState([]);
     const [documents, setDocuments] = useState([]);
@@ -167,7 +170,12 @@ function ProjectDetail() {
                             <button
                                 key={tab.id}
                                 className={`tab ${activeTab === tab.id ? 'active' : ''}`}
-                                onClick={() => setActiveTab(tab.id)}
+                                onClick={() => {
+                                    setActiveTab(tab.id);
+                                    const newUrl = new URL(window.location);
+                                    newUrl.searchParams.set('tab', tab.id);
+                                    window.history.pushState({}, '', newUrl);
+                                }}
                             >
                                 {tab.label}
                                 {tab.count !== null && (
