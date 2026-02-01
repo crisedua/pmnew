@@ -316,193 +316,195 @@ function DocumentEditor() {
 
     return (
         <div className="document-editor-page">
-            {/* Header */}
-            <header className="editor-header">
-                <div className="header-left">
-                    <button className="btn-icon" onClick={handleBack} title="Volver">
-                        <ArrowLeft size={20} />
-                    </button>
-                    <div className="doc-icon-small">
-                        <FileText size={20} />
+            <div className="editor-sticky-header">
+                {/* Header */}
+                <header className="editor-header">
+                    <div className="header-left">
+                        <button className="btn-icon" onClick={handleBack} title="Volver">
+                            <ArrowLeft size={20} />
+                        </button>
+                        <div className="doc-icon-small">
+                            <FileText size={20} />
+                        </div>
+                        <input
+                            type="text"
+                            className="title-input"
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            placeholder="Título del documento"
+                        />
                     </div>
-                    <input
-                        type="text"
-                        className="title-input"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        placeholder="Título del documento"
-                    />
-                </div>
-                <div className="header-right">
-                    {lastSaved && (
-                        <span className="save-status">
-                            <Check size={14} />
-                            Guardado {lastSaved.toLocaleTimeString()}
-                        </span>
-                    )}
-                    <button
-                        className="btn btn-secondary"
-                        onClick={() => setShowComments(!showComments)}
-                        title="Comentarios"
-                    >
-                        <MessageSquare size={18} />
-                        {comments.length > 0 && <span className="comment-badge">{comments.length}</span>}
-                    </button>
-                    <button
-                        className="btn btn-primary"
-                        onClick={() => handleSave(true)}
-                        disabled={isSaving}
-                    >
-                        <Save size={18} />
-                        {isSaving ? 'Guardando...' : 'Guardar'}
-                    </button>
-                </div>
-            </header>
+                    <div className="header-right">
+                        {lastSaved && (
+                            <span className="save-status">
+                                <Check size={14} />
+                                Guardado {lastSaved.toLocaleTimeString()}
+                            </span>
+                        )}
+                        <button
+                            className="btn btn-secondary"
+                            onClick={() => setShowComments(!showComments)}
+                            title="Comentarios"
+                        >
+                            <MessageSquare size={18} />
+                            {comments.length > 0 && <span className="comment-badge">{comments.length}</span>}
+                        </button>
+                        <button
+                            className="btn btn-primary"
+                            onClick={() => handleSave(true)}
+                            disabled={isSaving}
+                        >
+                            <Save size={18} />
+                            {isSaving ? 'Guardando...' : 'Guardar'}
+                        </button>
+                    </div>
+                </header>
 
-            {/* Toolbar */}
-            <div className="editor-toolbar">
-                <div className="toolbar-group">
-                    <button
-                        className={`toolbar-btn ${editor.isActive('bold') ? 'active' : ''}`}
-                        onClick={() => editor.chain().focus().toggleBold().run()}
-                        title="Negrita"
-                    >
-                        <Bold size={18} />
-                    </button>
-                    <button
-                        className={`toolbar-btn ${editor.isActive('italic') ? 'active' : ''}`}
-                        onClick={() => editor.chain().focus().toggleItalic().run()}
-                        title="Cursiva"
-                    >
-                        <Italic size={18} />
-                    </button>
-                    <button
-                        className={`toolbar-btn ${editor.isActive('underline') ? 'active' : ''}`}
-                        onClick={() => editor.chain().focus().toggleUnderline().run()}
-                        title="Subrayado"
-                    >
-                        <UnderlineIcon size={18} />
-                    </button>
-                    <button
-                        className={`toolbar-btn ${editor.isActive('strike') ? 'active' : ''}`}
-                        onClick={() => editor.chain().focus().toggleStrike().run()}
-                        title="Tachado"
-                    >
-                        <Strikethrough size={18} />
-                    </button>
-                    <button
-                        className={`toolbar-btn ${editor.isActive('highlight') ? 'active' : ''}`}
-                        onClick={() => editor.chain().focus().toggleHighlight().run()}
-                        title="Resaltar"
-                    >
-                        <Highlighter size={18} />
-                    </button>
-                </div>
+                {/* Toolbar */}
+                <div className="editor-toolbar">
+                    <div className="toolbar-group">
+                        <button
+                            className={`toolbar-btn ${editor.isActive('bold') ? 'active' : ''}`}
+                            onClick={() => editor.chain().focus().toggleBold().run()}
+                            title="Negrita"
+                        >
+                            <Bold size={18} />
+                        </button>
+                        <button
+                            className={`toolbar-btn ${editor.isActive('italic') ? 'active' : ''}`}
+                            onClick={() => editor.chain().focus().toggleItalic().run()}
+                            title="Cursiva"
+                        >
+                            <Italic size={18} />
+                        </button>
+                        <button
+                            className={`toolbar-btn ${editor.isActive('underline') ? 'active' : ''}`}
+                            onClick={() => editor.chain().focus().toggleUnderline().run()}
+                            title="Subrayado"
+                        >
+                            <UnderlineIcon size={18} />
+                        </button>
+                        <button
+                            className={`toolbar-btn ${editor.isActive('strike') ? 'active' : ''}`}
+                            onClick={() => editor.chain().focus().toggleStrike().run()}
+                            title="Tachado"
+                        >
+                            <Strikethrough size={18} />
+                        </button>
+                        <button
+                            className={`toolbar-btn ${editor.isActive('highlight') ? 'active' : ''}`}
+                            onClick={() => editor.chain().focus().toggleHighlight().run()}
+                            title="Resaltar"
+                        >
+                            <Highlighter size={18} />
+                        </button>
+                    </div>
 
-                <div className="toolbar-divider" />
+                    <div className="toolbar-divider" />
 
-                <div className="toolbar-group">
-                    <button
-                        className={`toolbar-btn ${editor.isActive('heading', { level: 1 }) ? 'active' : ''}`}
-                        onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-                        title="Título 1"
-                    >
-                        <Heading1 size={18} />
-                    </button>
-                    <button
-                        className={`toolbar-btn ${editor.isActive('heading', { level: 2 }) ? 'active' : ''}`}
-                        onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-                        title="Título 2"
-                    >
-                        <Heading2 size={18} />
-                    </button>
-                    <button
-                        className={`toolbar-btn ${editor.isActive('heading', { level: 3 }) ? 'active' : ''}`}
-                        onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-                        title="Título 3"
-                    >
-                        <Heading3 size={18} />
-                    </button>
-                </div>
+                    <div className="toolbar-group">
+                        <button
+                            className={`toolbar-btn ${editor.isActive('heading', { level: 1 }) ? 'active' : ''}`}
+                            onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+                            title="Título 1"
+                        >
+                            <Heading1 size={18} />
+                        </button>
+                        <button
+                            className={`toolbar-btn ${editor.isActive('heading', { level: 2 }) ? 'active' : ''}`}
+                            onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+                            title="Título 2"
+                        >
+                            <Heading2 size={18} />
+                        </button>
+                        <button
+                            className={`toolbar-btn ${editor.isActive('heading', { level: 3 }) ? 'active' : ''}`}
+                            onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+                            title="Título 3"
+                        >
+                            <Heading3 size={18} />
+                        </button>
+                    </div>
 
-                <div className="toolbar-divider" />
+                    <div className="toolbar-divider" />
 
-                <div className="toolbar-group">
-                    <button
-                        className={`toolbar-btn ${editor.isActive({ textAlign: 'left' }) ? 'active' : ''}`}
-                        onClick={() => editor.chain().focus().setTextAlign('left').run()}
-                        title="Alinear izquierda"
-                    >
-                        <AlignLeft size={18} />
-                    </button>
-                    <button
-                        className={`toolbar-btn ${editor.isActive({ textAlign: 'center' }) ? 'active' : ''}`}
-                        onClick={() => editor.chain().focus().setTextAlign('center').run()}
-                        title="Centrar"
-                    >
-                        <AlignCenter size={18} />
-                    </button>
-                    <button
-                        className={`toolbar-btn ${editor.isActive({ textAlign: 'right' }) ? 'active' : ''}`}
-                        onClick={() => editor.chain().focus().setTextAlign('right').run()}
-                        title="Alinear derecha"
-                    >
-                        <AlignRight size={18} />
-                    </button>
-                    <button
-                        className={`toolbar-btn ${editor.isActive({ textAlign: 'justify' }) ? 'active' : ''}`}
-                        onClick={() => editor.chain().focus().setTextAlign('justify').run()}
-                        title="Justificar"
-                    >
-                        <AlignJustify size={18} />
-                    </button>
-                </div>
+                    <div className="toolbar-group">
+                        <button
+                            className={`toolbar-btn ${editor.isActive({ textAlign: 'left' }) ? 'active' : ''}`}
+                            onClick={() => editor.chain().focus().setTextAlign('left').run()}
+                            title="Alinear izquierda"
+                        >
+                            <AlignLeft size={18} />
+                        </button>
+                        <button
+                            className={`toolbar-btn ${editor.isActive({ textAlign: 'center' }) ? 'active' : ''}`}
+                            onClick={() => editor.chain().focus().setTextAlign('center').run()}
+                            title="Centrar"
+                        >
+                            <AlignCenter size={18} />
+                        </button>
+                        <button
+                            className={`toolbar-btn ${editor.isActive({ textAlign: 'right' }) ? 'active' : ''}`}
+                            onClick={() => editor.chain().focus().setTextAlign('right').run()}
+                            title="Alinear derecha"
+                        >
+                            <AlignRight size={18} />
+                        </button>
+                        <button
+                            className={`toolbar-btn ${editor.isActive({ textAlign: 'justify' }) ? 'active' : ''}`}
+                            onClick={() => editor.chain().focus().setTextAlign('justify').run()}
+                            title="Justificar"
+                        >
+                            <AlignJustify size={18} />
+                        </button>
+                    </div>
 
-                <div className="toolbar-divider" />
+                    <div className="toolbar-divider" />
 
-                <div className="toolbar-group">
-                    <button
-                        className={`toolbar-btn ${editor.isActive('bulletList') ? 'active' : ''}`}
-                        onClick={() => editor.chain().focus().toggleBulletList().run()}
-                        title="Lista con viñetas"
-                    >
-                        <List size={18} />
-                    </button>
-                    <button
-                        className={`toolbar-btn ${editor.isActive('orderedList') ? 'active' : ''}`}
-                        onClick={() => editor.chain().focus().toggleOrderedList().run()}
-                        title="Lista numerada"
-                    >
-                        <ListOrdered size={18} />
-                    </button>
-                    <button
-                        className={`toolbar-btn ${editor.isActive('blockquote') ? 'active' : ''}`}
-                        onClick={() => editor.chain().focus().toggleBlockquote().run()}
-                        title="Cita"
-                    >
-                        <Quote size={18} />
-                    </button>
-                </div>
+                    <div className="toolbar-group">
+                        <button
+                            className={`toolbar-btn ${editor.isActive('bulletList') ? 'active' : ''}`}
+                            onClick={() => editor.chain().focus().toggleBulletList().run()}
+                            title="Lista con viñetas"
+                        >
+                            <List size={18} />
+                        </button>
+                        <button
+                            className={`toolbar-btn ${editor.isActive('orderedList') ? 'active' : ''}`}
+                            onClick={() => editor.chain().focus().toggleOrderedList().run()}
+                            title="Lista numerada"
+                        >
+                            <ListOrdered size={18} />
+                        </button>
+                        <button
+                            className={`toolbar-btn ${editor.isActive('blockquote') ? 'active' : ''}`}
+                            onClick={() => editor.chain().focus().toggleBlockquote().run()}
+                            title="Cita"
+                        >
+                            <Quote size={18} />
+                        </button>
+                    </div>
 
-                <div className="toolbar-divider" />
+                    <div className="toolbar-divider" />
 
-                <div className="toolbar-group">
-                    <button
-                        className="toolbar-btn"
-                        onClick={() => editor.chain().focus().undo().run()}
-                        disabled={!editor.can().undo()}
-                        title="Deshacer"
-                    >
-                        <Undo size={18} />
-                    </button>
-                    <button
-                        className="toolbar-btn"
-                        onClick={() => editor.chain().focus().redo().run()}
-                        disabled={!editor.can().redo()}
-                        title="Rehacer"
-                    >
-                        <Redo size={18} />
-                    </button>
+                    <div className="toolbar-group">
+                        <button
+                            className="toolbar-btn"
+                            onClick={() => editor.chain().focus().undo().run()}
+                            disabled={!editor.can().undo()}
+                            title="Deshacer"
+                        >
+                            <Undo size={18} />
+                        </button>
+                        <button
+                            className="toolbar-btn"
+                            onClick={() => editor.chain().focus().redo().run()}
+                            disabled={!editor.can().redo()}
+                            title="Rehacer"
+                        >
+                            <Redo size={18} />
+                        </button>
+                    </div>
                 </div>
             </div>
 
