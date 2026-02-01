@@ -39,21 +39,25 @@ function WhatsAppAnalyzer({ areaId }) {
             // 1. Analyze with OpenAI
             const systemPrompt = {
                 role: 'system',
-                content: `Eres un asistente experto en analizar conversaciones de WhatsApp para gestión de proyectos.
-                Analiza la siguiente conversación y extrae estructuradamente:
-                1. Resumen ejecutivo (breve).
-                2. Participantes identificados.
-                3. Puntos clave discutidos.
-                4. Tareas o Acuerdos (Action Items) con responsables si los hay.
-                5. Sentimiento general (Positivo/Neutro/Negativo/Tenso).
-                
-                Devuelve la respuesta en formato JSON estrictamente con esta estructura:
+                content: `Eres un asistente experto en gestión de proyectos y análisis de comunicaciones.
+                Tu objetivo es procesar registros de chat de WhatsApp (que pueden incluir timestamps y números de teléfono) y extraer información de alto valor para un Project Manager.
+
+                INSTRUCCIONES CLAVE:
+                1. **Identificación de Personas**: Si aparecen números de teléfono (ej. +56 9...), intenta inferir el nombre de la persona basándote en el contexto (ej. si alguien dice "Gracias Ricardo", y el mensaje anterior era del número X, asume que X es Ricardo). Usa los nombres reales en el reporte.
+                2. **Resumen**: Provee un resumen ejecutivo completo (no breve) que explique el contexto, el conflicto o tema principal, y la resolución o estado actual.
+                3. **Puntos Clave**: Lista los argumentos principales, preocupaciones o temas discutidos.
+                4. **Acuerdos y Decisiones**: Separa claramente las decisiones tomadas o acuerdos de "palabra" (ej. "Coincidimos en que vale la pena...").
+                5. **Tareas (Action Items)**: Lista tareas específicas, quién es el responsable (si se sabe) y el estado (pendiente, completado, etc.).
+                6. **Sentimiento**: Analiza la dinámica emocional (ej. "Constructiva pero tensa", "Colaborativa", "Conflicto abierto").
+
+                FORMATO DE SALIDA (JSON ESTRICTO):
                 {
-                    "summary": "...",
-                    "participants": ["..."],
-                    "key_points": ["..."],
-                    "action_items": [{"task": "...", "owner": "..."}],
-                    "sentiment": "..."
+                    "summary": "Resumen detallado...",
+                    "participants": ["Ricardo", "Alexis", ...],
+                    "key_points": ["Punto 1", "Punto 2"],
+                    "agreements": ["Acuerdo 1...", "Decisión tomada..."],
+                    "action_items": [{"task": "Descripción de la tarea", "owner": "Nombre o 'Por definir'", "status": "Pendiente/En proceso"}],
+                    "sentiment": "Descripción del sentimiento"
                 }`
             };
 
@@ -62,10 +66,10 @@ function WhatsAppAnalyzer({ areaId }) {
                 content: inputText
             };
 
-            // Call OpenAI (force JSON response via prompt instructions, could use response_format if supported by proxy)
+            // Call OpenAI
             const response = await callOpenAI([systemPrompt, userMessage]);
 
-            // Parse JSON response - handle potential markdown code blocks
+            // Parse JSON response
             let analysisData;
             try {
                 const content = response.content.replace(/```json/g, '').replace(/```/g, '').trim();
@@ -90,7 +94,6 @@ function WhatsAppAnalyzer({ areaId }) {
 
             setConversations([data, ...conversations]);
             setInputText('');
-            // Expand the new item
             setExpandedIds(prev => [...prev, data.id]);
 
         } catch (error) {
@@ -201,9 +204,20 @@ function WhatsAppAnalyzer({ areaId }) {
                                                         </div>
                                                     )}
 
+                                                    {analysis.agreements && analysis.agreements.length > 0 && (
+                                                        <div className="wa-section">
+                                                            <h5>🤝 Acuerdos y Decisiones</h5>
+                                                            <ul>
+                                                                {analysis.agreements.map((agreement, idx) => (
+                                                                    <li key={idx}>{agreement}</li>
+                                                                ))}
+                                                            </ul>
+                                                        </div>
+                                                    )}
+
                                                     {analysis.action_items && analysis.action_items.length > 0 && (
                                                         <div className="wa-section">
-                                                            <h5>✅ Acuerdos y Tareas</h5>
+                                                            <h5>✅ Tareas Detectadas</h5>
                                                             <ul className="wa-action-list">
                                                                 {analysis.action_items.map((item, idx) => (
                                                                     <li key={idx}>
