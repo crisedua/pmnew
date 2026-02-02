@@ -101,14 +101,30 @@ function ProjectDetail() {
 
         try {
             setLoading(true);
-            const { error } = await supabase
+
+            // Delete related records manually to ensure no FK constraints block deletion
+            // (Even if ON DELETE CASCADE is set, this is safer if RLS policies are strict)
+            await supabase.from('tasks').delete().eq('project_id', id);
+            await supabase.from('documents').delete().eq('project_id', id);
+            await supabase.from('team_members').delete().eq('project_id', id);
+            await supabase.from('project_invitations').delete().eq('project_id', id);
+
+            // Finally delete the project
+            const { data, error } = await supabase
                 .from('projects')
                 .delete()
-                .eq('id', id);
+                .eq('id', id)
+                .select();
 
             if (error) throw error;
 
-            navigate('/dashboard');
+            if (!data || data.length === 0) {
+                // If no rows returned, deletion didn't happen (likely RLS)
+                throw new Error("No tienes permisos para eliminar este proyecto o el proyecto ya no existe.");
+            }
+
+            // Force a full reload to clear any stale state in Dashboard
+            window.location.href = '/dashboard';
         } catch (error) {
             console.error('Error deleting project:', error);
             alert('Error al eliminar el proyecto: ' + error.message);
