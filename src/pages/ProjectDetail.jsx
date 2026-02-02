@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, LogOut } from 'lucide-react';
+import { ArrowLeft, LogOut, Trash2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import ProjectSummary from '../components/ProjectSummary';
 import TasksView from '../components/TasksView';
@@ -94,6 +94,28 @@ function ProjectDetail() {
         }
     };
 
+    const handleDeleteProject = async () => {
+        if (!confirm('¿Estás seguro de que quieres eliminar este proyecto? Esta acción es irreversible y eliminará todos los datos asociados.')) {
+            return;
+        }
+
+        try {
+            setLoading(true);
+            const { error } = await supabase
+                .from('projects')
+                .delete()
+                .eq('id', id);
+
+            if (error) throw error;
+
+            navigate('/dashboard');
+        } catch (error) {
+            console.error('Error deleting project:', error);
+            alert('Error al eliminar el proyecto: ' + error.message);
+            setLoading(false);
+        }
+    };
+
     const tabs = [
         { id: 'resumen', label: 'Resumen', count: null },
         { id: 'tareas', label: 'Tareas', count: tasks.length },
@@ -152,6 +174,13 @@ function ProjectDetail() {
                                 <span className="email-prefix">CB</span>edu@acme.com
                             </span>
                         </div>
+                        <button
+                            className="btn-icon delete-btn"
+                            title="Eliminar Proyecto"
+                            onClick={handleDeleteProject}
+                        >
+                            <Trash2 size={20} />
+                        </button>
                         <button
                             className="btn-icon logout-btn"
                             title="Cerrar sesión"

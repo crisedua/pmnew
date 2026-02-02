@@ -64,6 +64,19 @@
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
 }
 
+.project-header .btn-icon.delete-btn {
+    color: #ef4444;
+    border-color: #fee2e2;
+    background: #fff;
+}
+
+.project-header .btn-icon.delete-btn:hover {
+    background: #fef2f2;
+    border-color: #fca5a5;
+    color: #dc2626;
+    box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.1), 0 2px 4px -1px rgba(239, 68, 68, 0.06);
+}
+
 .project-header .btn-icon:active {
     transform: translateY(0);
 }
