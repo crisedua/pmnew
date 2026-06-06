@@ -1,0 +1,126 @@
+.traceability {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.traceability .card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+}
+
+.traceability h3 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+    color: #1f2937;
+    margin: 0 0 1rem;
+}
+
+.composer-row {
+    margin-bottom: 0.75rem;
+}
+
+.trace-composer select,
+.trace-composer textarea {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+    font-family: inherit;
+    color: #1f2937;
+    background: #fff;
+}
+
+.trace-composer textarea {
+    resize: vertical;
+}
+
+.composer-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 0.75rem;
+}
+
+.composer-actions .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.trace-empty {
+    color: #6b7280;
+    text-align: center;
+    padding: 1rem;
+}
+
+.trace-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.trace-item {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.trace-item:last-child {
+    border-bottom: none;
+}
+
+.trace-icon {
+    flex-shrink: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f3f4f6;
+    color: #6366f1;
+}
+
+.trace-item.comment .trace-icon {
+    background: #ede9fe;
+    color: #8b5cf6;
+}
+
+.trace-body {
+    flex: 1;
+}
+
+.trace-text {
+    font-size: 0.9rem;
+    color: #374151;
+}
+
+.trace-text em {
+    color: #6b7280;
+    font-style: normal;
+    font-weight: 500;
+}
+
+.trace-comment {
+    margin-top: 0.35rem;
+    padding: 0.6rem 0.75rem;
+    background: #f9fafb;
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+    color: #1f2937;
+    white-space: pre-wrap;
+}
+
+.trace-when {
+    margin-top: 0.3rem;
+    font-size: 0.75rem;
+    color: #9ca3af;
+}

@@ -265,3 +265,78 @@
         gap: 1.5rem;
     }
 }
+/* Owner contact chips */
+.owner-contact {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.owner-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.3rem 0.6rem;
+    background: #f3f4f6;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    color: #374151;
+    text-decoration: none;
+}
+
+a.owner-chip:hover {
+    background: #ede9fe;
+    color: #6366f1;
+}
+
+/* Semáforo summary */
+.health-summary {
+    padding: 1.25rem;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+}
+
+.health-summary h3 {
+    margin: 0 0 1rem;
+    color: #1f2937;
+    font-size: 1rem;
+}
+
+.health-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+}
+
+.health-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.85rem;
+    border-radius: 0.5rem;
+    background: #f9fafb;
+    border: 1px solid #f3f4f6;
+}
+
+.health-item.green { border-color: #bbf7d0; }
+.health-item.yellow { border-color: #fde68a; }
+.health-item.red { border-color: #fecaca; }
+
+.health-num {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.health-text {
+    font-size: 0.8rem;
+    color: #6b7280;
+}
+
+.health-hint {
+    margin: 0.85rem 0 0;
+    font-size: 0.75rem;
+}

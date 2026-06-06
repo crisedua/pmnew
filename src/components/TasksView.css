@@ -465,3 +465,48 @@
         padding: 1.5rem;
     }
 }
+/* Health / Semáforo editor */
+.health-task-title {
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0 0 1rem;
+}
+
+.health-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.health-option {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: #374151;
+}
+
+.health-option.selected {
+    border-color: #6366f1;
+    background: #ede9fe;
+    color: #4338ca;
+}
+
+.health-option input {
+    display: none;
+}
+
+.health-option .health-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.health-help {
+    font-size: 0.75rem;
+    margin: 0.6rem 0 0;
+}

@@ -1,0 +1,140 @@
+.initiatives-overview {
+    margin-bottom: 2rem;
+}
+
+.initiatives-title {
+    font-size: 1.1rem;
+    color: #1f2937;
+    margin: 0 0 1rem;
+}
+
+.initiatives-empty {
+    background: #ffffff;
+    border: 1px dashed #d1d5db;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    color: #6b7280;
+    text-align: center;
+}
+
+.initiatives-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.initiative-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    padding: 1rem 1.1rem;
+    cursor: pointer;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    flex-wrap: wrap;
+}
+
+.initiative-card:hover {
+    border-color: #c7d2fe;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
+}
+
+.initiative-main {
+    flex: 1;
+    min-width: 220px;
+}
+
+.initiative-head {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.initiative-health-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.initiative-name {
+    margin: 0;
+    font-size: 1rem;
+    color: #1f2937;
+}
+
+.initiative-chevron {
+    color: #9ca3af;
+}
+
+.initiative-owner {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
+    margin-top: 0.4rem;
+    font-size: 0.8rem;
+    color: #6b7280;
+}
+
+.initiative-owner span,
+.initiative-owner a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: #6b7280;
+    text-decoration: none;
+}
+
+.initiative-owner a:hover {
+    color: #6366f1;
+    text-decoration: underline;
+}
+
+.initiative-metrics {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+    min-width: 200px;
+}
+
+.initiative-progress {
+    width: 100%;
+    text-align: right;
+}
+
+.initiative-progress-bar {
+    height: 8px;
+    background: #e5e7eb;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.initiative-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #6366f1, #8b5cf6);
+    border-radius: 999px;
+    transition: width 0.3s ease;
+}
+
+.initiative-progress-label {
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+.initiative-counts {
+    display: flex;
+    gap: 0.4rem;
+}
+
+.count-pill {
+    font-size: 0.75rem;
+    padding: 0.15rem 0.45rem;
+    border-radius: 999px;
+    background: #f3f4f6;
+    color: #374151;
+    white-space: nowrap;
+}

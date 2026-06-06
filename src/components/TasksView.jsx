@@ -1,9 +1,14 @@
 import React, { useState } from 'react';
 import { Search, Plus, Calendar, Trash2, User, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import TaskHealthBadge from './TaskHealthBadge';
+import { HEALTH } from '../lib/health';
 import './TasksView.css';
 
-function TasksView({ tasks, projectId, onTasksUpdate }) {
+function TasksView({ tasks, projectId, onTasksUpdate, canEdit = false }) {
+    const [healthTask, setHealthTask] = useState(null);
+    const [healthForm, setHealthForm] = useState({ health: '', health_note: '' });
+    const [savingHealth, setSavingHealth] = useState(false);
     const [viewMode, setViewMode] = useState('kanban');
     const [searchQuery, setSearchQuery] = useState('');
     const [filterStatus, setFilterStatus] = useState('Activas');
@@ -122,6 +127,37 @@ function TasksView({ tasks, projectId, onTasksUpdate }) {
         }
     };
 
+    const openHealthEditor = (task) => {
+        if (!canEdit) return;
+        setHealthForm({ health: task.health || '', health_note: task.health_note || '' });
+        setHealthTask(task);
+    };
+
+    const handleSaveHealth = async () => {
+        if (!healthTask) return;
+        setSavingHealth(true);
+        try {
+            const { error } = await supabase
+                .from('tasks')
+                .update({
+                    health: healthForm.health || null,
+                    health_note: healthForm.health_note || null,
+                    updated_at: new Date().toISOString()
+                })
+                .eq('id', healthTask.id);
+
+            if (error) throw error;
+
+            setHealthTask(null);
+            if (onTasksUpdate) await onTasksUpdate();
+        } catch (error) {
+            console.error('Error updating task health:', error);
+            alert('Error al actualizar el semáforo: ' + error.message);
+        } finally {
+            setSavingHealth(false);
+        }
+    };
+
     const filteredTasks = tasks.filter(task => {
         const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesFilter = filterStatus === 'Activas'
@@ -229,6 +265,11 @@ function TasksView({ tasks, projectId, onTasksUpdate }) {
                                                 <span className={`badge ${getPriorityClass(task.priority)}`}>
                                                     {task.priority}
                                                 </span>
+                                                <TaskHealthBadge
+                                                    task={task}
+                                                    showLabel
+                                                    onClick={canEdit ? () => openHealthEditor(task) : undefined}
+                                                />
                                             </div>
                                             <div className="task-footer">
                                                 <div className="flex gap-sm">
@@ -272,6 +313,11 @@ function TasksView({ tasks, projectId, onTasksUpdate }) {
                                 <span className={`badge-status ${getStatusBadgeClass(task.status)}`}>
                                     {getStatusLabel(task.status)}
                                 </span>
+
+                                <TaskHealthBadge
+                                    task={task}
+                                    onClick={canEdit ? () => openHealthEditor(task) : undefined}
+                                />
 
                                 <div className="assignee-info">
                                     <span className="text-sm">{task.assignee_name}</span>
@@ -407,6 +453,74 @@ function TasksView({ tasks, projectId, onTasksUpdate }) {
                                 disabled={isCreating || !newTask.title.trim()}
                             >
                                 {isCreating ? 'Creando...' : 'Crear Tarea'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Health / Semáforo Editor Modal */}
+            {healthTask && (
+                <div className="modal-overlay" onClick={() => !savingHealth && setHealthTask(null)}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h3>Semáforo de la tarea</h3>
+                            <button className="btn-icon" onClick={() => setHealthTask(null)} disabled={savingHealth}>
+                                <X size={20} />
+                            </button>
+                        </div>
+                        <div className="modal-body">
+                            <p className="health-task-title">{healthTask.title}</p>
+                            <div className="form-group">
+                                <label>Estado del semáforo</label>
+                                <div className="health-options">
+                                    <label className={`health-option ${healthForm.health === '' ? 'selected' : ''}`}>
+                                        <input
+                                            type="radio"
+                                            name="health"
+                                            checked={healthForm.health === ''}
+                                            onChange={() => setHealthForm({ ...healthForm, health: '' })}
+                                        />
+                                        Automático
+                                    </label>
+                                    {Object.values(HEALTH).map((h) => (
+                                        <label
+                                            key={h.key}
+                                            className={`health-option ${healthForm.health === h.key ? 'selected' : ''}`}
+                                        >
+                                            <input
+                                                type="radio"
+                                                name="health"
+                                                checked={healthForm.health === h.key}
+                                                onChange={() => setHealthForm({ ...healthForm, health: h.key })}
+                                            />
+                                            <span className="health-dot" style={{ backgroundColor: h.color }} />
+                                            {h.label}
+                                        </label>
+                                    ))}
+                                </div>
+                                <p className="health-help text-secondary">
+                                    Automático: verde si hay avance; amarillo si no hay avance en 2 semanas.
+                                    Usa rojo para señalar un obstáculo o bloqueo.
+                                </p>
+                            </div>
+                            <div className="form-group">
+                                <label>Nota / motivo del obstáculo</label>
+                                <textarea
+                                    rows="3"
+                                    placeholder="Describe la dificultad, la estrategia a aplicar, o por qué se detuvo..."
+                                    value={healthForm.health_note}
+                                    onChange={(e) => setHealthForm({ ...healthForm, health_note: e.target.value })}
+                                    disabled={savingHealth}
+                                />
+                            </div>
+                        </div>
+                        <div className="modal-footer">
+                            <button className="btn" onClick={() => setHealthTask(null)} disabled={savingHealth}>
+                                Cancelar
+                            </button>
+                            <button className="btn btn-primary" onClick={handleSaveHealth} disabled={savingHealth}>
+                                {savingHealth ? 'Guardando...' : 'Guardar'}
                             </button>
                         </div>
                     </div>

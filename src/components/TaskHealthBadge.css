@@ -1,0 +1,31 @@
+.health-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    vertical-align: middle;
+}
+
+.health-badge.clickable {
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 6px;
+    transition: background-color 0.15s ease;
+}
+
+.health-badge.clickable:hover {
+    background-color: rgba(148, 163, 184, 0.15);
+}
+
+.health-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.08);
+}
+
+.health-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary, #94a3b8);
+    white-space: nowrap;
+}

@@ -7,6 +7,8 @@ import TasksView from '../components/TasksView';
 import DocumentsTab from '../components/DocumentsTab';
 import TeamTab from '../components/TeamTab';
 import AIAssistant from '../components/AIAssistant';
+import Traceability from '../components/Traceability';
+import { getUserAreaRole, canEdit } from '../lib/health';
 import './ProjectDetail.css';
 
 function ProjectDetail() {
@@ -22,6 +24,7 @@ function ProjectDetail() {
     const [team, setTeam] = useState([]);
     const [invitations, setInvitations] = useState([]);
     const [user, setUser] = useState(null);
+    const [role, setRole] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -45,6 +48,13 @@ function ProjectDetail() {
 
             if (projectError) throw projectError;
             setProject(projectData);
+
+            // Rol del usuario en el área (para gatear edición vs solo lectura)
+            const { data: { user: currentUser } } = await supabase.auth.getUser();
+            if (currentUser && projectData?.area_id) {
+                const userRole = await getUserAreaRole(projectData.area_id, currentUser.id);
+                setRole(userRole);
+            }
 
             // Fetch tasks
             const { data: tasksData, error: tasksError } = await supabase
@@ -137,6 +147,7 @@ function ProjectDetail() {
         { id: 'tareas', label: 'Tareas', count: tasks.length },
         { id: 'documentos', label: 'Documentos', count: documents.length },
         { id: 'equipo', label: 'Equipo', count: team.length },
+        { id: 'trazabilidad', label: 'Trazabilidad', count: null },
     ];
 
     if (loading) {
@@ -248,6 +259,7 @@ function ProjectDetail() {
                             tasks={tasks}
                             projectId={id}
                             onTasksUpdate={fetchProjectData}
+                            canEdit={canEdit(role)}
                         />
                     )}
                     {activeTab === 'documentos' && (
@@ -263,6 +275,14 @@ function ProjectDetail() {
                             invitations={invitations}
                             projectId={id}
                             onUpdate={fetchProjectData}
+                        />
+                    )}
+                    {activeTab === 'trazabilidad' && user && (
+                        <Traceability
+                            projectId={id}
+                            tasks={tasks}
+                            userId={user.id}
+                            canComment={!!role}
                         />
                     )}
                 </div>

@@ -9,6 +9,9 @@ import {
 import { supabase } from '../lib/supabase';
 import AIAssistant from '../components/AIAssistant';
 import WhatsAppAnalyzer from '../components/WhatsAppAnalyzer';
+import AreaKPIs from '../components/AreaKPIs';
+import InitiativesOverview from '../components/InitiativesOverview';
+import { canEdit } from '../lib/health';
 import './Dashboard.css';
 
 function Dashboard() {
@@ -120,7 +123,7 @@ function Dashboard() {
         try {
             const { data, error } = await supabase
                 .from('projects')
-                .select('*, tasks(id, title, status, priority, due_date)')
+                .select('*, tasks(id, title, status, priority, due_date, health, health_note, last_progress_at, updated_at, created_at)')
                 .eq('area_id', areaId);
 
             if (error) throw error;
@@ -432,6 +435,23 @@ function Dashboard() {
                                     </div>
                                 </div>
                             </div>
+
+                            {/* KPIs de la Comisión */}
+                            {selectedArea && (
+                                <AreaKPIs
+                                    areaId={selectedArea.id}
+                                    userId={user.id}
+                                    canEdit={canEdit(selectedArea.role)}
+                                />
+                            )}
+
+                            {/* Iniciativas (proyectos) con semáforo y owner */}
+                            {selectedArea && (
+                                <InitiativesOverview
+                                    projects={projects}
+                                    onOpen={(projectId) => navigate(`/project/${projectId}`)}
+                                />
+                            )}
 
                             {/* Task Tables */}
                             <div className="tables-grid">

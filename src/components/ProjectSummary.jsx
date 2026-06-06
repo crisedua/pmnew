@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { CheckCircle, Clock, Circle, FileText, Edit, X } from 'lucide-react';
+import { CheckCircle, Clock, Circle, FileText, Edit, X, Mail, Phone, User } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { healthBreakdown } from '../lib/health';
 import './ProjectSummary.css';
 
 function ProjectSummary({ project, tasks, documents, onUpdate }) {
@@ -9,7 +10,10 @@ function ProjectSummary({ project, tasks, documents, onUpdate }) {
         name: project.name || '',
         description: project.description || '',
         status: project.status || 'En Progreso',
-        due_date: project.due_date || ''
+        due_date: project.due_date || '',
+        owner_name: project.owner_name || '',
+        owner_email: project.owner_email || '',
+        owner_phone: project.owner_phone || ''
     });
     const [isSaving, setIsSaving] = useState(false);
 
@@ -18,6 +22,7 @@ function ProjectSummary({ project, tasks, documents, onUpdate }) {
     const pendingTasks = tasks.filter(t => t.status === 'To Do').length;
     const totalTasks = tasks.length;
     const progress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+    const health = healthBreakdown(tasks);
 
     const formatDate = (dateString) => {
         if (!dateString) return 'N/A';
@@ -30,7 +35,10 @@ function ProjectSummary({ project, tasks, documents, onUpdate }) {
             name: project.name || '',
             description: project.description || '',
             status: project.status || 'En Progreso',
-            due_date: project.due_date || ''
+            due_date: project.due_date || '',
+            owner_name: project.owner_name || '',
+            owner_email: project.owner_email || '',
+            owner_phone: project.owner_phone || ''
         });
         setShowEditModal(true);
     };
@@ -45,6 +53,9 @@ function ProjectSummary({ project, tasks, documents, onUpdate }) {
                     description: editForm.description,
                     status: editForm.status,
                     due_date: editForm.due_date || null,
+                    owner_name: editForm.owner_name || null,
+                    owner_email: editForm.owner_email || null,
+                    owner_phone: editForm.owner_phone || null,
                     updated_at: new Date().toISOString()
                 })
                 .eq('id', project.id);
@@ -83,14 +94,54 @@ function ProjectSummary({ project, tasks, documents, onUpdate }) {
 
                 <div className="info-grid">
                     <div className="info-item">
-                        <h4 className="info-label text-secondary">Responsable</h4>
-                        <p>{project.responsible_email || 'No asignado'}</p>
+                        <h4 className="info-label text-secondary">Owner de la Iniciativa</h4>
+                        <p>{project.owner_name || project.responsible_email || 'No asignado'}</p>
                     </div>
                     <div className="info-item">
                         <h4 className="info-label text-secondary">Fecha Límite</h4>
                         <p>{formatDate(project.due_date)}</p>
                     </div>
                 </div>
+
+                {(project.owner_email || project.owner_phone) && (
+                    <div className="owner-contact">
+                        {project.owner_name && (
+                            <span className="owner-chip"><User size={14} /> {project.owner_name}</span>
+                        )}
+                        {project.owner_email && (
+                            <a className="owner-chip" href={`mailto:${project.owner_email}`}>
+                                <Mail size={14} /> {project.owner_email}
+                            </a>
+                        )}
+                        {project.owner_phone && (
+                            <a className="owner-chip" href={`tel:${project.owner_phone}`}>
+                                <Phone size={14} /> {project.owner_phone}
+                            </a>
+                        )}
+                    </div>
+                )}
+            </div>
+
+            {/* Semáforo de tareas */}
+            <div className="health-summary card">
+                <h3>Semáforo de Tareas</h3>
+                <div className="health-grid">
+                    <div className="health-item green">
+                        <span className="health-num">{health.green}</span>
+                        <span className="health-text">🟢 En curso</span>
+                    </div>
+                    <div className="health-item yellow">
+                        <span className="health-num">{health.yellow}</span>
+                        <span className="health-text">🟡 Advertencia</span>
+                    </div>
+                    <div className="health-item red">
+                        <span className="health-num">{health.red}</span>
+                        <span className="health-text">🔴 Bloqueada</span>
+                    </div>
+                </div>
+                <p className="health-hint text-secondary">
+                    Amarillo = sin avance en 2 semanas · Rojo = obstáculo/bloqueo (manual)
+                </p>
             </div>
 
             {/* Statistics Cards */}
@@ -219,6 +270,33 @@ function ProjectSummary({ project, tasks, documents, onUpdate }) {
                                     type="date"
                                     value={editForm.due_date}
                                     onChange={e => setEditForm({ ...editForm, due_date: e.target.value })}
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Owner de la Iniciativa</label>
+                                <input
+                                    type="text"
+                                    placeholder="Nombre del owner"
+                                    value={editForm.owner_name}
+                                    onChange={e => setEditForm({ ...editForm, owner_name: e.target.value })}
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Email del Owner</label>
+                                <input
+                                    type="email"
+                                    placeholder="owner@ejemplo.com"
+                                    value={editForm.owner_email}
+                                    onChange={e => setEditForm({ ...editForm, owner_email: e.target.value })}
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Teléfono del Owner</label>
+                                <input
+                                    type="tel"
+                                    placeholder="+56 9 ..."
+                                    value={editForm.owner_phone}
+                                    onChange={e => setEditForm({ ...editForm, owner_phone: e.target.value })}
                                 />
                             </div>
                         </div>
