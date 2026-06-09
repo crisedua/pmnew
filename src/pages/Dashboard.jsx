@@ -26,6 +26,7 @@ function Dashboard() {
     const [expandedProjects, setExpandedProjects] = useState({});
     const [searchQuery, setSearchQuery] = useState('');
     const [activeView, setActiveView] = useState('dashboard');
+    const [showAreaDropdown, setShowAreaDropdown] = useState(false);
 
     // Modals
     const [showAreaModal, setShowAreaModal] = useState(false);
@@ -175,7 +176,9 @@ function Dashboard() {
 
             setNewArea({ name: '', description: '' });
             setShowAreaModal(false);
-            fetchAreas();
+            await fetchAreas();
+            // Selecciona automáticamente la comisión recién creada (el creador es owner)
+            if (data) setSelectedArea({ ...data, role: 'owner' });
         } catch (error) {
             console.error('Error creating area:', error);
             alert('Error creating area: ' + (error.message || JSON.stringify(error)));
@@ -257,11 +260,47 @@ function Dashboard() {
             {/* Sidebar */}
             <aside className="sidebar">
                 <div className="sidebar-header">
-                    <div className="workspace-selector">
+                    <div
+                        className="workspace-selector"
+                        onClick={() => setShowAreaDropdown(v => !v)}
+                        title="Cambiar de comisión"
+                    >
                         <div className="workspace-icon">📊</div>
-                        <span className="workspace-name">{selectedArea?.name || 'TaskBoard'}</span>
+                        <span className="workspace-name">{selectedArea?.name || 'Selecciona comisión'}</span>
                         <ChevronDown size={16} />
                     </div>
+
+                    {showAreaDropdown && (
+                        <div className="area-dropdown">
+                            <div className="area-dropdown-label">Comisiones</div>
+                            {areas.length === 0 && (
+                                <div className="area-dropdown-empty">No tienes comisiones todavía</div>
+                            )}
+                            {areas.map(area => (
+                                <button
+                                    key={area.id}
+                                    className={`area-dropdown-item ${selectedArea?.id === area.id ? 'active' : ''}`}
+                                    onClick={() => {
+                                        setSelectedArea(area);
+                                        setShowAreaDropdown(false);
+                                    }}
+                                >
+                                    <Folder size={14} />
+                                    <span>{area.name}</span>
+                                    {selectedArea?.id === area.id && <Check size={14} className="area-check" />}
+                                </button>
+                            ))}
+                            <button
+                                className="area-dropdown-new"
+                                onClick={() => {
+                                    setShowAreaDropdown(false);
+                                    setShowAreaModal(true);
+                                }}
+                            >
+                                <Plus size={14} /> Nueva Comisión
+                            </button>
+                        </div>
+                    )}
                 </div>
 
                 <button className="btn-add-new" onClick={() => setShowProjectModal(true)}>
