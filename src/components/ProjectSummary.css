@@ -340,3 +340,84 @@ a.owner-chip:hover {
     margin: 0.85rem 0 0;
     font-size: 0.75rem;
 }
+
+/* Personas asignadas al proyecto */
+.assignees-card {
+    margin-bottom: 1rem;
+}
+
+.assignees-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.assignee-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: #f3f4f6;
+    border-radius: 999px;
+    padding: 0.3rem 0.65rem;
+    font-size: 0.85rem;
+    color: #374151;
+}
+
+.assignee-name {
+    font-weight: 600;
+}
+
+.assignee-email {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: #6b7280;
+    font-size: 0.78rem;
+    text-decoration: none;
+}
+
+.assignee-email:hover {
+    color: #4f46e5;
+}
+
+.assignee-remove {
+    border: none;
+    background: transparent;
+    color: #9ca3af;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 0.1rem;
+    border-radius: 4px;
+}
+
+.assignee-remove:hover {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+.assignee-add-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.assignee-add-form input {
+    flex: 1;
+    min-width: 140px;
+    padding: 0.5rem 0.65rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 0.85rem;
+}
+
+.assignee-add-form .btn-sm {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.5rem 0.8rem;
+    font-size: 0.85rem;
+    white-space: nowrap;
+}

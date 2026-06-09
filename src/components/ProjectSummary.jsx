@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
-import { CheckCircle, Clock, Circle, FileText, Edit, X, Mail, Phone, User } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { CheckCircle, Clock, Circle, FileText, Edit, X, Mail, Phone, User, UserPlus, Trash2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { healthBreakdown } from '../lib/health';
 import './ProjectSummary.css';
 
-function ProjectSummary({ project, tasks, documents, onUpdate }) {
+function ProjectSummary({ project, tasks, documents, onUpdate, canManage = false }) {
     const [showEditModal, setShowEditModal] = useState(false);
+    const [assignees, setAssignees] = useState([]);
+    const [newAssignee, setNewAssignee] = useState({ name: '', email: '' });
+    const [savingAssignee, setSavingAssignee] = useState(false);
     const [editForm, setEditForm] = useState({
         name: project.name || '',
         description: project.description || '',
@@ -16,6 +19,61 @@ function ProjectSummary({ project, tasks, documents, onUpdate }) {
         owner_phone: project.owner_phone || ''
     });
     const [isSaving, setIsSaving] = useState(false);
+
+    useEffect(() => {
+        fetchAssignees();
+    }, [project.id]);
+
+    const fetchAssignees = async () => {
+        const { data, error } = await supabase
+            .from('project_assignees')
+            .select('*')
+            .eq('project_id', project.id)
+            .order('created_at', { ascending: true });
+        if (error) {
+            // La tabla puede no existir aún (SQL sin correr): no rompemos la página.
+            console.warn('Error fetching project assignees:', error.message);
+            return;
+        }
+        setAssignees(data || []);
+    };
+
+    const handleAddAssignee = async (e) => {
+        e.preventDefault();
+        if (!newAssignee.name.trim() && !newAssignee.email.trim()) return;
+        setSavingAssignee(true);
+        try {
+            const { error } = await supabase
+                .from('project_assignees')
+                .insert({
+                    project_id: project.id,
+                    name: newAssignee.name.trim() || null,
+                    email: newAssignee.email.trim() || null,
+                });
+            if (error) throw error;
+            setNewAssignee({ name: '', email: '' });
+            await fetchAssignees();
+        } catch (error) {
+            console.error('Error adding assignee:', error);
+            alert('Error al asignar persona: ' + error.message);
+        } finally {
+            setSavingAssignee(false);
+        }
+    };
+
+    const handleRemoveAssignee = async (id) => {
+        try {
+            const { error } = await supabase
+                .from('project_assignees')
+                .delete()
+                .eq('id', id);
+            if (error) throw error;
+            await fetchAssignees();
+        } catch (error) {
+            console.error('Error removing assignee:', error);
+            alert('Error al quitar persona: ' + error.message);
+        }
+    };
 
     const completedTasks = tasks.filter(t => t.status === 'Complete').length;
     const inProgressTasks = tasks.filter(t => t.status === 'In Progress').length;
@@ -119,6 +177,64 @@ function ProjectSummary({ project, tasks, documents, onUpdate }) {
                             </a>
                         )}
                     </div>
+                )}
+            </div>
+
+            {/* Personas asignadas al proyecto */}
+            <div className="assignees-card card">
+                <div className="info-header">
+                    <h3>Personas Asignadas</h3>
+                </div>
+
+                {assignees.length === 0 ? (
+                    <p className="text-secondary">Nadie asignado todavía.</p>
+                ) : (
+                    <div className="assignees-list">
+                        {assignees.map(a => (
+                            <div key={a.id} className="assignee-chip">
+                                <User size={14} />
+                                <span className="assignee-name">{a.name || a.email}</span>
+                                {a.email && a.name && (
+                                    <a href={`mailto:${a.email}`} className="assignee-email">
+                                        <Mail size={12} /> {a.email}
+                                    </a>
+                                )}
+                                {canManage && (
+                                    <button
+                                        className="assignee-remove"
+                                        title="Quitar"
+                                        onClick={() => handleRemoveAssignee(a.id)}
+                                    >
+                                        <Trash2 size={13} />
+                                    </button>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+                {canManage && (
+                    <form className="assignee-add-form" onSubmit={handleAddAssignee}>
+                        <input
+                            type="text"
+                            placeholder="Nombre"
+                            value={newAssignee.name}
+                            onChange={e => setNewAssignee({ ...newAssignee, name: e.target.value })}
+                        />
+                        <input
+                            type="email"
+                            placeholder="email@ejemplo.com"
+                            value={newAssignee.email}
+                            onChange={e => setNewAssignee({ ...newAssignee, email: e.target.value })}
+                        />
+                        <button
+                            type="submit"
+                            className="btn btn-primary btn-sm"
+                            disabled={savingAssignee || (!newAssignee.name.trim() && !newAssignee.email.trim())}
+                        >
+                            <UserPlus size={16} /> Asignar
+                        </button>
+                    </form>
                 )}
             </div>
 

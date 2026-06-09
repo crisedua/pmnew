@@ -279,6 +279,7 @@ function ProjectDetail() {
                             tasks={tasks}
                             documents={documents}
                             onUpdate={fetchProjectData}
+                            canManage={isAdmin || role === 'owner'}
                         />
                     )}
                     {activeTab === 'tareas' && (
