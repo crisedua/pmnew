@@ -8,9 +8,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import AIAssistant from '../components/AIAssistant';
-import AreaKPIs from '../components/AreaKPIs';
 import InitiativesOverview from '../components/InitiativesOverview';
-import { canEdit } from '../lib/health';
 import { fetchIsAdmin } from '../lib/admin';
 import { fetchProjectKpis, fetchComisionKpi } from '../lib/kpis';
 import './Dashboard.css';
@@ -651,15 +649,6 @@ function Dashboard() {
                                         </div>
                                     </div>
                                 </div>
-                            )}
-
-                            {/* KPIs de la Comisión */}
-                            {selectedArea && (
-                                <AreaKPIs
-                                    areaId={selectedArea.id}
-                                    userId={user.id}
-                                    canEdit={canEdit(selectedArea.role)}
-                                />
                             )}
 
                             {/* Iniciativas (proyectos) con semáforo y owner */}
