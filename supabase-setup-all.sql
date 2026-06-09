@@ -96,6 +96,24 @@ SELECT id, email, raw_user_meta_data->>'full_name'
 FROM auth.users
 ON CONFLICT (id) DO NOTHING;
 
+-- Red de seguridad: garantiza el perfil del creador antes de insertar un área
+CREATE OR REPLACE FUNCTION public.ensure_profile_for_area()
+RETURNS trigger AS $$
+BEGIN
+  INSERT INTO public.profiles (id, email, full_name)
+  SELECT u.id, u.email, u.raw_user_meta_data->>'full_name'
+  FROM auth.users u
+  WHERE u.id = NEW.created_by
+  ON CONFLICT (id) DO NOTHING;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS ensure_profile_before_area ON areas;
+CREATE TRIGGER ensure_profile_before_area
+  BEFORE INSERT ON areas
+  FOR EACH ROW EXECUTE PROCEDURE public.ensure_profile_for_area();
+
 -- Al crear un área, el creador queda como 'owner'
 CREATE OR REPLACE FUNCTION public.add_creator_to_area()
 RETURNS trigger AS $$
