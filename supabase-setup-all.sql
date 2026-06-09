@@ -90,6 +90,12 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
 
+-- Backfill: crea perfiles para usuarios que ya existían antes del trigger
+INSERT INTO public.profiles (id, email, full_name)
+SELECT id, email, raw_user_meta_data->>'full_name'
+FROM auth.users
+ON CONFLICT (id) DO NOTHING;
+
 -- Al crear un área, el creador queda como 'owner'
 CREATE OR REPLACE FUNCTION public.add_creator_to_area()
 RETURNS trigger AS $$
