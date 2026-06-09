@@ -1027,3 +1027,81 @@
     color: #6366f1;
     font-weight: 600;
 }
+
+/* Resumen calculado de la comisión (kpi_comision) */
+.comision-summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.5rem;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.comision-summary-main {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    min-width: 220px;
+    flex: 1;
+}
+
+.comision-summary-label {
+    font-size: 0.8rem;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    font-weight: 600;
+}
+
+.comision-summary-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #111827;
+    line-height: 1;
+}
+
+.comision-summary-bar {
+    height: 8px;
+    background: #f1f5f9;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.comision-summary-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #6366f1, #8b5cf6);
+    border-radius: 999px;
+    transition: width 0.3s;
+}
+
+.comision-summary-stats {
+    display: flex;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+}
+
+.summary-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 64px;
+}
+
+.summary-stat strong {
+    font-size: 1.35rem;
+    color: #111827;
+}
+
+.summary-stat span {
+    font-size: 0.72rem;
+    color: #6b7280;
+    text-align: center;
+}
+
+.summary-stat.ok strong { color: #16a34a; }
+.summary-stat.warn strong { color: #d97706; }
+.summary-stat.danger strong { color: #dc2626; }

@@ -12,6 +12,7 @@ import AreaKPIs from '../components/AreaKPIs';
 import InitiativesOverview from '../components/InitiativesOverview';
 import { canEdit } from '../lib/health';
 import { fetchIsAdmin } from '../lib/admin';
+import { fetchProjectKpis, fetchComisionKpi } from '../lib/kpis';
 import './Dashboard.css';
 
 function Dashboard() {
@@ -20,6 +21,8 @@ function Dashboard() {
     const [projects, setProjects] = useState([]);
     const [projectsByArea, setProjectsByArea] = useState({});
     const [expandedAreas, setExpandedAreas] = useState({});
+    const [projectKpis, setProjectKpis] = useState({});
+    const [comisionKpi, setComisionKpi] = useState(null);
     const [allTasks, setAllTasks] = useState([]);
     const [recentActivity, setRecentActivity] = useState([]);
     const [selectedArea, setSelectedArea] = useState(null);
@@ -66,10 +69,13 @@ function Dashboard() {
     useEffect(() => {
         if (selectedArea) {
             fetchProjects(selectedArea.id);
+            fetchAreaKpis(selectedArea.id);
             // Expande la comisión seleccionada en el árbol del sidebar
             setExpandedAreas(prev => ({ ...prev, [selectedArea.id]: true }));
         } else {
             setProjects([]);
+            setProjectKpis({});
+            setComisionKpi(null);
         }
     }, [selectedArea]);
 
@@ -153,6 +159,20 @@ function Dashboard() {
         } catch (error) {
             console.error('Error fetching projects:', error);
         }
+    };
+
+    const fetchAreaKpis = async (areaId) => {
+        // KPIs calculados en el servidor (vistas kpi_*). Si el SQL aún no se
+        // ha ejecutado, los helpers devuelven vacío y la UI degrada al
+        // cálculo cliente sin romperse.
+        const [rows, comK] = await Promise.all([
+            fetchProjectKpis(areaId),
+            fetchComisionKpi(areaId),
+        ]);
+        const byId = {};
+        rows.forEach(r => { byId[r.proyecto_id] = r; });
+        setProjectKpis(byId);
+        setComisionKpi(comK);
     };
 
     const fetchProjectsForAllAreas = async () => {
@@ -552,6 +572,44 @@ function Dashboard() {
                                 </div>
                             )}
 
+                            {/* Resumen calculado de la comisión (vista kpi_comision) */}
+                            {selectedArea && comisionKpi && (
+                                <div className="comision-summary">
+                                    <div className="comision-summary-main">
+                                        <span className="comision-summary-label">Avance global</span>
+                                        <span className="comision-summary-value">{comisionKpi.avance_global_pct}%</span>
+                                        <div className="comision-summary-bar">
+                                            <div
+                                                className="comision-summary-fill"
+                                                style={{ width: `${comisionKpi.avance_global_pct}%` }}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="comision-summary-stats">
+                                        <div className="summary-stat">
+                                            <strong>{comisionKpi.proyectos_total}</strong>
+                                            <span>Proyectos</span>
+                                        </div>
+                                        <div className="summary-stat ok">
+                                            <strong>{comisionKpi.proyectos_completados}</strong>
+                                            <span>Completados</span>
+                                        </div>
+                                        <div className="summary-stat warn">
+                                            <strong>{comisionKpi.proyectos_en_riesgo}</strong>
+                                            <span>En riesgo</span>
+                                        </div>
+                                        <div className="summary-stat danger">
+                                            <strong>{comisionKpi.proyectos_atrasados}</strong>
+                                            <span>Atrasados</span>
+                                        </div>
+                                        <div className="summary-stat danger">
+                                            <strong>{comisionKpi.actividades_vencidas}</strong>
+                                            <span>Act. vencidas</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
                             {/* KPIs de la Comisión */}
                             {selectedArea && (
                                 <AreaKPIs
@@ -565,6 +623,7 @@ function Dashboard() {
                             {selectedArea && (
                                 <InitiativesOverview
                                     projects={projects}
+                                    kpisById={projectKpis}
                                     onOpen={(projectId) => navigate(`/project/${projectId}`)}
                                 />
                             )}
