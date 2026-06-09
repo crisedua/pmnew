@@ -14,10 +14,9 @@
 ALTER TABLE public.profiles
   ADD COLUMN IF NOT EXISTS is_admin BOOLEAN NOT NULL DEFAULT false;
 
--- Admin por defecto (si el perfil ya existe)
-UPDATE public.profiles
-  SET is_admin = true
-  WHERE lower(email) IN ('ed@eduardoescalante.com', 'eduardo@soloeduia.com');
+-- NOTA: el seed de admins por defecto (UPDATE ... SET is_admin = true) se hace
+-- al final, después de definir protect_admin_flag con el guard de auth.uid(),
+-- para que una re-ejecución no sea bloqueada por el trigger.
 
 -- 2. Asegurar admin por defecto también al registrarse -------
 -- (por si el perfil de un admin por defecto se crea después)
@@ -89,6 +88,8 @@ CREATE TRIGGER trg_invitations_admin_only
 -- 5. Proteger el flag is_admin --------------------------------
 -- Aunque la UI solo lo expone a admins, garantizamos en BD que
 -- un no-admin no pueda auto-otorgarse el rol.
+-- Permite cambios cuando auth.uid() IS NULL (SQL Editor / contexto servidor);
+-- solo bloquea a usuarios autenticados que no son admin.
 CREATE OR REPLACE FUNCTION public.protect_admin_flag()
 RETURNS trigger
 LANGUAGE plpgsql
@@ -97,6 +98,7 @@ SET search_path = public
 AS $$
 BEGIN
   IF NEW.is_admin IS DISTINCT FROM OLD.is_admin
+     AND auth.uid() IS NOT NULL
      AND NOT public.is_platform_admin() THEN
     RAISE EXCEPTION 'Solo los administradores pueden cambiar el rol de administrador'
       USING ERRCODE = '42501';
@@ -109,6 +111,11 @@ DROP TRIGGER IF EXISTS trg_protect_admin_flag ON public.profiles;
 CREATE TRIGGER trg_protect_admin_flag
   BEFORE UPDATE ON public.profiles
   FOR EACH ROW EXECUTE FUNCTION public.protect_admin_flag();
+
+-- Seed de admins por defecto (después del trigger corregido).
+UPDATE public.profiles
+  SET is_admin = true
+  WHERE lower(email) IN ('ed@eduardoescalante.com', 'eduardo@soloeduia.com');
 
 -- 6. Políticas para la sección /admin -------------------------
 -- Permiten a un admin ver todos los perfiles y actualizar el rol.

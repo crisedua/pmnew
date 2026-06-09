@@ -43,10 +43,6 @@ $$;
 ALTER TABLE public.profiles
   ADD COLUMN IF NOT EXISTS is_admin BOOLEAN NOT NULL DEFAULT false;
 
-UPDATE public.profiles
-  SET is_admin = true
-  WHERE lower(email) IN ('ed@eduardoescalante.com', 'eduardo@soloeduia.com');
-
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger AS $$
 BEGIN
@@ -96,10 +92,13 @@ CREATE TRIGGER trg_invitations_admin_only
   BEFORE INSERT ON public.project_invitations
   FOR EACH ROW EXECUTE FUNCTION public.require_admin();
 
+-- Permite cambios cuando auth.uid() IS NULL (SQL Editor / contexto servidor);
+-- solo bloquea a usuarios autenticados que no son admin.
 CREATE OR REPLACE FUNCTION public.protect_admin_flag()
 RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
 BEGIN
   IF NEW.is_admin IS DISTINCT FROM OLD.is_admin
+     AND auth.uid() IS NOT NULL
      AND NOT public.is_platform_admin() THEN
     RAISE EXCEPTION 'Solo los administradores pueden cambiar el rol de administrador'
       USING ERRCODE = '42501';
@@ -112,6 +111,12 @@ DROP TRIGGER IF EXISTS trg_protect_admin_flag ON public.profiles;
 CREATE TRIGGER trg_protect_admin_flag
   BEFORE UPDATE ON public.profiles
   FOR EACH ROW EXECUTE FUNCTION public.protect_admin_flag();
+
+-- Seed de admins por defecto: va DESPUÉS del trigger ya corregido, para que
+-- una re-ejecución no sea bloqueada (auth.uid() es NULL en el SQL Editor).
+UPDATE public.profiles
+  SET is_admin = true
+  WHERE lower(email) IN ('ed@eduardoescalante.com', 'eduardo@soloeduia.com');
 
 DROP POLICY IF EXISTS "Admins can view all profiles" ON public.profiles;
 CREATE POLICY "Admins can view all profiles"
