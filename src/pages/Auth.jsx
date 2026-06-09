@@ -111,10 +111,29 @@ export function Register() {
             if (data.session) {
                 // Email confirmation is disabled, user is logged in automatically
                 navigate('/dashboard');
-            } else {
-                // Email confirmation is enabled: Supabase did not create a session.
-                // Show a clear message asking the user to confirm their email.
+                return;
+            }
+
+            // No session was returned. This happens when email confirmation is
+            // enabled, but also when the account already exists (Supabase hides
+            // that for security). Try signing in directly: if confirmation is
+            // disabled this succeeds and we go straight to the dashboard.
+            const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
+                email,
+                password,
+            });
+
+            if (loginData?.session) {
+                navigate('/dashboard');
+                return;
+            }
+
+            // Login failed. Only show the "confirm your email" screen when that
+            // is genuinely the reason; otherwise surface the real error.
+            if (loginError && /confirm/i.test(loginError.message)) {
                 setConfirmationSent(true);
+            } else {
+                setError(loginError?.message || 'No se pudo iniciar sesión. Verifica tu email y contraseña.');
             }
         } catch (error) {
             setError(error.message);
