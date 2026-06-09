@@ -402,26 +402,7 @@ CREATE POLICY "Delete project-documents" ON storage.objects
 FOR DELETE TO authenticated USING (bucket_id = 'project-documents');
 
 -- ============================================================
--- 6. WHATSAPP (opcional, feature de análisis)
--- ============================================================
-CREATE TABLE IF NOT EXISTS whatsapp_conversations (
-    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-    area_id UUID REFERENCES areas(id) ON DELETE CASCADE,
-    content TEXT NOT NULL,
-    analysis JSONB,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-ALTER TABLE whatsapp_conversations ENABLE ROW LEVEL SECURITY;
-
-DROP POLICY IF EXISTS "Users can manage whatsapp conversations for their areas" ON whatsapp_conversations;
-CREATE POLICY "Users can manage whatsapp conversations for their areas"
-ON whatsapp_conversations FOR ALL TO authenticated
-USING (EXISTS (SELECT 1 FROM area_members am WHERE am.area_id = whatsapp_conversations.area_id AND am.user_id = auth.uid()))
-WITH CHECK (EXISTS (SELECT 1 FROM area_members am WHERE am.area_id = whatsapp_conversations.area_id AND am.user_id = auth.uid()));
-
--- ============================================================
--- 7. CAPA OKR (KPIs, semáforo, comentarios y trazabilidad de tareas)
+-- 6. CAPA OKR (KPIs, semáforo, comentarios y trazabilidad de tareas)
 --    Idéntico a supabase-okr.sql
 -- ============================================================
 CREATE TABLE IF NOT EXISTS area_kpis (

@@ -3,12 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import {
     LogOut, Plus, X, Folder, Share2, ChevronRight, ChevronDown,
     Search, Bell, FileText, LayoutDashboard, Inbox, Users, BarChart3,
-    Settings, FolderPlus, CheckSquare, UserPlus, MessageSquare, HelpCircle,
+    Settings, FolderPlus, CheckSquare, UserPlus, HelpCircle,
     Check, Calendar, Flag
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import AIAssistant from '../components/AIAssistant';
-import WhatsAppAnalyzer from '../components/WhatsAppAnalyzer';
 import AreaKPIs from '../components/AreaKPIs';
 import InitiativesOverview from '../components/InitiativesOverview';
 import { canEdit } from '../lib/health';
@@ -316,13 +315,6 @@ function Dashboard() {
                         <LayoutDashboard size={18} />
                         Dashboard
                     </a>
-                    <a
-                        className={`nav-item ${activeView === 'whatsapp' ? 'active' : ''}`}
-                        onClick={() => setActiveView('whatsapp')}
-                    >
-                        <MessageSquare size={18} />
-                        Análisis WhatsApp
-                    </a>
                     <a className="nav-item">
                         <Users size={18} />
                         Teams
@@ -420,18 +412,6 @@ function Dashboard() {
 
                 {/* Dashboard Content */}
                 <div className="dashboard-content">
-                    {activeView === 'whatsapp' ? (
-                        <>
-                            <h1 className="page-title">Análisis WhatsApp - {selectedArea?.name}</h1>
-                            {selectedArea ? (
-                                <WhatsAppAnalyzer areaId={selectedArea.id} />
-                            ) : (
-                                <div className="empty-state">
-                                    <p>Selecciona un área para comenzar.</p>
-                                </div>
-                            )}
-                        </>
-                    ) : (
                         <>
                             <h1 className="page-title">Dashboard</h1>
 
@@ -461,15 +441,6 @@ function Dashboard() {
                                     </div>
                                     <div className="action-text">
                                         <strong>Invitar Equipo</strong>
-                                        <span>Organiza tus tareas</span>
-                                    </div>
-                                </div>
-                                <div className="action-card" onClick={() => setActiveView('whatsapp')}>
-                                    <div className="action-icon orange">
-                                        <MessageSquare size={24} />
-                                    </div>
-                                    <div className="action-text">
-                                        <strong>Analizar WhatsApp</strong>
                                         <span>Organiza tus tareas</span>
                                     </div>
                                 </div>
@@ -611,7 +582,6 @@ function Dashboard() {
                                 </div>
                             </div>
                         </>
-                    )}
                 </div>
             </main>
 
