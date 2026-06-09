@@ -221,6 +221,29 @@
     padding: 0.05rem 0.45rem;
 }
 
+.area-tree-delete {
+    border: none;
+    background: transparent;
+    color: #9ca3af;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.15rem;
+    border-radius: 4px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.15s, color 0.15s, background 0.15s;
+}
+
+.area-tree-header:hover .area-tree-delete {
+    opacity: 1;
+}
+
+.area-tree-delete:hover {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
 .area-tree-projects {
     margin-left: 1.5rem;
     padding: 0.15rem 0;

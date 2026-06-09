@@ -4,7 +4,7 @@ import {
     LogOut, Plus, X, Folder, Share2, ChevronRight, ChevronDown,
     Search, Bell, FileText, LayoutDashboard, Inbox, Users, BarChart3,
     Settings, FolderPlus, CheckSquare, UserPlus, HelpCircle,
-    Check, Calendar, Flag
+    Check, Calendar, Flag, Trash2
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import AIAssistant from '../components/AIAssistant';
@@ -201,6 +201,36 @@ function Dashboard() {
 
     const toggleAreaExpand = (areaId) => {
         setExpandedAreas(prev => ({ ...prev, [areaId]: !prev[areaId] }));
+    };
+
+    const handleDeleteArea = async (area, e) => {
+        if (e) e.stopPropagation();
+        if (!confirm(
+            `¿Eliminar la comisión "${area.name}"?\n\n` +
+            'Se borrarán también todos sus proyectos y tareas. Esta acción no se puede deshacer.'
+        )) return;
+
+        try {
+            const { data, error } = await supabase
+                .from('areas')
+                .delete()
+                .eq('id', area.id)
+                .select();
+
+            if (error) throw error;
+
+            // Con RLS, un DELETE sin permiso borra 0 filas sin lanzar error.
+            if (!data || data.length === 0) {
+                alert('No tienes permisos para eliminar esta comisión.');
+                return;
+            }
+
+            if (selectedArea?.id === area.id) setSelectedArea(null);
+            await fetchAreas();
+        } catch (err) {
+            console.error('Error deleting area:', err);
+            alert('Error al eliminar la comisión: ' + (err.message || JSON.stringify(err)));
+        }
     };
 
     const fetchAllTasks = async () => {
@@ -428,6 +458,15 @@ function Dashboard() {
                                     <span className="area-tree-name">{area.name}</span>
                                     {areaProjects.length > 0 && (
                                         <span className="area-count">{areaProjects.length}</span>
+                                    )}
+                                    {(isAdmin || area.role === 'owner') && (
+                                        <button
+                                            className="area-tree-delete"
+                                            title="Eliminar comisión"
+                                            onClick={(e) => handleDeleteArea(area, e)}
+                                        >
+                                            <Trash2 size={14} />
+                                        </button>
                                     )}
                                 </div>
                                 {isExpanded && (
