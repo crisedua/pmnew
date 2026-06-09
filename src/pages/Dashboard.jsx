@@ -46,7 +46,9 @@ function Dashboard() {
         name: '',
         description: '',
         due_date: '',
-        status: 'En Progreso'
+        status: 'En Progreso',
+        owner_name: '',
+        owner_email: ''
     });
 
     useEffect(() => {
@@ -291,12 +293,14 @@ function Dashboard() {
                     description: newProject.description,
                     status: newProject.status,
                     due_date: newProject.due_date || null,
+                    owner_name: newProject.owner_name || null,
+                    owner_email: newProject.owner_email || null,
                     created_by: user.id
                 });
 
             if (error) throw error;
 
-            setNewProject({ name: '', description: '', due_date: '', status: 'En Progreso' });
+            setNewProject({ name: '', description: '', due_date: '', status: 'En Progreso', owner_name: '', owner_email: '' });
             setShowProjectModal(false);
             fetchProjects(selectedArea.id);
             fetchProjectsForAllAreas();
@@ -867,6 +871,24 @@ function Dashboard() {
                                     type="date"
                                     value={newProject.due_date}
                                     onChange={e => setNewProject({ ...newProject, due_date: e.target.value })}
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Responsable</label>
+                                <input
+                                    type="text"
+                                    value={newProject.owner_name}
+                                    onChange={e => setNewProject({ ...newProject, owner_name: e.target.value })}
+                                    placeholder="Nombre de la persona a cargo"
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Email del responsable</label>
+                                <input
+                                    type="email"
+                                    value={newProject.owner_email}
+                                    onChange={e => setNewProject({ ...newProject, owner_email: e.target.value })}
+                                    placeholder="email@ejemplo.com"
                                 />
                             </div>
                         </div>
