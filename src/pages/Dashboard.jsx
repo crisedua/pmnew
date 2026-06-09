@@ -30,6 +30,7 @@ function Dashboard() {
     const [searchQuery, setSearchQuery] = useState('');
     const [activeView, setActiveView] = useState('dashboard');
     const [showAreaDropdown, setShowAreaDropdown] = useState(false);
+    const [showUserMenu, setShowUserMenu] = useState(false);
 
     // Modals
     const [showAreaModal, setShowAreaModal] = useState(false);
@@ -478,8 +479,37 @@ function Dashboard() {
                         <button className="btn-icon">
                             <Bell size={20} />
                         </button>
-                        <div className="user-avatar" onClick={handleLogout} title="Cerrar sesión">
-                            {user?.email?.[0]?.toUpperCase() || 'U'}
+                        <div className="user-menu">
+                            <div
+                                className="user-avatar"
+                                onClick={() => setShowUserMenu(v => !v)}
+                                title="Cuenta"
+                            >
+                                {user?.email?.[0]?.toUpperCase() || 'U'}
+                            </div>
+                            {showUserMenu && (
+                                <>
+                                    <div className="user-menu-backdrop" onClick={() => setShowUserMenu(false)} />
+                                    <div className="user-menu-dropdown">
+                                        <div className="user-menu-info">
+                                            <div className="user-menu-avatar">
+                                                {user?.email?.[0]?.toUpperCase() || 'U'}
+                                            </div>
+                                            <div className="user-menu-details">
+                                                <span className="user-menu-name">
+                                                    {user?.user_metadata?.full_name || 'Usuario'}
+                                                </span>
+                                                <span className="user-menu-email">{user?.email}</span>
+                                                {isAdmin && <span className="user-menu-role">Administrador</span>}
+                                            </div>
+                                        </div>
+                                        <button className="user-menu-logout" onClick={handleLogout}>
+                                            <LogOut size={16} />
+                                            Cerrar sesión
+                                        </button>
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </div>
                 </header>
