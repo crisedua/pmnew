@@ -5,7 +5,7 @@ import TaskHealthBadge from './TaskHealthBadge';
 import { HEALTH } from '../lib/health';
 import './TasksView.css';
 
-function TasksView({ tasks, projectId, onTasksUpdate, canEdit = false }) {
+function TasksView({ tasks, projectId, onTasksUpdate, canEdit = false, canCreate = false }) {
     const [healthTask, setHealthTask] = useState(null);
     const [healthForm, setHealthForm] = useState({ health: '', health_note: '' });
     const [savingHealth, setSavingHealth] = useState(false);
@@ -217,13 +217,15 @@ function TasksView({ tasks, projectId, onTasksUpdate, canEdit = false }) {
                         <option>Todas</option>
                     </select>
 
-                    <button
-                        className="btn btn-primary"
-                        onClick={() => setShowTaskModal(true)}
-                    >
-                        <Plus size={18} />
-                        Nueva Tarea
-                    </button>
+                    {canCreate && (
+                        <button
+                            className="btn btn-primary"
+                            onClick={() => setShowTaskModal(true)}
+                        >
+                            <Plus size={18} />
+                            Nueva Tarea
+                        </button>
+                    )}
                 </div>
             </div>
 
@@ -235,15 +237,17 @@ function TasksView({ tasks, projectId, onTasksUpdate, canEdit = false }) {
                             <div className="column-header">
                                 <h3>{columnLabels[status]}</h3>
                                 <span className="task-count">{statusTasks.length}</span>
-                                <button
-                                    className="btn-icon"
-                                    onClick={() => {
-                                        setNewTask({ ...newTask, status });
-                                        setShowTaskModal(true);
-                                    }}
-                                >
-                                    <Plus size={18} />
-                                </button>
+                                {canCreate && (
+                                    <button
+                                        className="btn-icon"
+                                        onClick={() => {
+                                            setNewTask({ ...newTask, status });
+                                            setShowTaskModal(true);
+                                        }}
+                                    >
+                                        <Plus size={18} />
+                                    </button>
+                                )}
                             </div>
 
                             <div className="column-tasks">

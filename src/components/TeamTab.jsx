@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Users, Mail, User, Plus, X, SendsTo } from 'lucide-react';
+import { Users, Mail, User, Plus, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import './TeamTab.css';
 
-function TeamTab({ team = [], invitations = [], projectId, onUpdate }) {
+function TeamTab({ team = [], invitations = [], projectId, onUpdate, canInvite = false }) {
     const [showInviteModal, setShowInviteModal] = useState(false);
     const [inviteEmail, setInviteEmail] = useState('');
     const [inviteRole, setInviteRole] = useState('member');
@@ -65,10 +65,12 @@ function TeamTab({ team = [], invitations = [], projectId, onUpdate }) {
                             {team.length} miembro{team.length !== 1 ? 's' : ''} del equipo
                         </p>
                     </div>
-                    <button className="btn btn-primary" onClick={() => setShowInviteModal(true)}>
-                        <Plus size={20} />
-                        Invitar Miembro
-                    </button>
+                    {canInvite && (
+                        <button className="btn btn-primary" onClick={() => setShowInviteModal(true)}>
+                            <Plus size={20} />
+                            Invitar Miembro
+                        </button>
+                    )}
                 </div>
             </div>
 

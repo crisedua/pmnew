@@ -9,6 +9,7 @@ import TeamTab from '../components/TeamTab';
 import AIAssistant from '../components/AIAssistant';
 import Traceability from '../components/Traceability';
 import { getUserAreaRole, canEdit } from '../lib/health';
+import { fetchIsAdmin } from '../lib/admin';
 import './ProjectDetail.css';
 
 function ProjectDetail() {
@@ -25,6 +26,7 @@ function ProjectDetail() {
     const [invitations, setInvitations] = useState([]);
     const [user, setUser] = useState(null);
     const [role, setRole] = useState(null);
+    const [isAdmin, setIsAdmin] = useState(false);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -35,6 +37,7 @@ function ProjectDetail() {
     const checkUser = async () => {
         const { data: { user } } = await supabase.auth.getUser();
         setUser(user);
+        if (user) setIsAdmin(await fetchIsAdmin(user.id));
     };
 
     const fetchProjectData = async () => {
@@ -260,6 +263,7 @@ function ProjectDetail() {
                             projectId={id}
                             onTasksUpdate={fetchProjectData}
                             canEdit={canEdit(role)}
+                            canCreate={isAdmin}
                         />
                     )}
                     {activeTab === 'documentos' && (
@@ -275,6 +279,7 @@ function ProjectDetail() {
                             invitations={invitations}
                             projectId={id}
                             onUpdate={fetchProjectData}
+                            canInvite={isAdmin}
                         />
                     )}
                     {activeTab === 'trazabilidad' && user && (

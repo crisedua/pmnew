@@ -11,6 +11,7 @@ import AIAssistant from '../components/AIAssistant';
 import AreaKPIs from '../components/AreaKPIs';
 import InitiativesOverview from '../components/InitiativesOverview';
 import { canEdit } from '../lib/health';
+import { fetchIsAdmin } from '../lib/admin';
 import './Dashboard.css';
 
 function Dashboard() {
@@ -21,6 +22,7 @@ function Dashboard() {
     const [recentActivity, setRecentActivity] = useState([]);
     const [selectedArea, setSelectedArea] = useState(null);
     const [user, setUser] = useState(null);
+    const [isAdmin, setIsAdmin] = useState(false);
     const [loading, setLoading] = useState(true);
     const [expandedProjects, setExpandedProjects] = useState({});
     const [searchQuery, setSearchQuery] = useState('');
@@ -64,6 +66,7 @@ function Dashboard() {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
             setUser(user);
+            setIsAdmin(await fetchIsAdmin(user.id));
         } else {
             navigate('/login');
         }
@@ -302,10 +305,12 @@ function Dashboard() {
                     )}
                 </div>
 
-                <button className="btn-add-new" onClick={() => setShowProjectModal(true)}>
-                    <Plus size={18} />
-                    Añadir Nuevo
-                </button>
+                {isAdmin && (
+                    <button className="btn-add-new" onClick={() => setShowProjectModal(true)}>
+                        <Plus size={18} />
+                        Añadir Nuevo
+                    </button>
+                )}
 
                 <nav className="sidebar-nav">
                     <a
@@ -323,18 +328,22 @@ function Dashboard() {
                         <BarChart3 size={18} />
                         Analytics
                     </a>
-                    <a className="nav-item">
-                        <Settings size={18} />
-                        Settings
-                    </a>
+                    {isAdmin && (
+                        <a className="nav-item" onClick={() => navigate('/admin')}>
+                            <Settings size={18} />
+                            Admin
+                        </a>
+                    )}
                 </nav>
 
                 <div className="sidebar-section">
                     <div className="section-header">
-                        <span>Añadir Proyectos</span>
-                        <button className="btn-icon-sm" onClick={() => setShowProjectModal(true)}>
-                            <Plus size={14} />
-                        </button>
+                        <span>Proyectos</span>
+                        {isAdmin && (
+                            <button className="btn-icon-sm" onClick={() => setShowProjectModal(true)}>
+                                <Plus size={14} />
+                            </button>
+                        )}
                     </div>
 
                     {projects.map(project => (
@@ -373,10 +382,12 @@ function Dashboard() {
                 </div>
 
                 <div className="sidebar-footer">
-                    <button className="btn-footer" onClick={() => copyInviteLink(selectedArea?.share_token)}>
-                        <UserPlus size={16} />
-                        Invite Team
-                    </button>
+                    {isAdmin && (
+                        <button className="btn-footer" onClick={() => copyInviteLink(selectedArea?.share_token)}>
+                            <UserPlus size={16} />
+                            Invitar Equipo
+                        </button>
+                    )}
                     <button className="btn-footer">
                         <HelpCircle size={16} />
                         Help
@@ -415,36 +426,38 @@ function Dashboard() {
                         <>
                             <h1 className="page-title">Dashboard</h1>
 
-                            {/* Quick Actions */}
-                            <div className="quick-actions">
-                                <div className="action-card" onClick={() => setShowProjectModal(true)}>
-                                    <div className="action-icon blue">
-                                        <FolderPlus size={24} />
+                            {/* Quick Actions (solo administradores) */}
+                            {isAdmin && (
+                                <div className="quick-actions">
+                                    <div className="action-card" onClick={() => setShowProjectModal(true)}>
+                                        <div className="action-icon blue">
+                                            <FolderPlus size={24} />
+                                        </div>
+                                        <div className="action-text">
+                                            <strong>Crear Proyecto</strong>
+                                            <span>Organiza tus tareas</span>
+                                        </div>
                                     </div>
-                                    <div className="action-text">
-                                        <strong>Crear Proyecto</strong>
-                                        <span>Organiza tus tareas</span>
+                                    <div className="action-card" onClick={() => projects[0] && navigate(`/project/${projects[0].id}`)}>
+                                        <div className="action-icon purple">
+                                            <CheckSquare size={24} />
+                                        </div>
+                                        <div className="action-text">
+                                            <strong>Crear Tarea</strong>
+                                            <span>Organiza tus tareas</span>
+                                        </div>
+                                    </div>
+                                    <div className="action-card" onClick={() => copyInviteLink(selectedArea?.share_token)}>
+                                        <div className="action-icon green">
+                                            <UserPlus size={24} />
+                                        </div>
+                                        <div className="action-text">
+                                            <strong>Invitar Equipo</strong>
+                                            <span>Organiza tus tareas</span>
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="action-card" onClick={() => projects[0] && navigate(`/project/${projects[0].id}`)}>
-                                    <div className="action-icon purple">
-                                        <CheckSquare size={24} />
-                                    </div>
-                                    <div className="action-text">
-                                        <strong>Crear Tarea</strong>
-                                        <span>Organiza tus tareas</span>
-                                    </div>
-                                </div>
-                                <div className="action-card" onClick={() => copyInviteLink(selectedArea?.share_token)}>
-                                    <div className="action-icon green">
-                                        <UserPlus size={24} />
-                                    </div>
-                                    <div className="action-text">
-                                        <strong>Invitar Equipo</strong>
-                                        <span>Organiza tus tareas</span>
-                                    </div>
-                                </div>
-                            </div>
+                            )}
 
                             {/* KPIs de la Comisión */}
                             {selectedArea && (
