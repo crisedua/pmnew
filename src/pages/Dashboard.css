@@ -179,6 +179,98 @@
     background: #f9fafb;
 }
 
+/* Árbol de Comisiones -> Proyectos en el sidebar */
+.area-tree-item {
+    margin: 0.15rem 0.5rem;
+}
+
+.area-tree-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    cursor: pointer;
+    color: #374151;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+
+.area-tree-header:hover {
+    background: #f3f4f6;
+}
+
+.area-tree-header.active {
+    background: #eef2ff;
+    color: #4f46e5;
+}
+
+.area-tree-name {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.area-count {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #6b7280;
+    background: #e5e7eb;
+    border-radius: 999px;
+    padding: 0.05rem 0.45rem;
+}
+
+.area-tree-projects {
+    margin-left: 1.5rem;
+    padding: 0.15rem 0;
+    border-left: 1px solid #e5e7eb;
+}
+
+.project-tree-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.6rem;
+    font-size: 0.875rem;
+    color: #4b5563;
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.project-tree-item:hover {
+    background: #f3f4f6;
+    color: #4f46e5;
+}
+
+.area-tree-add {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    width: 100%;
+    padding: 0.35rem 0.6rem;
+    margin-top: 0.15rem;
+    border: none;
+    background: transparent;
+    color: #6366f1;
+    font-size: 0.8rem;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.area-tree-add:hover {
+    background: #eef2ff;
+}
+
+.tree-empty {
+    padding: 0.4rem 0.85rem;
+    font-size: 0.8rem;
+    color: #9ca3af;
+}
+
 .sidebar-footer {
     padding: 1rem;
     border-top: 1px solid #e5e7eb;

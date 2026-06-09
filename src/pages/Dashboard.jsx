@@ -18,6 +18,8 @@ function Dashboard() {
     const navigate = useNavigate();
     const [areas, setAreas] = useState([]);
     const [projects, setProjects] = useState([]);
+    const [projectsByArea, setProjectsByArea] = useState({});
+    const [expandedAreas, setExpandedAreas] = useState({});
     const [allTasks, setAllTasks] = useState([]);
     const [recentActivity, setRecentActivity] = useState([]);
     const [selectedArea, setSelectedArea] = useState(null);
@@ -55,8 +57,16 @@ function Dashboard() {
     }, [user]);
 
     useEffect(() => {
+        if (areas.length > 0) {
+            fetchProjectsForAllAreas();
+        }
+    }, [areas]);
+
+    useEffect(() => {
         if (selectedArea) {
             fetchProjects(selectedArea.id);
+            // Expande la comisión seleccionada en el árbol del sidebar
+            setExpandedAreas(prev => ({ ...prev, [selectedArea.id]: true }));
         } else {
             setProjects([]);
         }
@@ -144,6 +154,34 @@ function Dashboard() {
         }
     };
 
+    const fetchProjectsForAllAreas = async () => {
+        try {
+            const areaIds = areas.map(a => a.id);
+            if (areaIds.length === 0) {
+                setProjectsByArea({});
+                return;
+            }
+            const { data, error } = await supabase
+                .from('projects')
+                .select('id, name, area_id')
+                .in('area_id', areaIds);
+
+            if (error) throw error;
+
+            const map = {};
+            (data || []).forEach(p => {
+                (map[p.area_id] = map[p.area_id] || []).push(p);
+            });
+            setProjectsByArea(map);
+        } catch (error) {
+            console.error('Error fetching projects by area:', error);
+        }
+    };
+
+    const toggleAreaExpand = (areaId) => {
+        setExpandedAreas(prev => ({ ...prev, [areaId]: !prev[areaId] }));
+    };
+
     const fetchAllTasks = async () => {
         try {
             const { data, error } = await supabase
@@ -210,6 +248,7 @@ function Dashboard() {
             setNewProject({ name: '', description: '', due_date: '', status: 'En Progreso' });
             setShowProjectModal(false);
             fetchProjects(selectedArea.id);
+            fetchProjectsForAllAreas();
         } catch (error) {
             console.error('Error creating project:', error);
             alert('Error creating project: ' + (error.message || JSON.stringify(error)));
@@ -338,47 +377,71 @@ function Dashboard() {
 
                 <div className="sidebar-section">
                     <div className="section-header">
-                        <span>Proyectos</span>
-                        {isAdmin && (
-                            <button className="btn-icon-sm" onClick={() => setShowProjectModal(true)}>
-                                <Plus size={14} />
-                            </button>
-                        )}
+                        <span>Comisiones</span>
+                        <button className="btn-icon-sm" onClick={() => setShowAreaModal(true)} title="Nueva comisión">
+                            <Plus size={14} />
+                        </button>
                     </div>
 
-                    {projects.map(project => (
-                        <div key={project.id} className="project-item">
-                            <div
-                                className="project-header"
-                                onClick={() => toggleProjectExpand(project.id)}
-                            >
-                                {expandedProjects[project.id] ?
-                                    <ChevronDown size={16} /> :
-                                    <ChevronRight size={16} />
-                                }
-                                <Folder size={16} />
-                                <span
-                                    className="project-name-link"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        navigate(`/project/${project.id}`);
+                    {areas.length === 0 && (
+                        <div className="tree-empty">No tienes comisiones todavía</div>
+                    )}
+
+                    {areas.map(area => {
+                        const areaProjects = projectsByArea[area.id] || [];
+                        const isExpanded = expandedAreas[area.id];
+                        return (
+                            <div key={area.id} className="area-tree-item">
+                                <div
+                                    className={`area-tree-header ${selectedArea?.id === area.id ? 'active' : ''}`}
+                                    onClick={() => {
+                                        setSelectedArea(area);
+                                        toggleAreaExpand(area.id);
                                     }}
                                 >
-                                    {project.name}
-                                </span>
-                            </div>
-                            {expandedProjects[project.id] && project.tasks && (
-                                <div className="project-tasks">
-                                    {project.tasks.slice(0, 3).map(task => (
-                                        <div key={task.id} className="task-mini">
-                                            <Flag size={12} style={{ color: getPriorityColor(task.priority) }} />
-                                            <span>{task.title}</span>
-                                        </div>
-                                    ))}
+                                    {isExpanded ?
+                                        <ChevronDown size={16} /> :
+                                        <ChevronRight size={16} />
+                                    }
+                                    <Folder size={16} />
+                                    <span className="area-tree-name">{area.name}</span>
+                                    {areaProjects.length > 0 && (
+                                        <span className="area-count">{areaProjects.length}</span>
+                                    )}
                                 </div>
-                            )}
-                        </div>
-                    ))}
+                                {isExpanded && (
+                                    <div className="area-tree-projects">
+                                        {areaProjects.length === 0 ? (
+                                            <div className="tree-empty">Sin proyectos</div>
+                                        ) : (
+                                            areaProjects.map(project => (
+                                                <div
+                                                    key={project.id}
+                                                    className="project-tree-item"
+                                                    onClick={() => navigate(`/project/${project.id}`)}
+                                                >
+                                                    <Folder size={14} />
+                                                    <span>{project.name}</span>
+                                                </div>
+                                            ))
+                                        )}
+                                        {isAdmin && (
+                                            <button
+                                                className="area-tree-add"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setSelectedArea(area);
+                                                    setShowProjectModal(true);
+                                                }}
+                                            >
+                                                <Plus size={12} /> Nuevo proyecto
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })}
                 </div>
 
                 <div className="sidebar-footer">
