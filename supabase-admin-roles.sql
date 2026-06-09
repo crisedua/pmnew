@@ -17,10 +17,10 @@ ALTER TABLE public.profiles
 -- Admin por defecto (si el perfil ya existe)
 UPDATE public.profiles
   SET is_admin = true
-  WHERE lower(email) = 'ed@eduardoescalante.com';
+  WHERE lower(email) IN ('ed@eduardoescalante.com', 'eduardo@soloeduia.com');
 
 -- 2. Asegurar admin por defecto también al registrarse -------
--- (por si el perfil de ed@eduardoescalante.com se crea después)
+-- (por si el perfil de un admin por defecto se crea después)
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger AS $$
 BEGIN
@@ -29,7 +29,7 @@ BEGIN
     new.id,
     new.email,
     new.raw_user_meta_data->>'full_name',
-    lower(new.email) = 'ed@eduardoescalante.com'
+    lower(new.email) IN ('ed@eduardoescalante.com', 'eduardo@soloeduia.com')
   )
   ON CONFLICT (id) DO NOTHING;
   RETURN new;
