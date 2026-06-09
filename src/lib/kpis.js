@@ -32,6 +32,30 @@ export async function fetchComisionKpi(comisionId) {
     return data;
 }
 
+/** Todos los KPIs de proyecto visibles (todas las comisiones del usuario). */
+export async function fetchAllProjectKpis() {
+    const { data, error } = await supabase
+        .from('kpi_proyecto')
+        .select('*');
+    if (error) {
+        console.warn('Error fetching all kpi_proyecto:', error.message);
+        return [];
+    }
+    return data || [];
+}
+
+/** KPI agregado de todas las comisiones del usuario. */
+export async function fetchAllComisionKpis() {
+    const { data, error } = await supabase
+        .from('kpi_comision')
+        .select('*');
+    if (error) {
+        console.warn('Error fetching all kpi_comision:', error.message);
+        return [];
+    }
+    return data || [];
+}
+
 /** Carga de actividades abiertas por responsable en una comisión. */
 export async function fetchResponsableLoad(comisionId) {
     if (!comisionId) return [];

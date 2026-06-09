@@ -418,9 +418,9 @@ function Dashboard() {
                         <Users size={18} />
                         Teams
                     </a>
-                    <a className="nav-item">
+                    <a className="nav-item" onClick={() => navigate('/board')}>
                         <BarChart3 size={18} />
-                        Analytics
+                        Tablero
                     </a>
                     {isAdmin && (
                         <a className="nav-item" onClick={() => navigate('/admin')}>

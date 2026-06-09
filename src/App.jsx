@@ -7,6 +7,7 @@ import ProjectDetail from './pages/ProjectDetail';
 import DocumentEditor from './pages/DocumentEditor';
 import JoinProject from './pages/JoinProject';
 import Admin from './pages/Admin';
+import Board from './pages/Board';
 import { Login, Register } from './pages/Auth';
 
 function ProtectedRoute({ children }) {
@@ -63,6 +64,11 @@ function App() {
         <Route path="/admin" element={
           <ProtectedRoute>
             <Admin />
+          </ProtectedRoute>
+        } />
+        <Route path="/board" element={
+          <ProtectedRoute>
+            <Board />
           </ProtectedRoute>
         } />
         <Route path="/join/:id" element={<JoinProject />} />
