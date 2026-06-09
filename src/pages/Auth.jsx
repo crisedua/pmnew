@@ -88,6 +88,7 @@ export function Register() {
     const [fullName, setFullName] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [confirmationSent, setConfirmationSent] = useState(false);
 
     const handleRegister = async (e) => {
         e.preventDefault();
@@ -108,22 +109,12 @@ export function Register() {
             if (error) throw error;
 
             if (data.session) {
-                // Email confirmation is disabled, user is logged in
+                // Email confirmation is disabled, user is logged in automatically
                 navigate('/dashboard');
             } else {
-                // Start: Attempt manual login immediately as fallback
-                const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
-                    email,
-                    password
-                });
-
-                if (loginData?.session) {
-                    navigate('/dashboard');
-                } else {
-                    // Fallback: If login fails (likely due to email confirmation required)
-                    alert('Registro exitoso. Si tienes activada la confirmación de email, por favor verifícalo. Si no, inicia sesión.');
-                    navigate('/login');
-                }
+                // Email confirmation is enabled: Supabase did not create a session.
+                // Show a clear message asking the user to confirm their email.
+                setConfirmationSent(true);
             }
         } catch (error) {
             setError(error.message);
@@ -131,6 +122,24 @@ export function Register() {
             setLoading(false);
         }
     };
+
+    if (confirmationSent) {
+        return (
+            <div className="auth-container">
+                <div className="auth-card card text-center">
+                    <h2 className="mb-lg">Confirma tu email</h2>
+                    <p className="mb-md text-secondary">
+                        Te enviamos un correo de confirmación a <strong>{email}</strong>.
+                        Por favor revisa tu bandeja de entrada (y la carpeta de spam) y haz
+                        clic en el enlace para activar tu cuenta.
+                    </p>
+                    <p className="text-center mt-md text-secondary">
+                        Una vez confirmado, <Link to="/login" className="text-primary">Inicia Sesión</Link>
+                    </p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="auth-container">
