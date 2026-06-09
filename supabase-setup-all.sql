@@ -115,6 +115,20 @@ ALTER TABLE projects ADD COLUMN IF NOT EXISTS institution VARCHAR(255);
 ALTER TABLE documents ADD COLUMN IF NOT EXISTS content TEXT;
 
 -- ============================================================
+-- 2b. FUNCIONES AUXILIARES (SECURITY DEFINER) para evitar
+--     recursión en RLS entre areas <-> area_members
+-- ============================================================
+CREATE OR REPLACE FUNCTION public.is_area_member(_area_id uuid)
+RETURNS boolean LANGUAGE sql SECURITY DEFINER STABLE SET search_path = public AS $$
+  SELECT EXISTS (SELECT 1 FROM public.area_members WHERE area_id = _area_id AND user_id = auth.uid());
+$$;
+
+CREATE OR REPLACE FUNCTION public.is_area_creator(_area_id uuid)
+RETURNS boolean LANGUAGE sql SECURITY DEFINER STABLE SET search_path = public AS $$
+  SELECT EXISTS (SELECT 1 FROM public.areas WHERE id = _area_id AND created_by = auth.uid());
+$$;
+
+-- ============================================================
 -- 3. RLS BÁSICA del esquema base
 --    (permisiva: cualquier miembro del área puede operar)
 -- ============================================================
@@ -138,10 +152,7 @@ ON profiles FOR UPDATE TO authenticated USING (id = auth.uid()) WITH CHECK (id =
 DROP POLICY IF EXISTS "Members can view their areas" ON areas;
 CREATE POLICY "Members can view their areas"
 ON areas FOR SELECT TO authenticated
-USING (
-  EXISTS (SELECT 1 FROM area_members am WHERE am.area_id = areas.id AND am.user_id = auth.uid())
-  OR created_by = auth.uid()
-);
+USING ( created_by = auth.uid() OR public.is_area_member(id) );
 
 DROP POLICY IF EXISTS "Users can create areas" ON areas;
 CREATE POLICY "Users can create areas"
@@ -159,16 +170,13 @@ ON areas FOR DELETE TO authenticated USING (created_by = auth.uid());
 DROP POLICY IF EXISTS "Users can view area memberships" ON area_members;
 CREATE POLICY "Users can view area memberships"
 ON area_members FOR SELECT TO authenticated
-USING (
-  user_id = auth.uid()
-  OR EXISTS (SELECT 1 FROM areas a WHERE a.id = area_members.area_id AND a.created_by = auth.uid())
-);
+USING ( user_id = auth.uid() OR public.is_area_creator(area_id) );
 
 DROP POLICY IF EXISTS "Area creators can manage members" ON area_members;
 CREATE POLICY "Area creators can manage members"
 ON area_members FOR ALL TO authenticated
-USING (EXISTS (SELECT 1 FROM areas a WHERE a.id = area_members.area_id AND a.created_by = auth.uid()))
-WITH CHECK (EXISTS (SELECT 1 FROM areas a WHERE a.id = area_members.area_id AND a.created_by = auth.uid()));
+USING ( public.is_area_creator(area_id) )
+WITH CHECK ( public.is_area_creator(area_id) );
 
 DROP POLICY IF EXISTS "Users can join via membership row" ON area_members;
 CREATE POLICY "Users can join via membership row"
@@ -178,13 +186,13 @@ ON area_members FOR INSERT TO authenticated WITH CHECK (user_id = auth.uid());
 DROP POLICY IF EXISTS "Area members can view projects" ON projects;
 CREATE POLICY "Area members can view projects"
 ON projects FOR SELECT TO authenticated
-USING (EXISTS (SELECT 1 FROM area_members am WHERE am.area_id = projects.area_id AND am.user_id = auth.uid()));
+USING ( public.is_area_member(area_id) );
 
 DROP POLICY IF EXISTS "Area members can manage projects" ON projects;
 CREATE POLICY "Area members can manage projects"
 ON projects FOR ALL TO authenticated
-USING (EXISTS (SELECT 1 FROM area_members am WHERE am.area_id = projects.area_id AND am.user_id = auth.uid()))
-WITH CHECK (EXISTS (SELECT 1 FROM area_members am WHERE am.area_id = projects.area_id AND am.user_id = auth.uid()));
+USING ( public.is_area_member(area_id) )
+WITH CHECK ( public.is_area_member(area_id) );
 
 -- tasks: cualquier miembro del área del proyecto
 DROP POLICY IF EXISTS "Area members can view tasks" ON tasks;
