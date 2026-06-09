@@ -4,14 +4,13 @@ import {
     LogOut, Plus, X, Folder, Share2, ChevronRight, ChevronDown,
     Search, Bell, FileText, LayoutDashboard, Inbox, Users, BarChart3,
     Settings, FolderPlus, CheckSquare, UserPlus, HelpCircle,
-    Check, Calendar, Flag, Trash2, Layers
+    Check, Calendar, Flag, Trash2
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import AIAssistant from '../components/AIAssistant';
 import ProjectCards from '../components/ProjectCards';
 import { fetchIsAdmin } from '../lib/admin';
 import { fetchProjectKpis, fetchComisionKpi } from '../lib/kpis';
-import { fetchSubcomisionesByAreas, createSubcomision, deleteSubcomision } from '../lib/subcomisiones';
 import './Dashboard.css';
 
 function Dashboard() {
@@ -19,9 +18,7 @@ function Dashboard() {
     const [areas, setAreas] = useState([]);
     const [projects, setProjects] = useState([]);
     const [projectsByArea, setProjectsByArea] = useState({});
-    const [subcomisionesByArea, setSubcomisionesByArea] = useState({});
     const [expandedAreas, setExpandedAreas] = useState({});
-    const [expandedSubs, setExpandedSubs] = useState({});
     const [projectKpis, setProjectKpis] = useState({});
     const [comisionKpi, setComisionKpi] = useState(null);
     const [allTasks, setAllTasks] = useState([]);
@@ -49,13 +46,8 @@ function Dashboard() {
         due_date: '',
         status: 'En Progreso',
         owner_name: '',
-        owner_email: '',
-        subcomision_id: ''
+        owner_email: ''
     });
-    // Crear subcomisión inline desde el modal de proyecto
-    const [showNewSub, setShowNewSub] = useState(false);
-    const [newSubName, setNewSubName] = useState('');
-    const [savingSub, setSavingSub] = useState(false);
 
     useEffect(() => {
         checkUser();
@@ -71,7 +63,6 @@ function Dashboard() {
     useEffect(() => {
         if (areas.length > 0) {
             fetchProjectsForAllAreas();
-            fetchSubcomisiones();
         }
     }, [areas]);
 
@@ -193,7 +184,7 @@ function Dashboard() {
             }
             const { data, error } = await supabase
                 .from('projects')
-                .select('id, name, area_id, subcomision_id')
+                .select('id, name, area_id')
                 .in('area_id', areaIds);
 
             if (error) throw error;
@@ -206,51 +197,6 @@ function Dashboard() {
         } catch (error) {
             console.error('Error fetching projects by area:', error);
         }
-    };
-
-    const fetchSubcomisiones = async () => {
-        const map = await fetchSubcomisionesByAreas(areas.map(a => a.id));
-        setSubcomisionesByArea(map);
-    };
-
-    const toggleSubExpand = (subId) => {
-        setExpandedSubs(prev => ({ ...prev, [subId]: !prev[subId] }));
-    };
-
-    const handleCreateSubcomision = async (areaId, name) => {
-        if (!name.trim()) return null;
-        try {
-            const created = await createSubcomision(areaId, name, user.id);
-            await fetchSubcomisiones();
-            return created;
-        } catch (error) {
-            alert('Error al crear la subcomisión: ' + error.message);
-            return null;
-        }
-    };
-
-    const handleDeleteSubcomision = async (sub, e) => {
-        if (e) e.stopPropagation();
-        if (!confirm(
-            `¿Eliminar la subcomisión "${sub.name}"?\n\n` +
-            'Sus proyectos quedarán sin subcomisión (no se borran).'
-        )) return;
-        try {
-            await deleteSubcomision(sub.id);
-            await fetchSubcomisiones();
-            await fetchProjectsForAllAreas();
-            if (selectedArea) fetchProjects(selectedArea.id);
-        } catch (error) {
-            alert('Error al eliminar la subcomisión: ' + error.message);
-        }
-    };
-
-    const openProjectModal = (area, subcomisionId = '') => {
-        if (area) setSelectedArea(area);
-        setNewProject(p => ({ ...p, subcomision_id: subcomisionId }));
-        setShowNewSub(false);
-        setNewSubName('');
-        setShowProjectModal(true);
     };
 
     const toggleAreaExpand = (areaId) => {
@@ -334,10 +280,6 @@ function Dashboard() {
 
     const handleCreateProject = async () => {
         if (!newProject.name.trim() || !selectedArea) return;
-        if (!newProject.subcomision_id) {
-            alert('Selecciona una subcomisión para el proyecto.');
-            return;
-        }
         setIsCreating(true);
 
         try {
@@ -345,7 +287,6 @@ function Dashboard() {
                 .from('projects')
                 .insert({
                     area_id: selectedArea.id,
-                    subcomision_id: newProject.subcomision_id,
                     name: newProject.name,
                     description: newProject.description,
                     status: newProject.status,
@@ -357,7 +298,7 @@ function Dashboard() {
 
             if (error) throw error;
 
-            setNewProject({ name: '', description: '', due_date: '', status: 'En Progreso', owner_name: '', owner_email: '', subcomision_id: '' });
+            setNewProject({ name: '', description: '', due_date: '', status: 'En Progreso', owner_name: '', owner_email: '' });
             setShowProjectModal(false);
             fetchProjects(selectedArea.id);
             fetchProjectsForAllAreas();
@@ -366,19 +307,6 @@ function Dashboard() {
             alert('Error creating project: ' + (error.message || JSON.stringify(error)));
         } finally {
             setIsCreating(false);
-        }
-    };
-
-    // Crear subcomisión desde el modal de proyecto y seleccionarla
-    const handleInlineCreateSub = async () => {
-        if (!newSubName.trim() || !selectedArea) return;
-        setSavingSub(true);
-        const created = await handleCreateSubcomision(selectedArea.id, newSubName);
-        setSavingSub(false);
-        if (created) {
-            setNewProject(p => ({ ...p, subcomision_id: created.id }));
-            setNewSubName('');
-            setShowNewSub(false);
         }
     };
 
@@ -545,74 +473,30 @@ function Dashboard() {
                                 </div>
                                 {isExpanded && (
                                     <div className="area-tree-projects">
-                                        {(subcomisionesByArea[area.id] || []).length === 0 ? (
-                                            <div className="tree-empty">Sin subcomisiones</div>
+                                        {areaProjects.length === 0 ? (
+                                            <div className="tree-empty">Sin proyectos</div>
                                         ) : (
-                                            (subcomisionesByArea[area.id] || []).map(sub => {
-                                                const subProjects = areaProjects.filter(p => p.subcomision_id === sub.id);
-                                                const subOpen = expandedSubs[sub.id];
-                                                return (
-                                                    <div key={sub.id} className="sub-tree-item">
-                                                        <div className="sub-tree-header" onClick={() => toggleSubExpand(sub.id)}>
-                                                            {subOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-                                                            <Layers size={14} />
-                                                            <span className="sub-tree-name">{sub.name}</span>
-                                                            {subProjects.length > 0 && (
-                                                                <span className="area-count">{subProjects.length}</span>
-                                                            )}
-                                                            {(isAdmin || area.role === 'owner') && (
-                                                                <button
-                                                                    className="area-tree-delete"
-                                                                    title="Eliminar subcomisión"
-                                                                    onClick={(e) => handleDeleteSubcomision(sub, e)}
-                                                                >
-                                                                    <Trash2 size={12} />
-                                                                </button>
-                                                            )}
-                                                        </div>
-                                                        {subOpen && (
-                                                            <div className="sub-tree-projects">
-                                                                {subProjects.length === 0 ? (
-                                                                    <div className="tree-empty">Sin proyectos</div>
-                                                                ) : (
-                                                                    subProjects.map(project => (
-                                                                        <div
-                                                                            key={project.id}
-                                                                            className="project-tree-item"
-                                                                            onClick={() => navigate(`/project/${project.id}`)}
-                                                                        >
-                                                                            <Folder size={14} />
-                                                                            <span>{project.name}</span>
-                                                                        </div>
-                                                                    ))
-                                                                )}
-                                                                {isAdmin && (
-                                                                    <button
-                                                                        className="area-tree-add"
-                                                                        onClick={(e) => {
-                                                                            e.stopPropagation();
-                                                                            openProjectModal(area, sub.id);
-                                                                        }}
-                                                                    >
-                                                                        <Plus size={12} /> Nuevo proyecto
-                                                                    </button>
-                                                                )}
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                );
-                                            })
+                                            areaProjects.map(project => (
+                                                <div
+                                                    key={project.id}
+                                                    className="project-tree-item"
+                                                    onClick={() => navigate(`/project/${project.id}`)}
+                                                >
+                                                    <Folder size={14} />
+                                                    <span>{project.name}</span>
+                                                </div>
+                                            ))
                                         )}
                                         {isAdmin && (
                                             <button
                                                 className="area-tree-add"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    const name = prompt(`Nueva subcomisión en "${area.name}":`);
-                                                    if (name && name.trim()) handleCreateSubcomision(area.id, name);
+                                                    setSelectedArea(area);
+                                                    setShowProjectModal(true);
                                                 }}
                                             >
-                                                <Plus size={12} /> Nueva subcomisión
+                                                <Plus size={12} /> Nuevo proyecto
                                             </button>
                                         )}
                                     </div>
@@ -769,44 +653,15 @@ function Dashboard() {
                                 </div>
                             )}
 
-                            {/* Tarjetas de proyectos agrupadas por subcomisión */}
+                            {/* Tarjetas de proyectos con su KPI */}
                             {selectedArea && (
                                 <>
                                     <h2 className="section-title">Proyectos de {selectedArea.name}</h2>
-                                    {(subcomisionesByArea[selectedArea.id] || []).map(sub => {
-                                        const subProjects = projects.filter(p => p.subcomision_id === sub.id);
-                                        return (
-                                            <div key={sub.id} className="subcomision-group">
-                                                <h3 className="subcomision-title">
-                                                    <Layers size={16} /> {sub.name}
-                                                    <span className="subcomision-count">{subProjects.length}</span>
-                                                </h3>
-                                                {subProjects.length === 0 ? (
-                                                    <p className="subcomision-empty">Sin proyectos en esta subcomisión.</p>
-                                                ) : (
-                                                    <ProjectCards
-                                                        projects={subProjects}
-                                                        kpisById={projectKpis}
-                                                        onOpen={(projectId) => navigate(`/project/${projectId}`)}
-                                                    />
-                                                )}
-                                            </div>
-                                        );
-                                    })}
-                                    {(() => {
-                                        const orphans = projects.filter(p => !p.subcomision_id);
-                                        if (orphans.length === 0) return null;
-                                        return (
-                                            <div className="subcomision-group">
-                                                <h3 className="subcomision-title">Sin subcomisión<span className="subcomision-count">{orphans.length}</span></h3>
-                                                <ProjectCards
-                                                    projects={orphans}
-                                                    kpisById={projectKpis}
-                                                    onOpen={(projectId) => navigate(`/project/${projectId}`)}
-                                                />
-                                            </div>
-                                        );
-                                    })()}
+                                    <ProjectCards
+                                        projects={projects}
+                                        kpisById={projectKpis}
+                                        onOpen={(projectId) => navigate(`/project/${projectId}`)}
+                                    />
                                 </>
                             )}
 
@@ -994,54 +849,6 @@ function Dashboard() {
                                 />
                             </div>
                             <div className="form-group">
-                                <label>Subcomisión *</label>
-                                {!showNewSub ? (
-                                    <>
-                                        <select
-                                            value={newProject.subcomision_id}
-                                            onChange={e => setNewProject({ ...newProject, subcomision_id: e.target.value })}
-                                        >
-                                            <option value="">Selecciona una subcomisión...</option>
-                                            {(subcomisionesByArea[selectedArea?.id] || []).map(sub => (
-                                                <option key={sub.id} value={sub.id}>{sub.name}</option>
-                                            ))}
-                                        </select>
-                                        <button
-                                            type="button"
-                                            className="link-btn"
-                                            onClick={() => setShowNewSub(true)}
-                                        >
-                                            <Plus size={14} /> Nueva subcomisión
-                                        </button>
-                                    </>
-                                ) : (
-                                    <div className="inline-create">
-                                        <input
-                                            type="text"
-                                            placeholder="Nombre de la subcomisión"
-                                            value={newSubName}
-                                            onChange={e => setNewSubName(e.target.value)}
-                                            autoFocus
-                                        />
-                                        <button
-                                            type="button"
-                                            className="btn btn-primary btn-sm"
-                                            onClick={handleInlineCreateSub}
-                                            disabled={savingSub || !newSubName.trim()}
-                                        >
-                                            {savingSub ? '...' : 'Crear'}
-                                        </button>
-                                        <button
-                                            type="button"
-                                            className="btn btn-sm"
-                                            onClick={() => { setShowNewSub(false); setNewSubName(''); }}
-                                        >
-                                            Cancelar
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-                            <div className="form-group">
                                 <label>Estado</label>
                                 <select
                                     value={newProject.status}
@@ -1084,7 +891,7 @@ function Dashboard() {
                             <button
                                 className="btn btn-primary"
                                 onClick={handleCreateProject}
-                                disabled={isCreating || !newProject.name.trim() || !newProject.subcomision_id}
+                                disabled={isCreating || !newProject.name.trim()}
                             >
                                 Crear Proyecto
                             </button>
