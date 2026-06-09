@@ -312,3 +312,114 @@
         padding: 1rem 0;
     }
 }
+/* User menu (usuario logueado + cerrar sesión) */
+.user-menu {
+    position: relative;
+}
+
+.user-menu .user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.user-menu-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+}
+
+.user-menu-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 50;
+    width: 240px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+    padding: 0.5rem;
+}
+
+.user-menu-info {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.5rem;
+    border-bottom: 1px solid #f1f5f9;
+    margin-bottom: 0.4rem;
+}
+
+.user-menu-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.user-menu-details {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.user-menu-name {
+    font-weight: 600;
+    color: #1f2937;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.user-menu-email {
+    font-size: 0.8rem;
+    color: #6b7280;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.user-menu-role {
+    margin-top: 0.2rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #047857;
+    background: #ecfdf5;
+    border-radius: 999px;
+    padding: 0.05rem 0.45rem;
+    align-self: flex-start;
+}
+
+.user-menu-logout {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.55rem 0.6rem;
+    border: none;
+    background: transparent;
+    color: #dc2626;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.user-menu-logout:hover {
+    background: #fef2f2;
+}
