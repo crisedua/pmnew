@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import AIAssistant from '../components/AIAssistant';
-import InitiativesOverview from '../components/InitiativesOverview';
+import ProjectCards from '../components/ProjectCards';
 import { fetchIsAdmin } from '../lib/admin';
 import { fetchProjectKpis, fetchComisionKpi } from '../lib/kpis';
 import './Dashboard.css';
@@ -578,7 +578,9 @@ function Dashboard() {
                 {/* Dashboard Content */}
                 <div className="dashboard-content">
                         <>
-                            <h1 className="page-title">Dashboard</h1>
+                            <h1 className="page-title">
+                                {selectedArea ? selectedArea.name : 'Dashboard'}
+                            </h1>
 
                             {/* Quick Actions (solo administradores) */}
                             {isAdmin && (
@@ -651,13 +653,16 @@ function Dashboard() {
                                 </div>
                             )}
 
-                            {/* Iniciativas (proyectos) con semáforo y owner */}
+                            {/* Tarjetas de proyectos con su KPI */}
                             {selectedArea && (
-                                <InitiativesOverview
-                                    projects={projects}
-                                    kpisById={projectKpis}
-                                    onOpen={(projectId) => navigate(`/project/${projectId}`)}
-                                />
+                                <>
+                                    <h2 className="section-title">Proyectos de {selectedArea.name}</h2>
+                                    <ProjectCards
+                                        projects={projects}
+                                        kpisById={projectKpis}
+                                        onOpen={(projectId) => navigate(`/project/${projectId}`)}
+                                    />
+                                </>
                             )}
 
                             {/* Task Tables */}
