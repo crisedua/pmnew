@@ -71,7 +71,7 @@ function Board() {
                 <button className="btn-back" onClick={() => navigate('/dashboard')}>
                     <ArrowLeft size={18} /> Dashboard
                 </button>
-                <h1><FolderKanban size={22} /> Tablero de Proyectos</h1>
+                <h1><FolderKanban size={22} /> Tablero de Subcomisiones</h1>
             </div>
 
             {/* KPIs globales */}
@@ -86,7 +86,7 @@ function Board() {
                 <div className="board-kpi">
                     <LayoutDashboard size={20} className="kpi-ic" />
                     <span className="board-kpi-value">{total}</span>
-                    <span className="board-kpi-label">Proyectos</span>
+                    <span className="board-kpi-label">Subcomisiones</span>
                 </div>
                 <div className="board-kpi ok">
                     <CheckCircle2 size={20} className="kpi-ic" />
@@ -113,7 +113,7 @@ function Board() {
             {/* Board por comisión */}
             {total === 0 && (
                 <div className="board-empty">
-                    No hay datos de proyectos. ¿Ya ejecutaste <code>supabase-kpis.sql</code> en Supabase?
+                    No hay datos de subcomisiones. ¿Ya ejecutaste <code>supabase-kpis.sql</code> en Supabase?
                 </div>
             )}
 
@@ -131,7 +131,7 @@ function Board() {
                             </div>
                             <div className="board-column-cards">
                                 {col.projects.length === 0 ? (
-                                    <div className="board-card-empty">Sin proyectos</div>
+                                    <div className="board-card-empty">Sin subcomisiones</div>
                                 ) : (
                                     col.projects.map(p => {
                                         const estado = ESTADO_SALUD[p.estado_salud];

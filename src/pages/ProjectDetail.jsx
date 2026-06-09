@@ -114,7 +114,7 @@ function ProjectDetail() {
     };
 
     const handleDeleteProject = async () => {
-        if (!confirm('¿Estás seguro de que quieres eliminar este proyecto? Esta acción es irreversible y eliminará todos los datos asociados.')) {
+        if (!confirm('¿Estás seguro de que quieres eliminar esta subcomisión? Esta acción es irreversible y eliminará todos los datos asociados.')) {
             return;
         }
 
@@ -139,14 +139,14 @@ function ProjectDetail() {
 
             if (!data || data.length === 0) {
                 // If no rows returned, deletion didn't happen (likely RLS)
-                throw new Error("No tienes permisos para eliminar este proyecto o el proyecto ya no existe.");
+                throw new Error("No tienes permisos para eliminar esta subcomisión o ya no existe.");
             }
 
             // Force a full reload to clear any stale state in Dashboard
             window.location.href = '/dashboard';
         } catch (error) {
             console.error('Error deleting project:', error);
-            alert('Error al eliminar el proyecto: ' + error.message);
+            alert('Error al eliminar la subcomisión: ' + error.message);
             setLoading(false);
         }
     };
@@ -163,7 +163,7 @@ function ProjectDetail() {
         return (
             <div className="project-detail">
                 <div className="container">
-                    <div className="loading">Cargando proyecto...</div>
+                    <div className="loading">Cargando subcomisión...</div>
                 </div>
             </div>
         );
@@ -173,7 +173,7 @@ function ProjectDetail() {
         return (
             <div className="project-detail">
                 <div className="container">
-                    <div className="error-state">Proyecto no encontrado</div>
+                    <div className="error-state">Subcomisión no encontrada</div>
                 </div>
             </div>
         );
@@ -204,7 +204,7 @@ function ProjectDetail() {
                     <div className="header-right">
                         <button
                             className="btn-icon delete-btn"
-                            title="Eliminar Proyecto"
+                            title="Eliminar Subcomisión"
                             onClick={handleDeleteProject}
                         >
                             <Trash2 size={20} />

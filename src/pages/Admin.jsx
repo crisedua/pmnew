@@ -94,7 +94,7 @@ function Admin() {
             </div>
 
             <p className="admin-intro">
-                Los administradores pueden crear proyectos, tareas e invitar equipo.
+                Los administradores pueden crear subcomisiones, tareas e invitar equipo.
                 Activa o desactiva el rol de administrador para cada usuario.
             </p>
 

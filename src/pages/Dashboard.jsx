@@ -207,7 +207,7 @@ function Dashboard() {
         if (e) e.stopPropagation();
         if (!confirm(
             `¿Eliminar la comisión "${area.name}"?\n\n` +
-            'Se borrarán también todos sus proyectos y tareas. Esta acción no se puede deshacer.'
+            'Se borrarán también todas sus subcomisiones y tareas. Esta acción no se puede deshacer.'
         )) return;
 
         try {
@@ -474,7 +474,7 @@ function Dashboard() {
                                 {isExpanded && (
                                     <div className="area-tree-projects">
                                         {areaProjects.length === 0 ? (
-                                            <div className="tree-empty">Sin proyectos</div>
+                                            <div className="tree-empty">Sin subcomisiones</div>
                                         ) : (
                                             areaProjects.map(project => (
                                                 <div
@@ -496,7 +496,7 @@ function Dashboard() {
                                                     setShowProjectModal(true);
                                                 }}
                                             >
-                                                <Plus size={12} /> Nuevo proyecto
+                                                <Plus size={12} /> Nueva subcomisión
                                             </button>
                                         )}
                                     </div>
@@ -590,7 +590,7 @@ function Dashboard() {
                                             <FolderPlus size={24} />
                                         </div>
                                         <div className="action-text">
-                                            <strong>Crear Proyecto</strong>
+                                            <strong>Crear Subcomisión</strong>
                                             <span>Organiza tus tareas</span>
                                         </div>
                                     </div>
@@ -631,7 +631,7 @@ function Dashboard() {
                                     <div className="comision-summary-stats">
                                         <div className="summary-stat">
                                             <strong>{comisionKpi.proyectos_total}</strong>
-                                            <span>Proyectos</span>
+                                            <span>Subcomisiones</span>
                                         </div>
                                         <div className="summary-stat ok">
                                             <strong>{comisionKpi.proyectos_completados}</strong>
@@ -656,7 +656,7 @@ function Dashboard() {
                             {/* Tarjetas de proyectos con su KPI */}
                             {selectedArea && (
                                 <>
-                                    <h2 className="section-title">Proyectos de {selectedArea.name}</h2>
+                                    <h2 className="section-title">Subcomisiones de {selectedArea.name}</h2>
                                     <ProjectCards
                                         projects={projects}
                                         kpisById={projectKpis}
@@ -674,7 +674,7 @@ function Dashboard() {
                                         <thead>
                                             <tr>
                                                 <th>Nombre</th>
-                                                <th>Proyecto</th>
+                                                <th>Subcomisión</th>
                                                 <th>Fecha</th>
                                             </tr>
                                         </thead>
@@ -707,7 +707,7 @@ function Dashboard() {
                                         <thead>
                                             <tr>
                                                 <th>Nombre</th>
-                                                <th>Proyecto</th>
+                                                <th>Subcomisión</th>
                                                 <th>Fecha</th>
                                             </tr>
                                         </thead>
@@ -812,7 +812,7 @@ function Dashboard() {
                                 <textarea
                                     value={newArea.description}
                                     onChange={e => setNewArea({ ...newArea, description: e.target.value })}
-                                    placeholder="Para gestionar proyectos de..."
+                                    placeholder="Para gestionar subcomisiones de..."
                                 />
                             </div>
                         </div>
@@ -834,14 +834,14 @@ function Dashboard() {
                 <div className="modal-overlay">
                     <div className="modal-content">
                         <div className="modal-header">
-                            <h3>Nuevo Proyecto en {selectedArea?.name}</h3>
+                            <h3>Nueva Subcomisión en {selectedArea?.name}</h3>
                             <button className="btn-icon" onClick={() => setShowProjectModal(false)}>
                                 <X size={20} />
                             </button>
                         </div>
                         <div className="modal-body">
                             <div className="form-group">
-                                <label>Nombre del Proyecto</label>
+                                <label>Nombre de la Subcomisión</label>
                                 <input
                                     type="text"
                                     value={newProject.name}
@@ -893,7 +893,7 @@ function Dashboard() {
                                 onClick={handleCreateProject}
                                 disabled={isCreating || !newProject.name.trim()}
                             >
-                                Crear Proyecto
+                                Crear Subcomisión
                             </button>
                         </div>
                     </div>

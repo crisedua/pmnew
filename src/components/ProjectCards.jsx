@@ -15,7 +15,7 @@ function ProjectCards({ projects = [], kpisById = {}, onOpen }) {
     if (projects.length === 0) {
         return (
             <div className="project-cards-empty">
-                Esta comisión todavía no tiene proyectos.
+                Esta comisión todavía no tiene subcomisiones.
             </div>
         );
     }

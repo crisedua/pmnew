@@ -148,7 +148,7 @@ function Traceability({ projectId, tasks = [], userId, canComment = true }) {
             )}
 
             <div className="trace-timeline card">
-                <h3><Activity size={18} /> Trazabilidad de la iniciativa</h3>
+                <h3><Activity size={18} /> Trazabilidad de la subcomisión</h3>
                 {loading ? (
                     <div className="trace-empty">Cargando...</div>
                 ) : feed.length === 0 ? (

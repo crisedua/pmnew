@@ -124,7 +124,7 @@ function ProjectSummary({ project, tasks, documents, onUpdate, canManage = false
             if (onUpdate) onUpdate();
         } catch (error) {
             console.error('Error updating project:', error);
-            alert('Error al actualizar el proyecto: ' + error.message);
+            alert('Error al actualizar la subcomisión: ' + error.message);
         } finally {
             setIsSaving(false);
         }
@@ -135,7 +135,7 @@ function ProjectSummary({ project, tasks, documents, onUpdate, canManage = false
             {/* Project Info Card */}
             <div className="info-card card">
                 <div className="info-header">
-                    <h2>Información del Proyecto</h2>
+                    <h2>Información de la Subcomisión</h2>
                     <button className="btn-icon" onClick={handleEditClick}>
                         <Edit size={20} />
                     </button>
@@ -152,7 +152,7 @@ function ProjectSummary({ project, tasks, documents, onUpdate, canManage = false
 
                 <div className="info-grid">
                     <div className="info-item">
-                        <h4 className="info-label text-secondary">Owner de la Iniciativa</h4>
+                        <h4 className="info-label text-secondary">Owner de la Subcomisión</h4>
                         <p>{project.owner_name || project.responsible_email || 'No asignado'}</p>
                     </div>
                     <div className="info-item">
@@ -311,7 +311,7 @@ function ProjectSummary({ project, tasks, documents, onUpdate, canManage = false
 
             {/* Progress Section */}
             <div className="progress-section card">
-                <h3>Progreso del Proyecto</h3>
+                <h3>Progreso de la Subcomisión</h3>
 
                 <div className="progress-info">
                     <span className="text-secondary">Progreso General</span>
@@ -346,14 +346,14 @@ function ProjectSummary({ project, tasks, documents, onUpdate, canManage = false
                 <div className="modal-overlay">
                     <div className="modal-content">
                         <div className="modal-header">
-                            <h3>Editar Proyecto</h3>
+                            <h3>Editar Subcomisión</h3>
                             <button className="btn-icon" onClick={() => setShowEditModal(false)}>
                                 <X size={20} />
                             </button>
                         </div>
                         <div className="modal-body">
                             <div className="form-group">
-                                <label>Nombre del Proyecto</label>
+                                <label>Nombre de la Subcomisión</label>
                                 <input
                                     type="text"
                                     value={editForm.name}
@@ -389,7 +389,7 @@ function ProjectSummary({ project, tasks, documents, onUpdate, canManage = false
                                 />
                             </div>
                             <div className="form-group">
-                                <label>Owner de la Iniciativa</label>
+                                <label>Owner de la Subcomisión</label>
                                 <input
                                     type="text"
                                     placeholder="Nombre del owner"
