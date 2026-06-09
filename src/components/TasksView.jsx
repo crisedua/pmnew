@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Plus, Calendar, Trash2, User, X } from 'lucide-react';
+import { Search, Plus, Calendar, Trash2, User, X, Edit } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import TaskHealthBadge from './TaskHealthBadge';
 import { HEALTH } from '../lib/health';
@@ -14,6 +14,17 @@ function TasksView({ tasks, projectId, onTasksUpdate, canEdit = false, canCreate
     const [filterStatus, setFilterStatus] = useState('Activas');
     const [showTaskModal, setShowTaskModal] = useState(false);
     const [isCreating, setIsCreating] = useState(false);
+    const [editingTask, setEditingTask] = useState(null);
+    const [isUpdating, setIsUpdating] = useState(false);
+    const [editForm, setEditForm] = useState({
+        title: '',
+        description: '',
+        status: 'To Do',
+        priority: 'Media',
+        assignee_name: '',
+        assignee_email: '',
+        due_date: ''
+    });
     const [newTask, setNewTask] = useState({
         title: '',
         description: '',
@@ -102,6 +113,49 @@ function TasksView({ tasks, projectId, onTasksUpdate, canEdit = false, canCreate
             alert('Error al crear la tarea: ' + error.message);
         } finally {
             setIsCreating(false);
+        }
+    };
+
+    const openEditTask = (task) => {
+        setEditForm({
+            title: task.title || '',
+            description: task.description || '',
+            status: task.status || 'To Do',
+            priority: task.priority || 'Media',
+            assignee_name: task.assignee_name || '',
+            assignee_email: task.assignee_email || '',
+            due_date: task.due_date ? formatDate(task.due_date) : ''
+        });
+        setEditingTask(task);
+    };
+
+    const handleUpdateTask = async () => {
+        if (!editingTask || !editForm.title.trim()) return;
+        setIsUpdating(true);
+        try {
+            const { error } = await supabase
+                .from('tasks')
+                .update({
+                    title: editForm.title,
+                    description: editForm.description,
+                    status: editForm.status,
+                    priority: editForm.priority,
+                    assignee_name: editForm.assignee_name,
+                    assignee_email: editForm.assignee_email,
+                    due_date: editForm.due_date || null,
+                    updated_at: new Date().toISOString()
+                })
+                .eq('id', editingTask.id);
+
+            if (error) throw error;
+
+            setEditingTask(null);
+            if (onTasksUpdate) await onTasksUpdate();
+        } catch (error) {
+            console.error('Error updating task:', error);
+            alert('Error al actualizar la tarea: ' + error.message);
+        } finally {
+            setIsUpdating(false);
         }
     };
 
@@ -257,13 +311,29 @@ function TasksView({ tasks, projectId, onTasksUpdate, canEdit = false, canCreate
                                     statusTasks.map(task => (
                                         <div key={task.id} className="task-card card">
                                             <div className="task-card-header">
-                                                <h4 className="task-title">{task.title}</h4>
-                                                <button
-                                                    className="btn-icon btn-delete-small"
-                                                    onClick={() => handleDeleteTask(task.id)}
+                                                <h4
+                                                    className="task-title task-title-edit"
+                                                    onClick={() => openEditTask(task)}
+                                                    title="Editar tarea"
                                                 >
-                                                    <Trash2 size={14} />
-                                                </button>
+                                                    {task.title}
+                                                </h4>
+                                                <div className="task-card-actions">
+                                                    <button
+                                                        className="btn-icon"
+                                                        onClick={() => openEditTask(task)}
+                                                        title="Editar"
+                                                    >
+                                                        <Edit size={14} />
+                                                    </button>
+                                                    <button
+                                                        className="btn-icon btn-delete-small"
+                                                        onClick={() => handleDeleteTask(task.id)}
+                                                        title="Eliminar"
+                                                    >
+                                                        <Trash2 size={14} />
+                                                    </button>
+                                                </div>
                                             </div>
                                             <div className="task-meta">
                                                 <span className={`badge ${getPriorityClass(task.priority)}`}>
@@ -307,7 +377,13 @@ function TasksView({ tasks, projectId, onTasksUpdate, canEdit = false, canCreate
                                 <input type="checkbox" className="task-checkbox" />
 
                                 <div className="list-item-content">
-                                    <h4 className="task-title">{task.title}</h4>
+                                    <h4
+                                        className="task-title task-title-edit"
+                                        onClick={() => openEditTask(task)}
+                                        title="Editar tarea"
+                                    >
+                                        {task.title}
+                                    </h4>
                                 </div>
 
                                 <span className={`badge ${getPriorityClass(task.priority)}`}>
@@ -331,6 +407,14 @@ function TasksView({ tasks, projectId, onTasksUpdate, canEdit = false, canCreate
                                     <Calendar size={14} />
                                     <span className="text-sm">{formatDate(task.due_date)}</span>
                                 </div>
+
+                                <button
+                                    className="btn-icon"
+                                    onClick={() => openEditTask(task)}
+                                    title="Editar"
+                                >
+                                    <Edit size={16} />
+                                </button>
 
                                 <button
                                     className="btn-delete"
@@ -457,6 +541,121 @@ function TasksView({ tasks, projectId, onTasksUpdate, canEdit = false, canCreate
                                 disabled={isCreating || !newTask.title.trim()}
                             >
                                 {isCreating ? 'Creando...' : 'Crear Tarea'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Edit Task Modal */}
+            {editingTask && (
+                <div className="modal-overlay" onClick={() => !isUpdating && setEditingTask(null)}>
+                    <div className="modal-content task-modal" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h3>Editar Tarea</h3>
+                            <button
+                                className="btn-icon"
+                                onClick={() => setEditingTask(null)}
+                                disabled={isUpdating}
+                            >
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        <div className="modal-body">
+                            <div className="form-group">
+                                <label>Título *</label>
+                                <input
+                                    type="text"
+                                    value={editForm.title}
+                                    onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                                    disabled={isUpdating}
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label>Descripción</label>
+                                <textarea
+                                    value={editForm.description}
+                                    onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                                    disabled={isUpdating}
+                                    rows="3"
+                                />
+                            </div>
+
+                            <div className="form-row">
+                                <div className="form-group">
+                                    <label>Estado</label>
+                                    <select
+                                        value={editForm.status}
+                                        onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
+                                        disabled={isUpdating}
+                                    >
+                                        <option value="To Do">Pendiente</option>
+                                        <option value="In Progress">En Progreso</option>
+                                        <option value="Complete">Completada</option>
+                                    </select>
+                                </div>
+
+                                <div className="form-group">
+                                    <label>Prioridad</label>
+                                    <select
+                                        value={editForm.priority}
+                                        onChange={(e) => setEditForm({ ...editForm, priority: e.target.value })}
+                                        disabled={isUpdating}
+                                    >
+                                        <option value="Baja">Baja</option>
+                                        <option value="Media">Media</option>
+                                        <option value="Alta">Alta</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className="form-group">
+                                <label>Asignado a</label>
+                                <input
+                                    type="text"
+                                    value={editForm.assignee_name}
+                                    onChange={(e) => setEditForm({ ...editForm, assignee_name: e.target.value })}
+                                    disabled={isUpdating}
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label>Email del responsable</label>
+                                <input
+                                    type="email"
+                                    value={editForm.assignee_email}
+                                    onChange={(e) => setEditForm({ ...editForm, assignee_email: e.target.value })}
+                                    disabled={isUpdating}
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label>Fecha límite</label>
+                                <input
+                                    type="date"
+                                    value={editForm.due_date}
+                                    onChange={(e) => setEditForm({ ...editForm, due_date: e.target.value })}
+                                    disabled={isUpdating}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="modal-footer">
+                            <button
+                                className="btn"
+                                onClick={() => setEditingTask(null)}
+                                disabled={isUpdating}
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                className="btn btn-primary"
+                                onClick={handleUpdateTask}
+                                disabled={isUpdating || !editForm.title.trim()}
+                            >
+                                {isUpdating ? 'Guardando...' : 'Guardar Cambios'}
                             </button>
                         </div>
                     </div>

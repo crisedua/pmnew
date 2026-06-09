@@ -510,3 +510,18 @@
     font-size: 0.75rem;
     margin: 0.6rem 0 0;
 }
+
+/* Edición de tareas */
+.task-title-edit {
+    cursor: pointer;
+}
+
+.task-title-edit:hover {
+    color: #4f46e5;
+}
+
+.task-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.15rem;
+}
