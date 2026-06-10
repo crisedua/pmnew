@@ -49,7 +49,7 @@
 
 .btn-add-new {
     margin: 1rem;
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    background: linear-gradient(135deg, #3a52c4, #2c3f9e);
     color: white;
     border: none;
     padding: 0.75rem 1rem;
@@ -89,8 +89,8 @@
 }
 
 .nav-item.active {
-    background: #ede9fe;
-    color: #6366f1;
+    background: #e8edf9;
+    color: #3a52c4;
     font-weight: 500;
 }
 
@@ -157,7 +157,7 @@
 }
 
 .project-name-link:hover {
-    color: #6366f1;
+    color: #3a52c4;
 }
 
 .project-tasks {
@@ -201,8 +201,8 @@
 }
 
 .area-tree-header.active {
-    background: #eef2ff;
-    color: #4f46e5;
+    background: #e8edf9;
+    color: #3a52c4;
 }
 
 .area-tree-name {
@@ -266,7 +266,7 @@
 
 .project-tree-item:hover {
     background: #f3f4f6;
-    color: #4f46e5;
+    color: #3a52c4;
 }
 
 .area-tree-add {
@@ -278,14 +278,14 @@
     margin-top: 0.15rem;
     border: none;
     background: transparent;
-    color: #6366f1;
+    color: #3a52c4;
     font-size: 0.8rem;
     cursor: pointer;
     border-radius: 4px;
 }
 
 .area-tree-add:hover {
-    background: #eef2ff;
+    background: #e8edf9;
 }
 
 .tree-empty {
@@ -390,7 +390,7 @@
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    background: linear-gradient(135deg, #3a52c4, #2c3f9e);
     color: white;
     display: flex;
     align-items: center;
@@ -436,7 +436,7 @@
     width: 38px;
     height: 38px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    background: linear-gradient(135deg, #3a52c4, #2c3f9e);
     color: #fff;
     display: flex;
     align-items: center;
@@ -533,7 +533,7 @@
 }
 
 .action-card:hover {
-    border-color: #c7d2fe;
+    border-color: #cdd7f5;
     box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
 }
 
@@ -548,12 +548,12 @@
 
 .action-icon.blue {
     background: #dbeafe;
-    color: #3b82f6;
+    color: #3a52c4;
 }
 
 .action-icon.purple {
-    background: #ede9fe;
-    color: #8b5cf6;
+    background: #e8edf9;
+    color: #2c3f9e;
 }
 
 .action-icon.green {
@@ -660,7 +660,7 @@
 }
 
 .view-all {
-    color: #6366f1;
+    color: #3a52c4;
     font-size: 0.85rem;
     cursor: pointer;
 }
@@ -754,7 +754,7 @@
 
 .progress-percent {
     font-weight: 600;
-    color: #6366f1;
+    color: #3a52c4;
 }
 
 .progress-bar-sm {
@@ -766,7 +766,7 @@
 
 .progress-bar-sm .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, #6366f1, #8b5cf6);
+    background: linear-gradient(90deg, #3a52c4, #2c3f9e);
     border-radius: 3px;
     transition: width 0.3s ease;
 }
@@ -854,7 +854,7 @@
 .modal-content .form-group textarea:focus,
 .modal-content .form-group select:focus {
     outline: none;
-    border-color: #6366f1 !important;
+    border-color: #3a52c4 !important;
     box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
 }
 
@@ -897,7 +897,7 @@
 
 .taskboard .modal-footer .btn-primary,
 .modal-footer .btn-primary {
-    background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+    background: linear-gradient(135deg, #3a52c4, #2c3f9e) !important;
     color: white !important;
 }
 
@@ -928,7 +928,7 @@
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    background: linear-gradient(135deg, #3a52c4, #2c3f9e);
     color: white;
 }
 
@@ -1035,19 +1035,19 @@
 }
 
 .area-dropdown-item.active {
-    color: #4338ca;
+    color: #2c3f9e;
     font-weight: 600;
 }
 
 .area-check {
     margin-left: auto;
-    color: #6366f1;
+    color: #3a52c4;
 }
 
 .area-dropdown-new {
     margin-top: 0.25rem;
     border-top: 1px solid #f3f4f6;
-    color: #6366f1;
+    color: #3a52c4;
     font-weight: 600;
 }
 
@@ -1096,7 +1096,7 @@
 
 .comision-summary-fill {
     height: 100%;
-    background: linear-gradient(90deg, #6366f1, #8b5cf6);
+    background: linear-gradient(90deg, #3a52c4, #2c3f9e);
     border-radius: 999px;
     transition: width 0.3s;
 }

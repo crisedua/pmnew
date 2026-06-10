@@ -41,13 +41,13 @@
 .team-member-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    border-color: #c7d2fe;
+    border-color: #cdd7f5;
 }
 
 .member-avatar {
     width: 80px;
     height: 80px;
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    background: linear-gradient(135deg, #3a52c4, #2c3f9e);
     color: white;
     border-radius: 50%;
     display: flex;
@@ -73,8 +73,8 @@
 .member-role {
     font-size: 0.875rem;
     font-weight: 500;
-    color: #6366f1;
-    background: #ede9fe;
+    color: #3a52c4;
+    background: #e8edf9;
     padding: 0.25rem 0.75rem;
     border-radius: 1rem;
     align-self: center;
@@ -175,8 +175,8 @@
 
 .invite-role {
     text-transform: capitalize;
-    color: #6366f1;
-    background: #ede9fe;
+    color: #3a52c4;
+    background: #e8edf9;
     padding: 0.125rem 0.5rem;
     border-radius: 4px;
     font-size: 0.75rem;

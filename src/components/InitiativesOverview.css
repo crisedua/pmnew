@@ -38,7 +38,7 @@
 }
 
 .initiative-card:hover {
-    border-color: #c7d2fe;
+    border-color: #cdd7f5;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
 }
 
@@ -89,7 +89,7 @@
 }
 
 .initiative-owner a:hover {
-    color: #6366f1;
+    color: #3a52c4;
     text-decoration: underline;
 }
 
@@ -115,7 +115,7 @@
 
 .initiative-progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, #6366f1, #8b5cf6);
+    background: linear-gradient(90deg, #3a52c4, #2c3f9e);
     border-radius: 999px;
     transition: width 0.3s ease;
 }

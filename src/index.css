@@ -6,19 +6,19 @@
   --light-text-secondary: #718096;
   
   /* Dark Theme Colors */
-  --dark-bg: #0a0e27;
-  --dark-card: #1a1f3a;
+  --dark-bg: #11163f;
+  --dark-card: #1b2150;
   --dark-text-primary: #ffffff;
   --dark-text-secondary: #a0aec0;
   
   /* Accent Colors */
-  --primary-blue: #2563eb;
-  --primary-blue-hover: #1d4ed8;
+  --primary-blue: #3a52c4;
+  --primary-blue-hover: #2c3f9e;
   --success: #10b981;
   --warning: #f59e0b;
   --danger: #ef4444;
   --info: #6b7280;
-  --purple: #8b5cf6;
+  --purple: #2c3f9e;
   
   /* Priority Badge Colors */
   --priority-alta-bg: #fee2e2;

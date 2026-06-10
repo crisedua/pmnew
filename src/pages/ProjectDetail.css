@@ -94,7 +94,7 @@
 .project-icon {
     width: 40px;
     height: 40px;
-    background: linear-gradient(135deg, #e0e7ff 0%, #ede9fe 100%);
+    background: linear-gradient(135deg, #e0e7ff 0%, #e8edf9 100%);
     border-radius: 10px;
     display: flex;
     align-items: center;
@@ -145,7 +145,7 @@
 .avatar-circle {
     width: 32px;
     height: 32px;
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    background: linear-gradient(135deg, #3a52c4, #2c3f9e);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -212,8 +212,8 @@
 }
 
 .tab.active {
-    color: #6366f1;
-    border-bottom-color: #6366f1;
+    color: #3a52c4;
+    border-bottom-color: #3a52c4;
     background: linear-gradient(to bottom, transparent, rgba(99, 102, 241, 0.02));
 }
 
@@ -231,7 +231,7 @@
 
 .tab.active .tab-count {
     background: #e0e7ff;
-    color: #6366f1;
+    color: #3a52c4;
 }
 
 /* Tab Content */
@@ -321,7 +321,7 @@
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    background: linear-gradient(135deg, #3a52c4, #2c3f9e);
     color: #fff;
     display: flex;
     align-items: center;
@@ -362,7 +362,7 @@
     width: 38px;
     height: 38px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    background: linear-gradient(135deg, #3a52c4, #2c3f9e);
     color: #fff;
     display: flex;
     align-items: center;

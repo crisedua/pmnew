@@ -67,14 +67,14 @@
 .document-item:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    border-color: #c7d2fe;
+    border-color: #cdd7f5;
 }
 
 .doc-icon {
     width: 48px;
     height: 48px;
-    background: #ede9fe;
-    color: #8b5cf6;
+    background: #e8edf9;
+    color: #2c3f9e;
     border-radius: 8px;
     display: flex;
     align-items: center;
@@ -206,12 +206,12 @@
 }
 
 .upload-label:hover {
-    border-color: #6366f1;
+    border-color: #3a52c4;
     background: #f5f3ff;
 }
 
 .upload-icon {
-    color: #6366f1;
+    color: #3a52c4;
     margin-bottom: 1rem;
 }
 
@@ -243,7 +243,7 @@
 
 .progress-bar-large .progress-fill {
     height: 100%;
-    background: #6366f1;
+    background: #3a52c4;
     border-radius: 1rem;
     transition: width 0.3s ease;
 }
@@ -265,7 +265,7 @@
 }
 
 .modal-footer .btn-primary {
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    background: linear-gradient(135deg, #3a52c4, #2c3f9e);
     color: white;
 }
 
@@ -366,7 +366,7 @@
 
 .document-editor:focus {
     outline: none;
-    border-color: #6366f1;
+    border-color: #3a52c4;
     box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
 }
 
@@ -379,7 +379,7 @@
 }
 
 .document-item .doc-content.doc-clickable:hover .doc-name {
-    color: #4f46e5;
+    color: #3a52c4;
     text-decoration: underline;
 }
 

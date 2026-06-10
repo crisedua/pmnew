@@ -30,7 +30,7 @@
 .project-kpi-card:hover {
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
     transform: translateY(-2px);
-    border-color: #c7d2fe;
+    border-color: #cdd7f5;
 }
 
 .pkc-header {
@@ -88,7 +88,7 @@
 
 .pkc-fill {
     height: 100%;
-    background: linear-gradient(90deg, #6366f1, #8b5cf6);
+    background: linear-gradient(90deg, #3a52c4, #2c3f9e);
     border-radius: 999px;
 }
 
@@ -132,6 +132,6 @@
 }
 
 .pkc-chevron {
-    color: #c7d2fe;
+    color: #cdd7f5;
     flex-shrink: 0;
 }
