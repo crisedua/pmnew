@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, LogOut, Trash2 } from 'lucide-react';
+import { LogOut, Trash2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import AppHeader from '../components/AppHeader';
 import ProjectSummary from '../components/ProjectSummary';
 import TasksView from '../components/TasksView';
 import DocumentsTab from '../components/DocumentsTab';
@@ -182,68 +183,47 @@ function ProjectDetail() {
     return (
         <div className="project-detail">
             {/* Header */}
-            <header className="project-header">
-                <div className="container header-content">
-                    <div className="header-left">
-                        <button
-                            className="btn-icon back-btn"
-                            onClick={() => navigate('/dashboard')}
-                            title="Volver al Dashboard"
-                        >
-                            <ArrowLeft size={20} />
-                        </button>
-                        <div className="project-identity">
-                            <div className="project-icon">📊</div>
-                            <div className="project-details">
-                                <h1 className="app-title">{project.name}</h1>
-                                <span className="app-subtitle">{project.institution}</span>
-                            </div>
-                        </div>
+            <AppHeader title={project.name} onBack={() => navigate('/dashboard')}>
+                <button
+                    className="btn-icon delete-btn"
+                    title="Eliminar Subcomisión"
+                    onClick={handleDeleteProject}
+                >
+                    <Trash2 size={20} />
+                </button>
+                <div className="user-menu">
+                    <div
+                        className="user-avatar"
+                        onClick={() => setShowUserMenu(v => !v)}
+                        title="Cuenta"
+                    >
+                        {user?.email?.[0]?.toUpperCase() || 'U'}
                     </div>
-
-                    <div className="header-right">
-                        <button
-                            className="btn-icon delete-btn"
-                            title="Eliminar Subcomisión"
-                            onClick={handleDeleteProject}
-                        >
-                            <Trash2 size={20} />
-                        </button>
-                        <div className="user-menu">
-                            <div
-                                className="user-avatar"
-                                onClick={() => setShowUserMenu(v => !v)}
-                                title="Cuenta"
-                            >
-                                {user?.email?.[0]?.toUpperCase() || 'U'}
-                            </div>
-                            {showUserMenu && (
-                                <>
-                                    <div className="user-menu-backdrop" onClick={() => setShowUserMenu(false)} />
-                                    <div className="user-menu-dropdown">
-                                        <div className="user-menu-info">
-                                            <div className="user-menu-avatar">
-                                                {user?.email?.[0]?.toUpperCase() || 'U'}
-                                            </div>
-                                            <div className="user-menu-details">
-                                                <span className="user-menu-name">
-                                                    {user?.user_metadata?.full_name || 'Usuario'}
-                                                </span>
-                                                <span className="user-menu-email">{user?.email}</span>
-                                                {isAdmin && <span className="user-menu-role">Administrador</span>}
-                                            </div>
-                                        </div>
-                                        <button className="user-menu-logout" onClick={handleLogout}>
-                                            <LogOut size={16} />
-                                            Cerrar sesión
-                                        </button>
+                    {showUserMenu && (
+                        <>
+                            <div className="user-menu-backdrop" onClick={() => setShowUserMenu(false)} />
+                            <div className="user-menu-dropdown">
+                                <div className="user-menu-info">
+                                    <div className="user-menu-avatar">
+                                        {user?.email?.[0]?.toUpperCase() || 'U'}
                                     </div>
-                                </>
-                            )}
-                        </div>
-                    </div>
+                                    <div className="user-menu-details">
+                                        <span className="user-menu-name">
+                                            {user?.user_metadata?.full_name || 'Usuario'}
+                                        </span>
+                                        <span className="user-menu-email">{user?.email}</span>
+                                        {isAdmin && <span className="user-menu-role">Administrador</span>}
+                                    </div>
+                                </div>
+                                <button className="user-menu-logout" onClick={handleLogout}>
+                                    <LogOut size={16} />
+                                    Cerrar sesión
+                                </button>
+                            </div>
+                        </>
+                    )}
                 </div>
-            </header>
+            </AppHeader>
 
             {/* Tabs */}
             <div className="tabs-container">

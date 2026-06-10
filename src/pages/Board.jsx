@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, LayoutDashboard, AlertTriangle, Clock, CheckCircle2, FolderKanban } from 'lucide-react';
+import { LayoutDashboard, AlertTriangle, Clock, CheckCircle2, FolderKanban } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { fetchAllProjectKpis, fetchAllComisionKpis, ESTADO_SALUD } from '../lib/kpis';
+import AppHeader from '../components/AppHeader';
 import './Board.css';
 
 function Board() {
@@ -67,13 +68,13 @@ function Board() {
 
     return (
         <div className="board-page">
-            <div className="board-header">
-                <button className="btn-back" onClick={() => navigate('/dashboard')}>
-                    <ArrowLeft size={18} /> Dashboard
-                </button>
-                <h1><FolderKanban size={22} /> Tablero de Subcomisiones</h1>
-            </div>
+            <AppHeader
+                title="Tablero de Subcomisiones"
+                icon={<FolderKanban size={20} />}
+                onBack={() => navigate('/dashboard')}
+            />
 
+            <div className="board-body">
             {/* KPIs globales */}
             <div className="board-kpis">
                 <div className="board-kpi big">
@@ -170,6 +171,7 @@ function Board() {
                         </div>
                     );
                 })}
+            </div>
             </div>
         </div>
     );

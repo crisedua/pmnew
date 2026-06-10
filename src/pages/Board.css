@@ -1,4 +1,9 @@
 .board-page {
+    min-height: 100vh;
+    background: #f8f9fc;
+}
+
+.board-body {
     padding: 1.5rem 2rem;
     max-width: 1400px;
     margin: 0 auto;

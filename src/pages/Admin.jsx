@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Shield, ShieldCheck, Search } from 'lucide-react';
+import { Shield, ShieldCheck, Search } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { fetchIsAdmin } from '../lib/admin';
+import AppHeader from '../components/AppHeader';
 import './Admin.css';
 
 function Admin() {
@@ -85,14 +86,13 @@ function Admin() {
 
     return (
         <div className="admin-page">
-            <div className="admin-header">
-                <button className="btn-back" onClick={() => navigate('/dashboard')}>
-                    <ArrowLeft size={18} />
-                    Volver
-                </button>
-                <h1><Shield size={22} /> Administración</h1>
-            </div>
+            <AppHeader
+                title="Administración"
+                icon={<Shield size={20} />}
+                onBack={() => navigate('/dashboard')}
+            />
 
+            <div className="admin-body">
             <p className="admin-intro">
                 Los administradores pueden crear subcomisiones, tareas e invitar equipo.
                 Activa o desactiva el rol de administrador para cada usuario.
@@ -162,6 +162,7 @@ function Admin() {
                         )}
                     </tbody>
                 </table>
+            </div>
             </div>
         </div>
     );
