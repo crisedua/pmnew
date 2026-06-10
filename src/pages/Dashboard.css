@@ -41,6 +41,12 @@
     font-size: 1.5rem;
 }
 
+.workspace-logo {
+    height: 22px;
+    width: auto;
+    display: block;
+}
+
 .workspace-name {
     font-weight: 600;
     color: #1f2937;

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 36" role="img" aria-label="ASIVA">
+  <!-- A en forma de pico (Λ) -->
+  <path d="M2 33 L20 4 L38 33 L29 33 L20 17 L11 33 Z" fill="#ffffff"/>
+  <!-- SIVA -->
+  <text x="44" y="29" font-family="Arial, Helvetica, sans-serif" font-size="30"
+        font-weight="800" letter-spacing="1" fill="#ffffff">SIVA</text>
+</svg>

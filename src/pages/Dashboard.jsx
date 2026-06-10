@@ -359,7 +359,7 @@ function Dashboard() {
                         onClick={() => setShowAreaDropdown(v => !v)}
                         title="Cambiar de comisión"
                     >
-                        <div className="workspace-icon">📊</div>
+                        <img src="/asiva-logo.svg" alt="ASIVA" className="workspace-logo" />
                         <span className="workspace-name">{selectedArea?.name || 'Selecciona comisión'}</span>
                         <ChevronDown size={16} />
                     </div>
