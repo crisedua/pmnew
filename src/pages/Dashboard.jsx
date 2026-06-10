@@ -359,7 +359,12 @@ function Dashboard() {
                         onClick={() => setShowAreaDropdown(v => !v)}
                         title="Cambiar de comisión"
                     >
-                        <img src="/asiva-logo.svg" alt="ASIVA" className="workspace-logo" />
+                        <img
+                            src="https://www.asiva.cl/wp-content/uploads/2023/05/Asiva-Logo-blanco.png"
+                            alt="ASIVA"
+                            className="workspace-logo"
+                            onError={(e) => { e.currentTarget.src = '/asiva-logo.svg'; }}
+                        />
                         <span className="workspace-name">{selectedArea?.name || 'Selecciona comisión'}</span>
                         <ChevronDown size={16} />
                     </div>
