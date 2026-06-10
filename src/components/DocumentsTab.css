@@ -373,3 +373,16 @@
 .document-editor::placeholder {
     color: #9ca3af;
 }
+/* Documento clickeable: abre el contenido al hacer clic */
+.doc-clickable {
+    cursor: pointer;
+}
+
+.document-item .doc-content.doc-clickable:hover .doc-name {
+    color: #4f46e5;
+    text-decoration: underline;
+}
+
+.document-item .doc-icon.doc-clickable:hover {
+    opacity: 0.85;
+}

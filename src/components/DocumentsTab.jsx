@@ -148,6 +148,19 @@ function DocumentsTab({ documents, projectId, onDocumentsUpdate }) {
         }
     };
 
+    // Abrir el contenido del documento al hacer clic en la tarjeta.
+    const handleOpen = (doc) => {
+        if (doc.file_url) {
+            // Archivo subido (html, pdf, imagen...): se abre en una pestaña nueva.
+            window.open(doc.file_url, '_blank', 'noopener');
+        } else if (doc.content != null) {
+            // Documento creado online: abrir el editor/visor.
+            navigate(`/document/${doc.id}`);
+        } else {
+            alert('Este documento no tiene contenido para mostrar.');
+        }
+    };
+
     const handleDelete = async (docId) => {
         if (!confirm('¿Estás seguro de que quieres eliminar este documento?')) {
             return;
@@ -328,7 +341,7 @@ function DocumentsTab({ documents, projectId, onDocumentsUpdate }) {
         <div className="documents-tab">
             <div className="documents-header card">
                 <div>
-                    <h2>Documentos del Proyecto</h2>
+                    <h2>Documentos de la Subcomisión</h2>
                     <p className="text-secondary">
                         {documents.length} documento{documents.length !== 1 ? 's' : ''} adjunto{documents.length !== 1 ? 's' : ''}
                     </p>
@@ -379,11 +392,19 @@ function DocumentsTab({ documents, projectId, onDocumentsUpdate }) {
                 <div className="documents-list">
                     {documents.map(doc => (
                         <div key={doc.id} className="document-item card">
-                            <div className="doc-icon">
+                            <div
+                                className="doc-icon doc-clickable"
+                                onClick={() => handleOpen(doc)}
+                                title="Abrir documento"
+                            >
                                 {getFileIcon(doc.file_type)}
                             </div>
 
-                            <div className="doc-content">
+                            <div
+                                className="doc-content doc-clickable"
+                                onClick={() => handleOpen(doc)}
+                                title="Abrir documento"
+                            >
                                 <h4 className="doc-name">{doc.name}</h4>
                                 <div className="doc-meta text-secondary text-sm">
                                     <span>{doc.file_type || 'Documento'}</span>
