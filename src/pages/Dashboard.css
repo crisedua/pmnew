@@ -1135,3 +1135,161 @@
     color: #1f2937;
     margin: 0.5rem 0 1rem;
 }
+
+/* ============================================================
+   TEMA NAVY ASIVA — sidebar + top header (overrides)
+   Navy: #11163f  ·  Azul: #3a52c4  ·  Verde acento: #3f9c43
+   ============================================================ */
+.taskboard .sidebar {
+    background: #11163f;
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.workspace-selector:hover {
+    background: rgba(255, 255, 255, 0.07);
+}
+
+.workspace-name {
+    color: #ffffff;
+}
+
+.sidebar-header .chevron,
+.workspace-selector svg {
+    color: #aab1d0;
+}
+
+.nav-item {
+    color: #c7cce0;
+}
+
+.nav-item:hover {
+    background: rgba(255, 255, 255, 0.07);
+    color: #ffffff;
+}
+
+.nav-item.active {
+    background: rgba(58, 82, 196, 0.35);
+    color: #ffffff;
+    border-left: 3px solid #3f9c43;
+    padding-left: calc(1.25rem - 3px);
+}
+
+.section-header {
+    color: #8b93b8;
+}
+
+.btn-icon-sm {
+    color: #aab1d0;
+}
+
+.btn-icon-sm:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+.area-tree-header {
+    color: #d7dbec;
+}
+
+.area-tree-header:hover {
+    background: rgba(255, 255, 255, 0.07);
+}
+
+.area-tree-header.active {
+    background: rgba(58, 82, 196, 0.35);
+    color: #ffffff;
+}
+
+.area-count {
+    color: #c7cce0;
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.area-tree-projects {
+    border-left: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.project-tree-item {
+    color: #aab1d0;
+}
+
+.project-tree-item:hover {
+    background: rgba(255, 255, 255, 0.07);
+    color: #ffffff;
+}
+
+.sub-tree-header {
+    color: #d7dbec;
+}
+
+.sub-tree-header:hover {
+    background: rgba(255, 255, 255, 0.07);
+}
+
+.sub-tree-projects {
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Verde ASIVA como acento secundario en acciones de "agregar" */
+.area-tree-add {
+    color: #5bbf60;
+}
+
+.area-tree-add:hover {
+    background: rgba(63, 156, 67, 0.18);
+    color: #7ad07f;
+}
+
+.tree-empty {
+    color: #6f77a0;
+}
+
+.sidebar-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.btn-footer {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #d7dbec;
+}
+
+.btn-footer:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Top header en navy ASIVA */
+.top-header {
+    background: #11163f;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.top-header .btn-icon {
+    color: #c7cce0;
+}
+
+.top-header .btn-icon:hover {
+    color: #ffffff;
+}
+
+.top-header .search-box {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.top-header .search-box input {
+    color: #ffffff;
+}
+
+.top-header .search-box input::placeholder {
+    color: #aab1d0;
+}
+
+.top-header .search-box svg {
+    color: #aab1d0;
+}
