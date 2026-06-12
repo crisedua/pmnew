@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { LogOut, Trash2 } from 'lucide-react';
+import { LogOut, Trash2, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import AppHeader from '../components/AppHeader';
 import ProjectSummary from '../components/ProjectSummary';
@@ -38,6 +38,7 @@ function ProjectDetail() {
     const [role, setRole] = useState(null);
     const [isAdmin, setIsAdmin] = useState(false);
     const [showUserMenu, setShowUserMenu] = useState(false);
+    const [showDesc, setShowDesc] = useState(false);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -268,9 +269,6 @@ function ProjectDetail() {
                                 </span>
                             </div>
                             <h1 className="ih-title">{project.name}</h1>
-                            {project.description && (
-                                <p className="ih-description">{project.description}</p>
-                            )}
 
                             <div className="ih-card">
                                 <div className="ih-row">
@@ -287,6 +285,22 @@ function ProjectDetail() {
                                                 </div>
                                             </div>
                                         ) : <span className="ih-muted">Sin owner</span>}
+                                    </div>
+                                </div>
+
+                                <div className="ih-row">
+                                    <span className="ih-label">Descripción</span>
+                                    <div className="ih-value">
+                                        {project.description ? (
+                                            <div className="ih-desc">
+                                                <p className="ih-desc-clamp" onClick={() => setShowDesc(true)}>
+                                                    {project.description}
+                                                </p>
+                                                <button className="ih-desc-more" onClick={() => setShowDesc(true)}>
+                                                    Ver más
+                                                </button>
+                                            </div>
+                                        ) : <span className="ih-muted">Sin descripción</span>}
                                     </div>
                                 </div>
 
@@ -429,6 +443,23 @@ function ProjectDetail() {
                     documents={documents}
                     onAction={fetchProjectData}
                 />
+            )}
+
+            {/* Descripción completa */}
+            {showDesc && (
+                <div className="ih-modal-overlay" onClick={() => setShowDesc(false)}>
+                    <div className="ih-modal" onClick={(e) => e.stopPropagation()}>
+                        <div className="ih-modal-head">
+                            <h3>{project.name}</h3>
+                            <button className="ih-modal-close" onClick={() => setShowDesc(false)} title="Cerrar">
+                                <X size={20} />
+                            </button>
+                        </div>
+                        <div className="ih-modal-body">
+                            {project.description}
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );
