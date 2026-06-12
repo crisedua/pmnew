@@ -9,9 +9,31 @@ import DocumentsTab from '../components/DocumentsTab';
 import TeamTab from '../components/TeamTab';
 import AIAssistant from '../components/AIAssistant';
 import Traceability from '../components/Traceability';
-import { getUserAreaRole, canEdit } from '../lib/health';
+import { getUserAreaRole, canEdit, ESTADOS, getInitiativeEstado, lineaColor } from '../lib/health';
 import { fetchIsAdmin } from '../lib/admin';
 import './ProjectDetail.css';
+
+const AVATAR_COLORS = ['#24528f', '#3f9c43', '#7c3aed', '#0891b2', '#d97706', '#db2777', '#0d9488'];
+
+function avatarColor(name = '') {
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
+    return AVATAR_COLORS[hash % AVATAR_COLORS.length];
+}
+
+function initials(name = '') {
+    const parts = name.trim().split(/\s+/).filter(Boolean);
+    if (parts.length === 0) return '?';
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+function formatLongDate(value) {
+    if (!value) return null;
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return null;
+    return d.toLocaleDateString('es-CL', { day: '2-digit', month: 'long', year: 'numeric' });
+}
 
 function ProjectDetail() {
     const { id } = useParams();
@@ -24,6 +46,7 @@ function ProjectDetail() {
     const [tasks, setTasks] = useState([]);
     const [documents, setDocuments] = useState([]);
     const [team, setTeam] = useState([]);
+    const [assignees, setAssignees] = useState([]);
     const [invitations, setInvitations] = useState([]);
     const [user, setUser] = useState(null);
     const [role, setRole] = useState(null);
@@ -93,6 +116,18 @@ function ProjectDetail() {
 
             if (teamError) throw teamError;
             setTeam(teamData || []);
+
+            // Fetch assignees (equipo libre: nombre/email sin cuenta)
+            const { data: assigneesData, error: assigneesError } = await supabase
+                .from('project_assignees')
+                .select('*')
+                .eq('project_id', id)
+                .order('created_at', { ascending: true });
+
+            if (assigneesError) {
+                console.warn('Error fetching assignees (table might be missing):', assigneesError);
+            }
+            setAssignees(assigneesData || []);
 
             // Fetch invitations
             const { data: invitesData, error: invitesError } = await supabase
@@ -224,6 +259,106 @@ function ProjectDetail() {
                     )}
                 </div>
             </AppHeader>
+
+            {/* Ficha de la iniciativa (estilo prototipo) */}
+            {(() => {
+                const estado = ESTADOS[getInitiativeEstado(tasks)];
+                const owner = project.owner_name || project.responsible_email;
+                const lineaCode = project.linea ? project.linea.split(/\s+/)[0] : null;
+                const inicio = formatLongDate(project.start_date);
+                const cierre = formatLongDate(project.due_date);
+                return (
+                    <section className="initiative-hero">
+                        <div className="container">
+                            <div className="ih-eyebrow">
+                                {(project.codigo || project.linea) && (
+                                    <span className="ih-code">
+                                        {project.codigo || '—'}{project.linea ? ` · ${project.linea}` : ''}
+                                    </span>
+                                )}
+                                <span className="ih-estado">
+                                    <span className="ih-estado-dot" style={{ background: estado.color }} />
+                                    {estado.label}
+                                </span>
+                            </div>
+                            <h1 className="ih-title">{project.name}</h1>
+                            {project.description && (
+                                <p className="ih-description">{project.description}</p>
+                            )}
+
+                            <div className="ih-card">
+                                <div className="ih-row">
+                                    <span className="ih-label">Owner</span>
+                                    <div className="ih-value">
+                                        {owner ? (
+                                            <div className="ih-person">
+                                                <span className="ih-avatar" style={{ background: avatarColor(owner) }}>
+                                                    {initials(owner)}
+                                                </span>
+                                                <div className="ih-person-text">
+                                                    <strong>{project.owner_name || owner}</strong>
+                                                    {project.owner_email && <span>{project.owner_email}</span>}
+                                                </div>
+                                            </div>
+                                        ) : <span className="ih-muted">Sin owner</span>}
+                                    </div>
+                                </div>
+
+                                <div className="ih-row">
+                                    <span className="ih-label">Equipo</span>
+                                    <div className="ih-value">
+                                        {assignees.length > 0 ? (
+                                            <div className="ih-team">
+                                                {assignees.map(a => (
+                                                    <span className="ih-team-member" key={a.id} title={a.email || a.name}>
+                                                        <span className="ih-avatar sm" style={{ background: avatarColor(a.name || a.email || '') }}>
+                                                            {initials(a.name || a.email || '?')}
+                                                        </span>
+                                                        {a.name || a.email}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        ) : <span className="ih-muted">Sin equipo</span>}
+                                    </div>
+                                </div>
+
+                                <div className="ih-row">
+                                    <span className="ih-label">Linea</span>
+                                    <div className="ih-value">
+                                        {lineaCode
+                                            ? <span className="ih-linea" style={{ color: lineaColor(project.linea), background: `${lineaColor(project.linea)}1a` }}>{project.linea}</span>
+                                            : <span className="ih-muted">—</span>}
+                                    </div>
+                                </div>
+
+                                <div className="ih-row">
+                                    <span className="ih-label">Estado</span>
+                                    <div className="ih-value">
+                                        <span className="ih-estado-pill">
+                                            <span className="ih-estado-dot" style={{ background: estado.color }} />
+                                            {estado.label}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="ih-row">
+                                    <span className="ih-label">Inicio</span>
+                                    <div className="ih-value">
+                                        {inicio || <span className="ih-muted">Por definir</span>}
+                                    </div>
+                                </div>
+
+                                <div className="ih-row">
+                                    <span className="ih-label">Cierre est.</span>
+                                    <div className="ih-value">
+                                        {cierre || <span className="ih-muted">Por definir</span>}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                );
+            })()}
 
             {/* Tabs */}
             <div className="tabs-container">

@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { List, LayoutGrid, Shield } from 'lucide-react';
-import { getInitiativeHealth, taskProgress } from '../lib/health';
+import { ESTADOS, getInitiativeEstado, lineaColor } from '../lib/health';
 import './Iniciativas.css';
 
 /**
@@ -12,14 +12,6 @@ import './Iniciativas.css';
  *  - onBoard: () => void          (toggle a vista Tablero)
  *  - isAdmin, onAdmin: () => void  (botón "Acceso admin")
  */
-
-// Estados derivados de la salud de las tareas. Coinciden con los chips.
-const ESTADOS = {
-    sin_iniciar: { label: 'Sin iniciar', color: '#94a3b8' },
-    en_curso: { label: 'En curso', color: '#22c55e' },
-    en_riesgo: { label: 'En riesgo', color: '#f59e0b' },
-    bloqueada: { label: 'Bloqueada', color: '#ef4444' },
-};
 
 const ESTADO_FILTERS = [
     { key: 'todos', label: 'Todos los estados' },
@@ -38,28 +30,11 @@ function avatarColor(name) {
     return AVATAR_COLORS[hash % AVATAR_COLORS.length];
 }
 
-// Color del badge de línea según su código (L1 azul, L2 verde, etc.).
-const LINEA_COLORS = { L1: '#24528f', L2: '#3f9c43', L3: '#7c3aed', L4: '#d97706' };
-function lineaColor(code) {
-    return LINEA_COLORS[code] || '#6b7280';
-}
-
 function initials(name) {
     const parts = name.trim().split(/\s+/).filter(Boolean);
     if (parts.length === 0) return '?';
     if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-}
-
-function deriveEstado(tasks) {
-    if (!tasks || tasks.length === 0) return 'sin_iniciar';
-    const progress = taskProgress(tasks);
-    const anyInProgress = tasks.some(t => t.status && t.status !== 'To Do' && t.status !== 'Complete');
-    if (progress === 0 && !anyInProgress) return 'sin_iniciar';
-    const health = getInitiativeHealth(tasks);
-    if (health === 'red') return 'bloqueada';
-    if (health === 'yellow') return 'en_riesgo';
-    return 'en_curso';
 }
 
 function lastActivity(initiative) {
@@ -88,7 +63,7 @@ function Iniciativas({ initiatives = [], onOpen, onBoard, isAdmin, onAdmin }) {
     // Pre-computa estado y línea de cada iniciativa.
     const rows = useMemo(() => initiatives.map(it => {
         const tasks = it.tasks || [];
-        const estado = deriveEstado(tasks);
+        const estado = getInitiativeEstado(tasks);
         const blocked = tasks.filter(t => t.health === 'red').length;
         return {
             ...it,
