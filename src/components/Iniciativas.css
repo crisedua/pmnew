@@ -1,0 +1,240 @@
+/* ============================================================
+   Vista de Iniciativas (lista/tabla)
+   Paleta prototipo ASIVA: steel-blue #24528f, verde #3f9c43
+   ============================================================ */
+.iniciativas {
+    padding: 0.5rem 0 2rem;
+}
+
+/* Barra superior: título + toggle + acceso admin */
+.iniciativas-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.iniciativas-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0;
+}
+
+.iniciativas-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.view-toggle {
+    display: flex;
+    background: #eef2f8;
+    border: 1px solid #dce4ee;
+    border-radius: 8px;
+    padding: 2px;
+}
+
+.view-toggle-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    border: none;
+    background: transparent;
+    color: #5b6b80;
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 0.4rem 0.85rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+
+.view-toggle-btn:hover { color: #24528f; }
+
+.view-toggle-btn.active {
+    background: #ffffff;
+    color: #24528f;
+    box-shadow: 0 1px 2px rgba(36, 82, 143, 0.12);
+}
+
+.btn-acceso-admin {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    border: 1px solid #dce4ee;
+    background: #ffffff;
+    color: #374151;
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 0.45rem 0.9rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.btn-acceso-admin:hover {
+    border-color: #24528f;
+    color: #24528f;
+    background: #f0f4f9;
+}
+
+/* Filtros (chips) */
+.iniciativas-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.filter-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.chip {
+    border: 1px solid #dce4ee;
+    background: #ffffff;
+    color: #5b6b80;
+    font-size: 0.82rem;
+    font-weight: 500;
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.chip:hover {
+    border-color: #b9cbe4;
+    color: #24528f;
+}
+
+.chip.active {
+    background: #e8f0fa;
+    border-color: #24528f;
+    color: #24528f;
+    font-weight: 600;
+}
+
+/* Tabla */
+.iniciativas-table-wrap {
+    background: #ffffff;
+    border: 1px solid #dce4ee;
+    border-radius: 12px;
+    box-shadow: 0 1px 4px rgba(36, 82, 143, 0.08);
+    overflow: hidden;
+}
+
+.iniciativas-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.iniciativas-table thead th {
+    text-align: left;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #8a97a8;
+    padding: 0.85rem 1.1rem;
+    border-bottom: 1px solid #eef2f8;
+    background: #fbfcfe;
+}
+
+.iniciativas-table tbody td {
+    padding: 0.85rem 1.1rem;
+    border-bottom: 1px solid #f1f4f9;
+    font-size: 0.9rem;
+    color: #1f2937;
+    vertical-align: middle;
+}
+
+.iniciativas-table tbody tr {
+    cursor: pointer;
+    transition: background 0.12s;
+}
+
+.iniciativas-table tbody tr:hover { background: #f5f8fc; }
+.iniciativas-table tbody tr:last-child td { border-bottom: none; }
+
+.col-cod {
+    width: 90px;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+    font-size: 0.8rem;
+    color: #6b7280;
+    letter-spacing: 0.02em;
+}
+
+.col-name { font-weight: 600; color: #1c2c44; }
+
+.muted { color: #94a3b8; }
+
+/* Owner */
+.owner-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.owner-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    color: #ffffff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.owner-name { color: #374151; }
+
+/* Estado */
+.estado-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #475569;
+    font-size: 0.875rem;
+}
+
+.estado-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+/* Linea */
+.linea-badge {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.15rem 0.5rem;
+    border-radius: 6px;
+    letter-spacing: 0.02em;
+}
+
+.bloqueos {
+    color: #ef4444;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.empty-row td {
+    text-align: center;
+    color: #94a3b8;
+    padding: 2.5rem 1rem;
+    font-size: 0.9rem;
+}
+
+@media (max-width: 720px) {
+    .iniciativas-bar { flex-direction: column; align-items: flex-start; }
+    .iniciativas-table-wrap { overflow-x: auto; }
+}

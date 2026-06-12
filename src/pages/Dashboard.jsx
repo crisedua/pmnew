@@ -4,11 +4,12 @@ import {
     LogOut, Plus, X, Folder, Share2, ChevronRight, ChevronDown,
     Search, Bell, FileText, LayoutDashboard, Inbox, BarChart3,
     Settings, FolderPlus, CheckSquare, UserPlus, HelpCircle,
-    Check, Calendar, Flag, Trash2
+    Check, Calendar, Flag, Trash2, ListChecks
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import AIAssistant from '../components/AIAssistant';
 import ProjectCards from '../components/ProjectCards';
+import Iniciativas from '../components/Iniciativas';
 import { fetchIsAdmin } from '../lib/admin';
 import { fetchProjectKpis, fetchComisionKpi } from '../lib/kpis';
 import './Dashboard.css';
@@ -29,7 +30,8 @@ function Dashboard() {
     const [loading, setLoading] = useState(true);
     const [expandedProjects, setExpandedProjects] = useState({});
     const [searchQuery, setSearchQuery] = useState('');
-    const [activeView, setActiveView] = useState('dashboard');
+    const [activeView, setActiveView] = useState('iniciativas');
+    const [initiatives, setInitiatives] = useState([]);
     const [showAreaDropdown, setShowAreaDropdown] = useState(false);
     const [showUserMenu, setShowUserMenu] = useState(false);
 
@@ -63,6 +65,7 @@ function Dashboard() {
     useEffect(() => {
         if (areas.length > 0) {
             fetchProjectsForAllAreas();
+            fetchInitiatives();
         }
     }, [areas]);
 
@@ -196,6 +199,25 @@ function Dashboard() {
             setProjectsByArea(map);
         } catch (error) {
             console.error('Error fetching projects by area:', error);
+        }
+    };
+
+    const fetchInitiatives = async () => {
+        try {
+            const areaIds = areas.map(a => a.id);
+            if (areaIds.length === 0) {
+                setInitiatives([]);
+                return;
+            }
+            const { data, error } = await supabase
+                .from('projects')
+                .select('id, name, area_id, status, codigo, linea, owner_name, owner_email, responsible_email, created_at, updated_at, tasks(id, status, health, last_progress_at, updated_at, created_at)')
+                .in('area_id', areaIds);
+
+            if (error) throw error;
+            setInitiatives(data || []);
+        } catch (error) {
+            console.error('Error fetching initiatives:', error);
         }
     };
 
@@ -412,6 +434,13 @@ function Dashboard() {
                 <div className="sidebar-nav-label">Workspace</div>
                 <nav className="sidebar-nav">
                     <a
+                        className={`nav-item ${activeView === 'iniciativas' ? 'active' : ''}`}
+                        onClick={() => setActiveView('iniciativas')}
+                    >
+                        <ListChecks size={18} />
+                        Iniciativas
+                    </a>
+                    <a
                         className={`nav-item ${activeView === 'dashboard' ? 'active' : ''}`}
                         onClick={() => setActiveView('dashboard')}
                     >
@@ -577,8 +606,17 @@ function Dashboard() {
                     </div>
                 </header>
 
-                {/* Dashboard Content */}
+                {/* Main view content */}
                 <div className="dashboard-content">
+                    {activeView === 'iniciativas' ? (
+                        <Iniciativas
+                            initiatives={initiatives}
+                            onOpen={(projectId) => navigate(`/project/${projectId}`)}
+                            onBoard={() => navigate('/board')}
+                            isAdmin={isAdmin}
+                            onAdmin={() => navigate('/admin')}
+                        />
+                    ) : (
                         <>
                             <h1 className="page-title">
                                 {selectedArea ? selectedArea.name : 'Dashboard'}
@@ -786,6 +824,7 @@ function Dashboard() {
                                 </div>
                             </div>
                         </>
+                    )}
                 </div>
             </main>
 
