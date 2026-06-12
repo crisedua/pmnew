@@ -1,0 +1,81 @@
+.actividad-view { padding: 0.5rem 0 2rem; }
+
+.actividad-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 1.25rem;
+}
+
+.actividad-empty {
+    background: #fff;
+    border: 1px solid #dce4ee;
+    border-radius: 12px;
+    padding: 2.5rem;
+    text-align: center;
+    color: #94a3b8;
+}
+
+.actividad-card {
+    background: #fff;
+    border: 1px solid #dce4ee;
+    border-radius: 12px;
+    box-shadow: 0 1px 4px rgba(36, 82, 143, 0.08);
+    padding: 0.5rem 0.5rem;
+}
+
+.act-item {
+    display: flex;
+    gap: 0.8rem;
+    padding: 0.8rem 0.85rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.12s;
+}
+
+.act-item:hover { background: #f5f8fc; }
+.act-item + .act-item { border-top: 1px solid #f1f4f9; }
+
+.act-ic {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: #eef2f8;
+    color: #24528f;
+}
+
+.act-ic.created { background: #e8f6ec; color: #3f9c43; }
+.act-ic.health_change { background: #fef3e8; color: #d97706; }
+.act-ic.status_change { background: #e8f0fa; color: #24528f; }
+
+.act-body { flex: 1; min-width: 0; }
+
+.act-text {
+    font-size: 0.9rem;
+    color: #374151;
+    line-height: 1.45;
+}
+
+.act-text strong { color: #16243a; font-weight: 600; }
+.act-text em { font-style: normal; font-weight: 600; color: #24528f; }
+.act-text b { font-weight: 600; color: #1f2937; }
+
+.act-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 0.2rem;
+    font-size: 0.78rem;
+    color: #9aa7b8;
+}
+
+.act-project {
+    background: #f0f4f9;
+    border-radius: 6px;
+    padding: 0.05rem 0.45rem;
+    color: #5b6b80;
+}

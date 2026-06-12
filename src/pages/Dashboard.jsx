@@ -13,6 +13,9 @@ import ProjectCards from '../components/ProjectCards';
 import Iniciativas from '../components/Iniciativas';
 import IniciativasBoard from '../components/IniciativasBoard';
 import OwnersView from '../components/OwnersView';
+import KpisView from '../components/KpisView';
+import TimelineView from '../components/TimelineView';
+import ActividadView from '../components/ActividadView';
 import Placeholder from '../components/Placeholder';
 import { fetchIsAdmin } from '../lib/admin';
 import { fetchProjectKpis, fetchComisionKpi } from '../lib/kpis';
@@ -546,17 +549,26 @@ function Dashboard() {
                             onOpen={(projectId) => navigate(`/project/${projectId}`)}
                         />
                     ) : activeView === 'timeline' ? (
-                        <Placeholder title="Timeline" subtitle="Línea de tiempo de las iniciativas por fecha de inicio y cierre." />
+                        <TimelineView
+                            initiatives={initiatives}
+                            onOpen={(projectId) => navigate(`/project/${projectId}`)}
+                        />
+                    ) : activeView === 'kpis' ? (
+                        <KpisView
+                            initiatives={initiatives}
+                            onOpen={(projectId) => navigate(`/project/${projectId}`)}
+                        />
+                    ) : activeView === 'actividad' ? (
+                        <ActividadView
+                            initiatives={initiatives}
+                            onOpen={(projectId) => navigate(`/project/${projectId}`)}
+                        />
                     ) : activeView === 'reunion' ? (
                         <Placeholder title="Vista Reunión" subtitle="Modo presentación para revisar iniciativas en reuniones." />
-                    ) : activeView === 'kpis' ? (
-                        <Placeholder title="KPIs & Sesiones" subtitle="Indicadores y registro de sesiones de la comisión." />
                     ) : activeView === 'decisiones' ? (
                         <Placeholder title="Decisiones" subtitle="Bitácora de decisiones tomadas por la comisión." />
                     ) : activeView === 'reporte' ? (
                         <Placeholder title="Reporte" subtitle="Reporte ejecutivo del avance de la comisión." />
-                    ) : activeView === 'actividad' ? (
-                        <Placeholder title="Actividad" subtitle="Historial de actividad reciente." />
                     ) : (
                         <>
                             <h1 className="page-title">
