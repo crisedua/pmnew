@@ -10,6 +10,7 @@ import { supabase } from '../lib/supabase';
 import AIAssistant from '../components/AIAssistant';
 import ProjectCards from '../components/ProjectCards';
 import Iniciativas from '../components/Iniciativas';
+import IniciativasBoard from '../components/IniciativasBoard';
 import { fetchIsAdmin } from '../lib/admin';
 import { fetchProjectKpis, fetchComisionKpi } from '../lib/kpis';
 import './Dashboard.css';
@@ -447,7 +448,10 @@ function Dashboard() {
                         <LayoutDashboard size={18} />
                         Dashboard
                     </a>
-                    <a className="nav-item" onClick={() => navigate('/board')}>
+                    <a
+                        className={`nav-item ${activeView === 'tablero' ? 'active' : ''}`}
+                        onClick={() => setActiveView('tablero')}
+                    >
                         <BarChart3 size={18} />
                         Tablero
                     </a>
@@ -612,7 +616,15 @@ function Dashboard() {
                         <Iniciativas
                             initiatives={initiatives}
                             onOpen={(projectId) => navigate(`/project/${projectId}`)}
-                            onBoard={() => navigate('/board')}
+                            onBoard={() => setActiveView('tablero')}
+                            isAdmin={isAdmin}
+                            onAdmin={() => navigate('/admin')}
+                        />
+                    ) : activeView === 'tablero' ? (
+                        <IniciativasBoard
+                            initiatives={initiatives}
+                            onOpen={(projectId) => navigate(`/project/${projectId}`)}
+                            onList={() => setActiveView('iniciativas')}
                             isAdmin={isAdmin}
                             onAdmin={() => navigate('/admin')}
                         />

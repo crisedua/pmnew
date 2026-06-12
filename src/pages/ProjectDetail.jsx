@@ -11,22 +11,8 @@ import AIAssistant from '../components/AIAssistant';
 import Traceability from '../components/Traceability';
 import { getUserAreaRole, canEdit, ESTADOS, getInitiativeEstado, lineaColor } from '../lib/health';
 import { fetchIsAdmin } from '../lib/admin';
+import { avatarColor, initials } from '../lib/avatar';
 import './ProjectDetail.css';
-
-const AVATAR_COLORS = ['#24528f', '#3f9c43', '#7c3aed', '#0891b2', '#d97706', '#db2777', '#0d9488'];
-
-function avatarColor(name = '') {
-    let hash = 0;
-    for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
-    return AVATAR_COLORS[hash % AVATAR_COLORS.length];
-}
-
-function initials(name = '') {
-    const parts = name.trim().split(/\s+/).filter(Boolean);
-    if (parts.length === 0) return '?';
-    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-}
 
 function formatLongDate(value) {
     if (!value) return null;

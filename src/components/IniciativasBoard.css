@@ -1,0 +1,142 @@
+/* ============================================================
+   Tablero de iniciativas (Kanban por estado)
+   Reutiliza .iniciativas-bar / .view-toggle / .btn-acceso-admin
+   definidos en Iniciativas.css
+   ============================================================ */
+.ini-board {
+    padding: 0.5rem 0 2rem;
+}
+
+.board-cols {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+    align-items: start;
+}
+
+.board-col {
+    background: #eef2f8;
+    border: 1px solid #dce4ee;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.board-col-head {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.85rem 1rem;
+    background: #ffffff;
+    border-bottom: 1px solid #eef2f8;
+    box-shadow: inset 4px 0 0 var(--col-accent, #94a3b8);
+}
+
+.board-col-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.board-col-name {
+    flex: 1;
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: #1f2937;
+}
+
+.board-col-count {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #5b6b80;
+    background: #eef2f8;
+    border-radius: 999px;
+    padding: 0.1rem 0.5rem;
+    min-width: 22px;
+    text-align: center;
+}
+
+.board-col-body {
+    padding: 0.7rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    min-height: 90px;
+}
+
+.board-col-empty {
+    text-align: center;
+    color: #9aa7b8;
+    font-size: 0.85rem;
+    padding: 1.75rem 0.5rem;
+}
+
+/* Tarjeta */
+.ini-card {
+    background: #ffffff;
+    border: 1px solid #e3e9f2;
+    border-radius: 10px;
+    padding: 0.85rem;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(36, 82, 143, 0.06);
+    transition: box-shadow 0.15s, transform 0.15s, border-color 0.15s;
+}
+
+.ini-card:hover {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+    border-color: #d0e2f5;
+}
+
+.ini-card-cod {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.15rem 0.5rem;
+    border-radius: 6px;
+    letter-spacing: 0.02em;
+    margin-bottom: 0.55rem;
+}
+
+.ini-card-name {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: #1c2c44;
+    line-height: 1.3;
+    margin-bottom: 0.85rem;
+}
+
+.ini-card-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.ini-card-avatar {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    color: #ffffff;
+    font-size: 0.66rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.ini-card-act {
+    font-size: 0.8rem;
+    color: #9aa7b8;
+}
+
+@media (max-width: 1100px) {
+    .board-cols { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 640px) {
+    .board-cols { grid-template-columns: 1fr; }
+}
