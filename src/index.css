@@ -190,7 +190,7 @@ p {
 }
 
 .badge-primary {
-  background: rgba(37, 99, 235, 0.2);
+  background: rgba(36, 82, 143, 0.2);
   color: var(--primary-blue);
 }
 
@@ -254,7 +254,7 @@ input, select {
 input:focus, select:focus {
   outline: none;
   border-color: var(--primary-blue);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  box-shadow: 0 0 0 3px rgba(36, 82, 143, 0.1);
 }
 
 /* Grid Layouts */
