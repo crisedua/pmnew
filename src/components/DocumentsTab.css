@@ -270,7 +270,7 @@
 }
 
 .modal-footer .btn-primary:hover:not(:disabled) {
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    box-shadow: 0 4px 12px rgba(36, 82, 143, 0.3);
 }
 
 .modal-footer .btn:disabled {
@@ -367,7 +367,7 @@
 .document-editor:focus {
     outline: none;
     border-color: #24528f;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    box-shadow: 0 0 0 3px rgba(36, 82, 143, 0.1);
 }
 
 .document-editor::placeholder {

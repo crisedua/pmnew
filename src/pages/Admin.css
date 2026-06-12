@@ -65,9 +65,12 @@
 }
 
 .admin-table-wrap {
-    border: 1px solid var(--border-color, #e2e8f0);
-    border-radius: 12px;
+    background: #fff;
+    border: 1px solid #dce4ee;
+    border-top: 3px solid #24528f;
+    border-radius: 10px;
     overflow: hidden;
+    box-shadow: 0 1px 4px rgba(36, 82, 143, 0.08);
 }
 
 .admin-table {
@@ -83,11 +86,11 @@
 }
 
 .admin-table th {
-    background: var(--bg-subtle, #f8fafc);
+    background: #f0f4f9;
     font-size: 0.8rem;
     text-transform: uppercase;
     letter-spacing: 0.03em;
-    color: var(--text-secondary, #64748b);
+    color: #24528f;
 }
 
 .admin-table tr:last-child td {

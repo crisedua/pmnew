@@ -410,7 +410,7 @@
 .form-group textarea:focus {
     outline: none;
     border-color: #24528f;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    box-shadow: 0 0 0 3px rgba(36, 82, 143, 0.1);
 }
 
 .form-group textarea {

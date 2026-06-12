@@ -8,7 +8,7 @@
     background: linear-gradient(135deg, var(--primary-blue), #1a3d6e);
     color: white;
     border: none;
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+    box-shadow: 0 4px 12px rgba(36, 82, 143, 0.4);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -19,7 +19,7 @@
 
 .ai-trigger-btn:hover {
     transform: scale(1.05);
-    box-shadow: 0 6px 16px rgba(99, 102, 241, 0.6);
+    box-shadow: 0 6px 16px rgba(36, 82, 143, 0.6);
 }
 
 .ai-trigger-btn.hidden {
@@ -174,7 +174,7 @@
 }
 
 .ai-suggestions button:hover {
-    background: rgba(99, 102, 241, 0.1);
+    background: rgba(36, 82, 143, 0.1);
     border-color: var(--primary-blue);
     color: var(--primary-blue);
 }

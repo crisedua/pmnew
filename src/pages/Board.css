@@ -119,7 +119,7 @@
 
 .board-column {
     background: #f0f4f9;
-    border: 1px solid #e5e7eb;
+    border: 1px solid #dce4ee;
     border-radius: 12px;
     width: 300px;
     min-width: 300px;
@@ -161,16 +161,19 @@
 
 .board-card {
     background: #fff;
-    border: 1px solid #e5e7eb;
+    border: 1px solid #dce4ee;
+    border-top: 3px solid #24528f;
     border-radius: 10px;
     padding: 0.75rem;
     cursor: pointer;
-    transition: box-shadow 0.15s, transform 0.15s;
+    box-shadow: 0 1px 4px rgba(36, 82, 143, 0.08);
+    transition: box-shadow 0.15s, transform 0.15s, border-color 0.15s;
 }
 
 .board-card:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+    border-color: #d0e2f5;
 }
 
 .board-card-top {
