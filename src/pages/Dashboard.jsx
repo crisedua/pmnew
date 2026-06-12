@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     LogOut, Plus, X, Folder, Share2, ChevronRight, ChevronDown,
-    Search, Bell, FileText, LayoutDashboard, Inbox, Users, BarChart3,
+    Search, Bell, FileText, LayoutDashboard, Inbox, BarChart3,
     Settings, FolderPlus, CheckSquare, UserPlus, HelpCircle,
     Check, Calendar, Flag, Trash2
 } from 'lucide-react';
@@ -409,6 +409,7 @@ function Dashboard() {
                     </button>
                 )}
 
+                <div className="sidebar-nav-label">Workspace</div>
                 <nav className="sidebar-nav">
                     <a
                         className={`nav-item ${activeView === 'dashboard' ? 'active' : ''}`}
@@ -416,10 +417,6 @@ function Dashboard() {
                     >
                         <LayoutDashboard size={18} />
                         Dashboard
-                    </a>
-                    <a className="nav-item">
-                        <Users size={18} />
-                        Teams
                     </a>
                     <a className="nav-item" onClick={() => navigate('/board')}>
                         <BarChart3 size={18} />
