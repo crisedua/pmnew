@@ -62,79 +62,36 @@ function ProjectDetail() {
 
     const fetchProjectData = async () => {
         try {
-            // Fetch project
-            const { data: projectData, error: projectError } = await supabase
-                .from('projects')
-                .select('*')
-                .eq('id', id)
-                .single();
+            // Todas las consultas en paralelo (Supabase no lanza en error de
+            // query: devuelve {data, error}, así que Promise.all no se rechaza).
+            const [projectRes, tasksRes, docsRes, teamRes, assigneesRes, invitesRes] = await Promise.all([
+                supabase.from('projects').select('*').eq('id', id).single(),
+                supabase.from('tasks').select('*').eq('project_id', id),
+                supabase.from('documents').select('*').eq('project_id', id).order('created_at', { ascending: false }),
+                supabase.from('team_members').select('*').eq('project_id', id),
+                supabase.from('project_assignees').select('*').eq('project_id', id).order('created_at', { ascending: true }),
+                supabase.from('project_invitations').select('*').eq('project_id', id).order('created_at', { ascending: false }),
+            ]);
 
-            if (projectError) throw projectError;
-            setProject(projectData);
+            if (projectRes.error) throw projectRes.error;
+            setProject(projectRes.data);
+            setTasks(tasksRes.data || []);
+            setDocuments(docsRes.data || []);
+            setTeam(teamRes.data || []);
+            if (assigneesRes.error) console.warn('assignees (tabla puede faltar):', assigneesRes.error.message);
+            setAssignees(assigneesRes.data || []);
+            if (invitesRes.error) console.warn('invites (tabla puede faltar):', invitesRes.error.message);
+            setInvitations(invitesRes.data || []);
 
-            // Rol del usuario en el área (para gatear edición vs solo lectura)
+            // La página ya puede renderizar; el rol se resuelve en segundo plano.
+            setLoading(false);
+
             const { data: { user: currentUser } } = await supabase.auth.getUser();
-            if (currentUser && projectData?.area_id) {
-                const userRole = await getUserAreaRole(projectData.area_id, currentUser.id);
-                setRole(userRole);
+            if (currentUser && projectRes.data?.area_id) {
+                setRole(await getUserAreaRole(projectRes.data.area_id, currentUser.id));
             }
-
-            // Fetch tasks
-            const { data: tasksData, error: tasksError } = await supabase
-                .from('tasks')
-                .select('*')
-                .eq('project_id', id);
-
-            if (tasksError) throw tasksError;
-            setTasks(tasksData || []);
-
-            // Fetch documents
-            const { data: docsData, error: docsError } = await supabase
-                .from('documents')
-                .select('*')
-                .eq('project_id', id)
-                .order('created_at', { ascending: false });
-
-            if (docsError) throw docsError;
-            setDocuments(docsData || []);
-
-            // Fetch team
-            const { data: teamData, error: teamError } = await supabase
-                .from('team_members')
-                .select('*')
-                .eq('project_id', id);
-
-            if (teamError) throw teamError;
-            setTeam(teamData || []);
-
-            // Fetch assignees (equipo libre: nombre/email sin cuenta)
-            const { data: assigneesData, error: assigneesError } = await supabase
-                .from('project_assignees')
-                .select('*')
-                .eq('project_id', id)
-                .order('created_at', { ascending: true });
-
-            if (assigneesError) {
-                console.warn('Error fetching assignees (table might be missing):', assigneesError);
-            }
-            setAssignees(assigneesData || []);
-
-            // Fetch invitations
-            const { data: invitesData, error: invitesError } = await supabase
-                .from('project_invitations')
-                .select('*')
-                .eq('project_id', id)
-                .order('created_at', { ascending: false });
-
-            if (invitesError) {
-                // Don't fail the whole page if invites fail (table might not exist yet)
-                console.warn('Error fetching invites (table might be missing):', invitesError);
-            }
-            setInvitations(invitesData || []);
-
         } catch (error) {
             console.error('Error fetching project data:', error);
-        } finally {
             setLoading(false);
         }
     };
