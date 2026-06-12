@@ -315,6 +315,117 @@
     white-space: pre-wrap;
 }
 
+/* Botón Editar en el eyebrow */
+.ih-edit-btn {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    border: 1px solid #dce4ee;
+    background: #ffffff;
+    color: #24528f;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.35rem 0.75rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.ih-edit-btn:hover {
+    background: #e8f0fa;
+    border-color: #24528f;
+}
+
+/* Formulario de edición */
+.ih-edit .ih-modal-body { white-space: normal; }
+
+.ih-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.ih-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.ih-field-full { grid-column: 1 / -1; }
+
+.ih-field span {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #5b6b80;
+}
+
+.ih-field input,
+.ih-field textarea {
+    border: 1px solid #dce4ee;
+    border-radius: 8px;
+    padding: 0.55rem 0.7rem;
+    font-size: 0.9rem;
+    color: #1f2937;
+    font-family: inherit;
+    background: #fff;
+    width: 100%;
+}
+
+.ih-field textarea { resize: vertical; }
+
+.ih-field input:focus,
+.ih-field textarea:focus {
+    outline: none;
+    border-color: #24528f;
+    box-shadow: 0 0 0 3px rgba(36, 82, 143, 0.12);
+}
+
+.ih-form-note {
+    margin: 1rem 0 0;
+    font-size: 0.8rem;
+    color: #9aa7b8;
+}
+
+.ih-modal-foot {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.6rem;
+    padding: 1rem 1.4rem;
+    border-top: 1px solid #eef2f8;
+}
+
+.ih-btn-secondary,
+.ih-btn-primary {
+    border-radius: 8px;
+    padding: 0.55rem 1.1rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid transparent;
+}
+
+.ih-btn-secondary {
+    background: #fff;
+    border-color: #dce4ee;
+    color: #5b6b80;
+}
+
+.ih-btn-secondary:hover { background: #f0f4f9; }
+
+.ih-btn-primary {
+    background: #24528f;
+    color: #fff;
+}
+
+.ih-btn-primary:hover { background: #1a3d6e; }
+.ih-btn-primary:disabled,
+.ih-btn-secondary:disabled { opacity: 0.6; cursor: default; }
+
+@media (max-width: 560px) {
+    .ih-form-grid { grid-template-columns: 1fr; }
+}
+
 .ih-card {
     background: #ffffff;
     border: 1px solid #dce4ee;

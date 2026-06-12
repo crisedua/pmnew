@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { LogOut, Trash2, X } from 'lucide-react';
+import { LogOut, Trash2, X, Pencil } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import AppHeader from '../components/AppHeader';
 import ProjectSummary from '../components/ProjectSummary';
@@ -39,6 +39,9 @@ function ProjectDetail() {
     const [isAdmin, setIsAdmin] = useState(false);
     const [showUserMenu, setShowUserMenu] = useState(false);
     const [showDesc, setShowDesc] = useState(false);
+    const [editing, setEditing] = useState(false);
+    const [editForm, setEditForm] = useState({});
+    const [savingEdit, setSavingEdit] = useState(false);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -133,6 +136,52 @@ function ProjectDetail() {
             console.error('Error fetching project data:', error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const openEdit = () => {
+        setEditForm({
+            codigo: project.codigo || '',
+            linea: project.linea || '',
+            owner_name: project.owner_name || '',
+            owner_email: project.owner_email || '',
+            description: project.description || '',
+            start_date: project.start_date || '',
+            due_date: project.due_date || '',
+        });
+        setEditing(true);
+    };
+
+    const saveEdit = async () => {
+        setSavingEdit(true);
+        try {
+            const { data, error } = await supabase
+                .from('projects')
+                .update({
+                    codigo: editForm.codigo || null,
+                    linea: editForm.linea || null,
+                    owner_name: editForm.owner_name || null,
+                    owner_email: editForm.owner_email || null,
+                    description: editForm.description || null,
+                    start_date: editForm.start_date || null,
+                    due_date: editForm.due_date || null,
+                })
+                .eq('id', id)
+                .select();
+
+            if (error) throw error;
+            // Con RLS, un UPDATE sin permiso afecta 0 filas sin lanzar error.
+            if (!data || data.length === 0) {
+                alert('No tienes permisos para editar esta iniciativa.');
+                return;
+            }
+            setEditing(false);
+            await fetchProjectData();
+        } catch (err) {
+            console.error('Error updating initiative:', err);
+            alert('Error al guardar: ' + (err.message || JSON.stringify(err)));
+        } finally {
+            setSavingEdit(false);
         }
     };
 
@@ -267,6 +316,11 @@ function ProjectDetail() {
                                     <span className="ih-estado-dot" style={{ background: estado.color }} />
                                     {estado.label}
                                 </span>
+                                {(isAdmin || canEdit(role)) && (
+                                    <button className="ih-edit-btn" onClick={openEdit}>
+                                        <Pencil size={14} /> Editar
+                                    </button>
+                                )}
                             </div>
                             <h1 className="ih-title">{project.name}</h1>
 
@@ -443,6 +497,95 @@ function ProjectDetail() {
                     documents={documents}
                     onAction={fetchProjectData}
                 />
+            )}
+
+            {/* Editar ficha de la iniciativa */}
+            {editing && (
+                <div className="ih-modal-overlay" onClick={() => setEditing(false)}>
+                    <div className="ih-modal ih-edit" onClick={(e) => e.stopPropagation()}>
+                        <div className="ih-modal-head">
+                            <h3>Editar iniciativa</h3>
+                            <button className="ih-modal-close" onClick={() => setEditing(false)} title="Cerrar">
+                                <X size={20} />
+                            </button>
+                        </div>
+                        <div className="ih-modal-body">
+                            <div className="ih-form-grid">
+                                <label className="ih-field">
+                                    <span>Código</span>
+                                    <input
+                                        type="text"
+                                        placeholder="L1-A"
+                                        value={editForm.codigo}
+                                        onChange={(e) => setEditForm({ ...editForm, codigo: e.target.value })}
+                                    />
+                                </label>
+                                <label className="ih-field">
+                                    <span>Línea</span>
+                                    <input
+                                        type="text"
+                                        placeholder="L1 Gestion"
+                                        value={editForm.linea}
+                                        onChange={(e) => setEditForm({ ...editForm, linea: e.target.value })}
+                                    />
+                                </label>
+                                <label className="ih-field">
+                                    <span>Owner</span>
+                                    <input
+                                        type="text"
+                                        placeholder="Nombre"
+                                        value={editForm.owner_name}
+                                        onChange={(e) => setEditForm({ ...editForm, owner_name: e.target.value })}
+                                    />
+                                </label>
+                                <label className="ih-field">
+                                    <span>Email del owner</span>
+                                    <input
+                                        type="email"
+                                        placeholder="owner@empresa.cl"
+                                        value={editForm.owner_email}
+                                        onChange={(e) => setEditForm({ ...editForm, owner_email: e.target.value })}
+                                    />
+                                </label>
+                                <label className="ih-field">
+                                    <span>Inicio</span>
+                                    <input
+                                        type="date"
+                                        value={editForm.start_date || ''}
+                                        onChange={(e) => setEditForm({ ...editForm, start_date: e.target.value })}
+                                    />
+                                </label>
+                                <label className="ih-field">
+                                    <span>Cierre est.</span>
+                                    <input
+                                        type="date"
+                                        value={editForm.due_date || ''}
+                                        onChange={(e) => setEditForm({ ...editForm, due_date: e.target.value })}
+                                    />
+                                </label>
+                                <label className="ih-field ih-field-full">
+                                    <span>Descripción</span>
+                                    <textarea
+                                        rows={6}
+                                        value={editForm.description}
+                                        onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                                    />
+                                </label>
+                            </div>
+                            <p className="ih-form-note">
+                                El estado se calcula automáticamente según el avance de las tareas.
+                            </p>
+                        </div>
+                        <div className="ih-modal-foot">
+                            <button className="ih-btn-secondary" onClick={() => setEditing(false)} disabled={savingEdit}>
+                                Cancelar
+                            </button>
+                            <button className="ih-btn-primary" onClick={saveEdit} disabled={savingEdit}>
+                                {savingEdit ? 'Guardando…' : 'Guardar'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
 
             {/* Descripción completa */}
