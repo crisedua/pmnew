@@ -1,6 +1,6 @@
 .admin-page {
     min-height: 100vh;
-    background: #f8f9fc;
+    background: #f0f4f9;
 }
 
 .admin-body {
@@ -104,7 +104,7 @@
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background: var(--primary, #3a52c4);
+    background: var(--primary, #24528f);
     color: #fff;
     display: flex;
     align-items: center;

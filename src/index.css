@@ -6,25 +6,25 @@
   --light-text-secondary: #718096;
   
   /* Dark Theme Colors */
-  --dark-bg: #11163f;
-  --dark-card: #1b2150;
+  --dark-bg: #24528f;
+  --dark-card: #1a3d6e;
   --dark-text-primary: #ffffff;
   --dark-text-secondary: #a0aec0;
   
   /* ASIVA Brand */
-  --asiva-navy: #11163f;
-  --asiva-blue: #3a52c4;
-  --asiva-blue-hover: #2c3f9e;
+  --asiva-navy: #24528f;
+  --asiva-blue: #24528f;
+  --asiva-blue-hover: #1a3d6e;
   --asiva-green: #3f9c43;
 
   /* Accent Colors */
-  --primary-blue: #3a52c4;
-  --primary-blue-hover: #2c3f9e;
+  --primary-blue: #24528f;
+  --primary-blue-hover: #1a3d6e;
   --success: #10b981;
   --warning: #f59e0b;
   --danger: #ef4444;
   --info: #6b7280;
-  --purple: #2c3f9e;
+  --purple: #1a3d6e;
   
   /* Priority Badge Colors */
   --priority-alta-bg: #fee2e2;

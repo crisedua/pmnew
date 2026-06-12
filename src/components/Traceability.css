@@ -86,12 +86,12 @@
     align-items: center;
     justify-content: center;
     background: #f3f4f6;
-    color: #3a52c4;
+    color: #24528f;
 }
 
 .trace-item.comment .trace-icon {
-    background: #e8edf9;
-    color: #2c3f9e;
+    background: #e8f0fa;
+    color: #1a3d6e;
 }
 
 .trace-body {

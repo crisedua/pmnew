@@ -4,7 +4,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: #f8f9fc;
+    background: #f0f4f9;
     padding: 2rem;
     color: #1f2937;
 }
@@ -27,8 +27,8 @@
 .project-icon {
     width: 80px;
     height: 80px;
-    background: #e8edf9;
-    color: #3a52c4;
+    background: #e8f0fa;
+    color: #24528f;
     border-radius: 20px;
     display: flex;
     align-items: center;
@@ -68,7 +68,7 @@
 
 .project-role {
     font-size: 0.875rem;
-    color: #3a52c4;
+    color: #24528f;
     font-weight: 500;
     text-transform: uppercase;
 }
@@ -92,7 +92,7 @@
 
 .animate-spin {
     animation: spin 1s linear infinite;
-    color: #3a52c4;
+    color: #24528f;
     margin-bottom: 1rem;
 }
 

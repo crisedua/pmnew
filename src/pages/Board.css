@@ -1,6 +1,6 @@
 .board-page {
     min-height: 100vh;
-    background: #f8f9fc;
+    background: #f0f4f9;
 }
 
 .board-body {
@@ -82,7 +82,7 @@
 
 .board-kpi-fill {
     height: 100%;
-    background: linear-gradient(90deg, #3a52c4, #2c3f9e);
+    background: linear-gradient(90deg, #24528f, #1a3d6e);
     border-radius: 999px;
 }
 
@@ -118,7 +118,7 @@
 }
 
 .board-column {
-    background: #f8f9fc;
+    background: #f0f4f9;
     border: 1px solid #e5e7eb;
     border-radius: 12px;
     width: 300px;
@@ -149,7 +149,7 @@
 .board-column-avance {
     font-size: 0.78rem;
     font-weight: 700;
-    color: #3a52c4;
+    color: #24528f;
 }
 
 .board-column-cards {
@@ -203,7 +203,7 @@
 
 .board-card-fill {
     height: 100%;
-    background: linear-gradient(90deg, #3a52c4, #2c3f9e);
+    background: linear-gradient(90deg, #24528f, #1a3d6e);
     border-radius: 999px;
 }
 
@@ -222,3 +222,12 @@
     text-align: center;
     padding: 0.75rem;
 }
+
+/* Acento superior estilo prototipo en KPI cards */
+.board-kpi {
+    border-top: 3px solid #24528f;
+    box-shadow: 0 1px 4px rgba(36, 82, 143, 0.08);
+}
+.board-kpi.ok { border-top-color: #22c55e; }
+.board-kpi.warn { border-top-color: #f59e0b; }
+.board-kpi.danger { border-top-color: #ef4444; }

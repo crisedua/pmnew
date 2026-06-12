@@ -99,7 +99,7 @@
 
 .kpi-bar-fill {
     height: 100%;
-    background: linear-gradient(90deg, #3a52c4, #2c3f9e);
+    background: linear-gradient(90deg, #24528f, #1a3d6e);
     border-radius: 999px;
     transition: width 0.3s ease;
 }

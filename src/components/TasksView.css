@@ -37,7 +37,7 @@
 
 .toggle-btn.active {
     background: #ffffff;
-    color: #3a52c4;
+    color: #24528f;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
@@ -144,7 +144,7 @@
 .task-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    border-color: #cdd7f5;
+    border-color: #d0e2f5;
 }
 
 .task-card-header {
@@ -215,7 +215,7 @@
 .list-header h3 {
     font-size: 0.875rem;
     font-weight: 600;
-    color: #3a52c4;
+    color: #24528f;
     letter-spacing: 0.5px;
     text-transform: uppercase;
 }
@@ -409,7 +409,7 @@
 .form-group select:focus,
 .form-group textarea:focus {
     outline: none;
-    border-color: #3a52c4;
+    border-color: #24528f;
     box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
 }
 
@@ -491,9 +491,9 @@
 }
 
 .health-option.selected {
-    border-color: #3a52c4;
-    background: #e8edf9;
-    color: #2c3f9e;
+    border-color: #24528f;
+    background: #e8f0fa;
+    color: #1a3d6e;
 }
 
 .health-option input {
@@ -517,7 +517,7 @@
 }
 
 .task-title-edit:hover {
-    color: #3a52c4;
+    color: #24528f;
 }
 
 .task-card-actions {

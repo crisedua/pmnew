@@ -32,7 +32,7 @@
 /* Rest of CSS... */
 .document-editor-page {
     min-height: 100vh;
-    background: #f8f9fc;
+    background: #f0f4f9;
     display: flex;
     flex-direction: column;
 }
@@ -47,7 +47,7 @@
 .doc-icon-small {
     width: 36px;
     height: 36px;
-    background: linear-gradient(135deg, #3a52c4, #2c3f9e);
+    background: linear-gradient(135deg, #24528f, #1a3d6e);
     border-radius: 8px;
     display: flex;
     align-items: center;
@@ -115,8 +115,8 @@
 }
 
 .toolbar-btn.active {
-    background: #e8edf9;
-    color: #3a52c4;
+    background: #e8f0fa;
+    color: #24528f;
 }
 
 .toolbar-btn:disabled {
@@ -138,7 +138,7 @@
     justify-content: center;
     padding: 2rem;
     overflow-y: auto;
-    background: #f8f9fc;
+    background: #f0f4f9;
 }
 
 .editor-paper {
@@ -206,7 +206,7 @@
 }
 
 .ProseMirror blockquote {
-    border-left: 3px solid #3a52c4;
+    border-left: 3px solid #24528f;
     padding-left: 1rem;
     margin: 1rem 0;
     color: #4b5563;
@@ -275,7 +275,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #f8f9fc;
+    background: #f0f4f9;
     color: #6b7280;
     font-size: 1.25rem;
 }
@@ -377,7 +377,7 @@
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #3a52c4, #2c3f9e);
+    background: linear-gradient(135deg, #24528f, #1a3d6e);
     color: white;
     display: flex;
     align-items: center;
@@ -444,7 +444,7 @@
 
 .comment-input-area textarea:focus {
     outline: none;
-    border-color: #3a52c4;
+    border-color: #24528f;
 }
 
 .comment-input-area .btn {

@@ -48,8 +48,8 @@
 }
 
 .status-badge-container .badge {
-    background: #e8edf9;
-    color: #3a52c4;
+    background: #e8f0fa;
+    color: #24528f;
     padding: 0.25rem 0.625rem;
     border-radius: 6px;
     font-weight: 500;
@@ -110,7 +110,7 @@
 }
 
 .stat-card:hover {
-    border-color: #cdd7f5;
+    border-color: #d0e2f5;
     box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
 }
 
@@ -126,7 +126,7 @@
 
 .stat-icon.blue {
     background: #dbeafe;
-    color: #3a52c4;
+    color: #24528f;
 }
 
 .stat-icon.orange {
@@ -140,8 +140,8 @@
 }
 
 .stat-icon.purple {
-    background: #e8edf9;
-    color: #2c3f9e;
+    background: #e8f0fa;
+    color: #1a3d6e;
 }
 
 .stat-content {
@@ -197,7 +197,7 @@
 .progress-percentage {
     font-size: 1.125rem;
     font-weight: 700;
-    color: #3a52c4 !important;
+    color: #24528f !important;
 }
 
 .progress-bar-large {
@@ -211,7 +211,7 @@
 
 .progress-bar-large .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, #3a52c4, #2c3f9e);
+    background: linear-gradient(90deg, #24528f, #1a3d6e);
     border-radius: 1rem;
     transition: width 0.5s ease;
 }
@@ -286,8 +286,8 @@
 }
 
 a.owner-chip:hover {
-    background: #e8edf9;
-    color: #3a52c4;
+    background: #e8f0fa;
+    color: #24528f;
 }
 
 /* Semáforo summary */
@@ -378,7 +378,7 @@ a.owner-chip:hover {
 }
 
 .assignee-email:hover {
-    color: #3a52c4;
+    color: #24528f;
 }
 
 .assignee-remove {

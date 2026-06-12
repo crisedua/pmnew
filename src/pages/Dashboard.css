@@ -3,7 +3,7 @@
 .dashboard-layout.taskboard {
     display: flex;
     min-height: 100vh;
-    background: #f8f9fc;
+    background: #f0f4f9;
 }
 
 /* Sidebar */
@@ -55,7 +55,7 @@
 
 .btn-add-new {
     margin: 1rem;
-    background: linear-gradient(135deg, #3a52c4, #2c3f9e);
+    background: linear-gradient(135deg, #24528f, #1a3d6e);
     color: white;
     border: none;
     padding: 0.75rem 1rem;
@@ -95,8 +95,8 @@
 }
 
 .nav-item.active {
-    background: #e8edf9;
-    color: #3a52c4;
+    background: #e8f0fa;
+    color: #24528f;
     font-weight: 500;
 }
 
@@ -163,7 +163,7 @@
 }
 
 .project-name-link:hover {
-    color: #3a52c4;
+    color: #24528f;
 }
 
 .project-tasks {
@@ -207,8 +207,8 @@
 }
 
 .area-tree-header.active {
-    background: #e8edf9;
-    color: #3a52c4;
+    background: #e8f0fa;
+    color: #24528f;
 }
 
 .area-tree-name {
@@ -272,7 +272,7 @@
 
 .project-tree-item:hover {
     background: #f3f4f6;
-    color: #3a52c4;
+    color: #24528f;
 }
 
 .area-tree-add {
@@ -284,14 +284,14 @@
     margin-top: 0.15rem;
     border: none;
     background: transparent;
-    color: #3a52c4;
+    color: #24528f;
     font-size: 0.8rem;
     cursor: pointer;
     border-radius: 4px;
 }
 
 .area-tree-add:hover {
-    background: #e8edf9;
+    background: #e8f0fa;
 }
 
 .tree-empty {
@@ -396,7 +396,7 @@
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #3a52c4, #2c3f9e);
+    background: linear-gradient(135deg, #24528f, #1a3d6e);
     color: white;
     display: flex;
     align-items: center;
@@ -442,7 +442,7 @@
     width: 38px;
     height: 38px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #3a52c4, #2c3f9e);
+    background: linear-gradient(135deg, #24528f, #1a3d6e);
     color: #fff;
     display: flex;
     align-items: center;
@@ -539,7 +539,7 @@
 }
 
 .action-card:hover {
-    border-color: #cdd7f5;
+    border-color: #d0e2f5;
     box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
 }
 
@@ -554,12 +554,12 @@
 
 .action-icon.blue {
     background: #dbeafe;
-    color: #3a52c4;
+    color: #24528f;
 }
 
 .action-icon.purple {
-    background: #e8edf9;
-    color: #2c3f9e;
+    background: #e8f0fa;
+    color: #1a3d6e;
 }
 
 .action-icon.green {
@@ -666,7 +666,7 @@
 }
 
 .view-all {
-    color: #3a52c4;
+    color: #24528f;
     font-size: 0.85rem;
     cursor: pointer;
 }
@@ -760,7 +760,7 @@
 
 .progress-percent {
     font-weight: 600;
-    color: #3a52c4;
+    color: #24528f;
 }
 
 .progress-bar-sm {
@@ -772,7 +772,7 @@
 
 .progress-bar-sm .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, #3a52c4, #2c3f9e);
+    background: linear-gradient(90deg, #24528f, #1a3d6e);
     border-radius: 3px;
     transition: width 0.3s ease;
 }
@@ -860,7 +860,7 @@
 .modal-content .form-group textarea:focus,
 .modal-content .form-group select:focus {
     outline: none;
-    border-color: #3a52c4 !important;
+    border-color: #24528f !important;
     box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
 }
 
@@ -903,7 +903,7 @@
 
 .taskboard .modal-footer .btn-primary,
 .modal-footer .btn-primary {
-    background: linear-gradient(135deg, #3a52c4, #2c3f9e) !important;
+    background: linear-gradient(135deg, #24528f, #1a3d6e) !important;
     color: white !important;
 }
 
@@ -934,7 +934,7 @@
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #3a52c4, #2c3f9e);
+    background: linear-gradient(135deg, #24528f, #1a3d6e);
     color: white;
 }
 
@@ -1041,19 +1041,19 @@
 }
 
 .area-dropdown-item.active {
-    color: #2c3f9e;
+    color: #1a3d6e;
     font-weight: 600;
 }
 
 .area-check {
     margin-left: auto;
-    color: #3a52c4;
+    color: #24528f;
 }
 
 .area-dropdown-new {
     margin-top: 0.25rem;
     border-top: 1px solid #f3f4f6;
-    color: #3a52c4;
+    color: #24528f;
     font-weight: 600;
 }
 
@@ -1102,7 +1102,7 @@
 
 .comision-summary-fill {
     height: 100%;
-    background: linear-gradient(90deg, #3a52c4, #2c3f9e);
+    background: linear-gradient(90deg, #24528f, #1a3d6e);
     border-radius: 999px;
     transition: width 0.3s;
 }
@@ -1144,10 +1144,10 @@
 
 /* ============================================================
    TEMA NAVY ASIVA — sidebar + top header (overrides)
-   Navy: #11163f  ·  Azul: #3a52c4  ·  Verde acento: #3f9c43
+   Navy: #24528f  ·  Azul: #24528f  ·  Verde acento: #3f9c43
    ============================================================ */
 .taskboard .sidebar {
-    background: #11163f;
+    background: #24528f;
     border-right: 1px solid rgba(255, 255, 255, 0.08);
 }
 
@@ -1269,33 +1269,33 @@
     border-color: rgba(255, 255, 255, 0.2);
 }
 
-/* Top header en navy ASIVA */
+/* Top header blanco (estilo prototipo) */
 .top-header {
-    background: #11163f;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: #ffffff;
+    border-bottom: 1px solid #dce4ee;
+    box-shadow: 0 1px 4px rgba(36, 82, 143, 0.06);
 }
 
 .top-header .btn-icon {
-    color: #c7cce0;
+    color: #7a92a9;
 }
 
 .top-header .btn-icon:hover {
-    color: #ffffff;
+    color: #24528f;
 }
 
 .top-header .search-box {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.15);
+    background: #f0f4f9;
 }
 
 .top-header .search-box input {
-    color: #ffffff;
+    color: #0f1e30;
 }
 
 .top-header .search-box input::placeholder {
-    color: #aab1d0;
+    color: #7a92a9;
 }
 
 .top-header .search-box svg {
-    color: #aab1d0;
+    color: #7a92a9;
 }

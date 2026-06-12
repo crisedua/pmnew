@@ -7,7 +7,7 @@
     justify-content: space-between;
     gap: 1rem;
     padding: 0.85rem 1.5rem;
-    background: #11163f;
+    background: #24528f;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
@@ -102,7 +102,7 @@
     width: 38px;
     height: 38px;
     border-radius: 50%;
-    background: #3a52c4;
+    background: #24528f;
     color: #ffffff;
     display: flex;
     align-items: center;

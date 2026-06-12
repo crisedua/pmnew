@@ -43,6 +43,7 @@ function ProjectCards({ projects = [], kpisById = {}, onOpen }) {
                     <div
                         key={project.id}
                         className="project-kpi-card"
+                        style={estado ? { borderTopColor: estado.color } : undefined}
                         onClick={() => onOpen && onOpen(project.id)}
                     >
                         <div className="pkc-header">
