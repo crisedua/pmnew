@@ -1,0 +1,44 @@
+.ph-view {
+    padding: 0.5rem 0 2rem;
+}
+
+.ph-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 1.25rem;
+}
+
+.ph-card {
+    background: #ffffff;
+    border: 1px solid #dce4ee;
+    border-radius: 14px;
+    box-shadow: 0 1px 4px rgba(36, 82, 143, 0.08);
+    padding: 3rem 2rem;
+    text-align: center;
+}
+
+.ph-icon {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 1.1rem;
+    border-radius: 16px;
+    background: #e8f0fa;
+    color: #24528f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ph-heading {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #1c2c44;
+    margin: 0 0 0.4rem;
+}
+
+.ph-text {
+    color: #6b7280;
+    font-size: 0.95rem;
+    margin: 0;
+}

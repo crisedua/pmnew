@@ -87,6 +87,20 @@
     padding: 0.5rem 0;
 }
 
+.nav-count {
+    margin-left: auto;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #6b7280;
+    background: #e5e7eb;
+    border-radius: 999px;
+    padding: 0.05rem 0.5rem;
+}
+
+.sidebar-spacer {
+    flex: 1;
+}
+
 .nav-item {
     display: flex;
     align-items: center;
@@ -1237,7 +1251,8 @@
     color: #ffffff;
 }
 
-.area-count {
+.area-count,
+.nav-count {
     color: #c7cce0;
     background: rgba(255, 255, 255, 0.12);
 }

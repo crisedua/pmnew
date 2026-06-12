@@ -4,13 +4,16 @@ import {
     LogOut, Plus, X, Folder, Share2, ChevronRight, ChevronDown,
     Search, Bell, FileText, LayoutDashboard, Inbox, BarChart3,
     Settings, FolderPlus, CheckSquare, UserPlus, HelpCircle,
-    Check, Calendar, Flag, Trash2, ListChecks
+    Check, Calendar, Flag, Trash2, ListChecks,
+    LayoutGrid, Activity, Video, Shield, Users, File, Clock
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import AIAssistant from '../components/AIAssistant';
 import ProjectCards from '../components/ProjectCards';
 import Iniciativas from '../components/Iniciativas';
 import IniciativasBoard from '../components/IniciativasBoard';
+import OwnersView from '../components/OwnersView';
+import Placeholder from '../components/Placeholder';
 import { fetchIsAdmin } from '../lib/admin';
 import { fetchProjectKpis, fetchComisionKpi } from '../lib/kpis';
 import './Dashboard.css';
@@ -19,8 +22,6 @@ function Dashboard() {
     const navigate = useNavigate();
     const [areas, setAreas] = useState([]);
     const [projects, setProjects] = useState([]);
-    const [projectsByArea, setProjectsByArea] = useState({});
-    const [expandedAreas, setExpandedAreas] = useState({});
     const [projectKpis, setProjectKpis] = useState({});
     const [comisionKpi, setComisionKpi] = useState(null);
     const [allTasks, setAllTasks] = useState([]);
@@ -65,7 +66,6 @@ function Dashboard() {
 
     useEffect(() => {
         if (areas.length > 0) {
-            fetchProjectsForAllAreas();
             fetchInitiatives();
         }
     }, [areas]);
@@ -74,8 +74,6 @@ function Dashboard() {
         if (selectedArea) {
             fetchProjects(selectedArea.id);
             fetchAreaKpis(selectedArea.id);
-            // Expande la comisión seleccionada en el árbol del sidebar
-            setExpandedAreas(prev => ({ ...prev, [selectedArea.id]: true }));
         } else {
             setProjects([]);
             setProjectKpis({});
@@ -179,30 +177,6 @@ function Dashboard() {
         setComisionKpi(comK);
     };
 
-    const fetchProjectsForAllAreas = async () => {
-        try {
-            const areaIds = areas.map(a => a.id);
-            if (areaIds.length === 0) {
-                setProjectsByArea({});
-                return;
-            }
-            const { data, error } = await supabase
-                .from('projects')
-                .select('id, name, area_id')
-                .in('area_id', areaIds);
-
-            if (error) throw error;
-
-            const map = {};
-            (data || []).forEach(p => {
-                (map[p.area_id] = map[p.area_id] || []).push(p);
-            });
-            setProjectsByArea(map);
-        } catch (error) {
-            console.error('Error fetching projects by area:', error);
-        }
-    };
-
     const fetchInitiatives = async () => {
         try {
             const areaIds = areas.map(a => a.id);
@@ -219,40 +193,6 @@ function Dashboard() {
             setInitiatives(data || []);
         } catch (error) {
             console.error('Error fetching initiatives:', error);
-        }
-    };
-
-    const toggleAreaExpand = (areaId) => {
-        setExpandedAreas(prev => ({ ...prev, [areaId]: !prev[areaId] }));
-    };
-
-    const handleDeleteArea = async (area, e) => {
-        if (e) e.stopPropagation();
-        if (!confirm(
-            `¿Eliminar la comisión "${area.name}"?\n\n` +
-            'Se borrarán también todas sus subcomisiones y tareas. Esta acción no se puede deshacer.'
-        )) return;
-
-        try {
-            const { data, error } = await supabase
-                .from('areas')
-                .delete()
-                .eq('id', area.id)
-                .select();
-
-            if (error) throw error;
-
-            // Con RLS, un DELETE sin permiso borra 0 filas sin lanzar error.
-            if (!data || data.length === 0) {
-                alert('No tienes permisos para eliminar esta comisión.');
-                return;
-            }
-
-            if (selectedArea?.id === area.id) setSelectedArea(null);
-            await fetchAreas();
-        } catch (err) {
-            console.error('Error deleting area:', err);
-            alert('Error al eliminar la comisión: ' + (err.message || JSON.stringify(err)));
         }
     };
 
@@ -324,7 +264,7 @@ function Dashboard() {
             setNewProject({ name: '', description: '', due_date: '', status: 'En Progreso', owner_name: '', owner_email: '' });
             setShowProjectModal(false);
             fetchProjects(selectedArea.id);
-            fetchProjectsForAllAreas();
+            fetchInitiatives();
         } catch (error) {
             console.error('Error creating project:', error);
             alert('Error creating project: ' + (error.message || JSON.stringify(error)));
@@ -440,106 +380,78 @@ function Dashboard() {
                     >
                         <ListChecks size={18} />
                         Iniciativas
-                    </a>
-                    <a
-                        className={`nav-item ${activeView === 'dashboard' ? 'active' : ''}`}
-                        onClick={() => setActiveView('dashboard')}
-                    >
-                        <LayoutDashboard size={18} />
-                        Dashboard
+                        <span className="nav-count">{initiatives.length}</span>
                     </a>
                     <a
                         className={`nav-item ${activeView === 'tablero' ? 'active' : ''}`}
                         onClick={() => setActiveView('tablero')}
                     >
-                        <BarChart3 size={18} />
+                        <LayoutGrid size={18} />
                         Tablero
                     </a>
-                    {isAdmin && (
-                        <a className="nav-item" onClick={() => navigate('/admin')}>
-                            <Settings size={18} />
-                            Admin
-                        </a>
-                    )}
+                    <a
+                        className={`nav-item ${activeView === 'dashboard' ? 'active' : ''}`}
+                        onClick={() => setActiveView('dashboard')}
+                    >
+                        <Activity size={18} />
+                        Dashboard
+                    </a>
+                    <a
+                        className={`nav-item ${activeView === 'timeline' ? 'active' : ''}`}
+                        onClick={() => setActiveView('timeline')}
+                    >
+                        <Calendar size={18} />
+                        Timeline
+                    </a>
+                    <a
+                        className={`nav-item ${activeView === 'reunion' ? 'active' : ''}`}
+                        onClick={() => setActiveView('reunion')}
+                    >
+                        <Video size={18} />
+                        Vista Reunion
+                    </a>
                 </nav>
 
-                <div className="sidebar-section">
-                    <div className="section-header">
-                        <span>Comisiones</span>
-                        <button className="btn-icon-sm" onClick={() => setShowAreaModal(true)} title="Nueva comisión">
-                            <Plus size={14} />
-                        </button>
-                    </div>
+                <div className="sidebar-nav-label">Gestion</div>
+                <nav className="sidebar-nav">
+                    <a
+                        className={`nav-item ${activeView === 'kpis' ? 'active' : ''}`}
+                        onClick={() => setActiveView('kpis')}
+                    >
+                        <FileText size={18} />
+                        KPIs & Sesiones
+                    </a>
+                    <a
+                        className={`nav-item ${activeView === 'decisiones' ? 'active' : ''}`}
+                        onClick={() => setActiveView('decisiones')}
+                    >
+                        <Shield size={18} />
+                        Decisiones
+                    </a>
+                    <a
+                        className={`nav-item ${activeView === 'owners' ? 'active' : ''}`}
+                        onClick={() => setActiveView('owners')}
+                    >
+                        <Users size={18} />
+                        Owners
+                    </a>
+                    <a
+                        className={`nav-item ${activeView === 'reporte' ? 'active' : ''}`}
+                        onClick={() => setActiveView('reporte')}
+                    >
+                        <File size={18} />
+                        Reporte
+                    </a>
+                    <a
+                        className={`nav-item ${activeView === 'actividad' ? 'active' : ''}`}
+                        onClick={() => setActiveView('actividad')}
+                    >
+                        <Clock size={18} />
+                        Actividad
+                    </a>
+                </nav>
 
-                    {areas.length === 0 && (
-                        <div className="tree-empty">No tienes comisiones todavía</div>
-                    )}
-
-                    {areas.map(area => {
-                        const areaProjects = projectsByArea[area.id] || [];
-                        const isExpanded = expandedAreas[area.id];
-                        return (
-                            <div key={area.id} className="area-tree-item">
-                                <div
-                                    className={`area-tree-header ${selectedArea?.id === area.id ? 'active' : ''}`}
-                                    onClick={() => {
-                                        setSelectedArea(area);
-                                        toggleAreaExpand(area.id);
-                                    }}
-                                >
-                                    {isExpanded ?
-                                        <ChevronDown size={16} /> :
-                                        <ChevronRight size={16} />
-                                    }
-                                    <Folder size={16} />
-                                    <span className="area-tree-name">{area.name}</span>
-                                    {areaProjects.length > 0 && (
-                                        <span className="area-count">{areaProjects.length}</span>
-                                    )}
-                                    {(isAdmin || area.role === 'owner') && (
-                                        <button
-                                            className="area-tree-delete"
-                                            title="Eliminar comisión"
-                                            onClick={(e) => handleDeleteArea(area, e)}
-                                        >
-                                            <Trash2 size={14} />
-                                        </button>
-                                    )}
-                                </div>
-                                {isExpanded && (
-                                    <div className="area-tree-projects">
-                                        {areaProjects.length === 0 ? (
-                                            <div className="tree-empty">Sin subcomisiones</div>
-                                        ) : (
-                                            areaProjects.map(project => (
-                                                <div
-                                                    key={project.id}
-                                                    className="project-tree-item"
-                                                    onClick={() => navigate(`/project/${project.id}`)}
-                                                >
-                                                    <Folder size={14} />
-                                                    <span>{project.name}</span>
-                                                </div>
-                                            ))
-                                        )}
-                                        {isAdmin && (
-                                            <button
-                                                className="area-tree-add"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setSelectedArea(area);
-                                                    setShowProjectModal(true);
-                                                }}
-                                            >
-                                                <Plus size={12} /> Nueva subcomisión
-                                            </button>
-                                        )}
-                                    </div>
-                                )}
-                            </div>
-                        );
-                    })}
-                </div>
+                <div className="sidebar-spacer" />
 
                 <div className="sidebar-footer">
                     {isAdmin && (
@@ -628,6 +540,23 @@ function Dashboard() {
                             isAdmin={isAdmin}
                             onAdmin={() => navigate('/admin')}
                         />
+                    ) : activeView === 'owners' ? (
+                        <OwnersView
+                            initiatives={initiatives}
+                            onOpen={(projectId) => navigate(`/project/${projectId}`)}
+                        />
+                    ) : activeView === 'timeline' ? (
+                        <Placeholder title="Timeline" subtitle="Línea de tiempo de las iniciativas por fecha de inicio y cierre." />
+                    ) : activeView === 'reunion' ? (
+                        <Placeholder title="Vista Reunión" subtitle="Modo presentación para revisar iniciativas en reuniones." />
+                    ) : activeView === 'kpis' ? (
+                        <Placeholder title="KPIs & Sesiones" subtitle="Indicadores y registro de sesiones de la comisión." />
+                    ) : activeView === 'decisiones' ? (
+                        <Placeholder title="Decisiones" subtitle="Bitácora de decisiones tomadas por la comisión." />
+                    ) : activeView === 'reporte' ? (
+                        <Placeholder title="Reporte" subtitle="Reporte ejecutivo del avance de la comisión." />
+                    ) : activeView === 'actividad' ? (
+                        <Placeholder title="Actividad" subtitle="Historial de actividad reciente." />
                     ) : (
                         <>
                             <h1 className="page-title">
