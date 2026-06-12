@@ -52,45 +52,6 @@
     line-height: 1.6;
 }
 
-/* Features Section */
-.features {
-    padding: 4rem 0;
-    background: white;
-}
-
-.feature-card {
-    text-align: center;
-    padding: 2rem;
-    cursor: default;
-}
-
-.feature-card:hover {
-    transform: translateY(-8px);
-    box-shadow: var(--shadow-lg);
-}
-
-.feature-icon {
-    width: 64px;
-    height: 64px;
-    margin: 0 auto var(--spacing-lg);
-    background: linear-gradient(135deg, var(--primary-blue), #24528f);
-    color: white;
-    border-radius: var(--radius-xl);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.feature-title {
-    font-size: 1.25rem;
-    margin-bottom: var(--spacing-md);
-    color: var(--light-text-primary);
-}
-
-.feature-description {
-    line-height: 1.6;
-}
-
 /* Responsive */
 @media (max-width: 768px) {
     .hero-title {
@@ -99,9 +60,5 @@
 
     .hero {
         padding: 4rem 0;
-    }
-
-    .features {
-        padding: 3rem 0;
     }
 }
