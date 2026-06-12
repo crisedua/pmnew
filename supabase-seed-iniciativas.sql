@@ -16,7 +16,15 @@
 --
 -- ¿No estás seguro del nombre? Lista tus comisiones con:
 --     SELECT id, name FROM areas ORDER BY name;
+--
+-- NOTA: la tabla projects tiene un trigger (trg_projects_admin_only)
+-- que solo permite insertar a administradores autenticados. En el SQL
+-- editor no hay usuario (auth.uid() = NULL), así que lo desactivamos
+-- solo para este seed y lo reactivamos al final. Si la inserción
+-- fallara a mitad, vuelve a ejecutar la última línea (ENABLE TRIGGER).
 -- ============================================================
+
+ALTER TABLE public.projects DISABLE TRIGGER trg_projects_admin_only;
 
 WITH target AS (
     SELECT area_id AS id
@@ -40,6 +48,9 @@ WHERE NOT EXISTS (
     SELECT 1 FROM projects p
     WHERE p.area_id = t.id AND p.codigo = v.codigo
 );
+
+-- Reactiva el control de admin.
+ALTER TABLE public.projects ENABLE TRIGGER trg_projects_admin_only;
 
 -- Comprobación: lista las iniciativas de esa comisión.
 SELECT p.codigo, p.name, p.linea, p.owner_name
