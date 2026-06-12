@@ -388,7 +388,7 @@ function ProjectDetail() {
                             tasks={tasks}
                             projectId={id}
                             onTasksUpdate={fetchProjectData}
-                            canEdit={canEdit(role)}
+                            canEdit={isAdmin || canEdit(role)}
                             canCreate={isAdmin}
                         />
                     )}
