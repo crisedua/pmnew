@@ -17,7 +17,7 @@ import KpisView from '../components/KpisView';
 import TimelineView from '../components/TimelineView';
 import ActividadView from '../components/ActividadView';
 import Placeholder from '../components/Placeholder';
-import { fetchIsAdmin } from '../lib/admin';
+import { fetchIsAdmin, fetchIsSuperAdmin } from '../lib/admin';
 import { fetchProjectKpis, fetchComisionKpi } from '../lib/kpis';
 import './Dashboard.css';
 
@@ -32,6 +32,7 @@ function Dashboard() {
     const [selectedArea, setSelectedArea] = useState(null);
     const [user, setUser] = useState(null);
     const [isAdmin, setIsAdmin] = useState(false);
+    const [isSuperAdmin, setIsSuperAdmin] = useState(false);
     const [loading, setLoading] = useState(true);
     const [expandedProjects, setExpandedProjects] = useState({});
     const [searchQuery, setSearchQuery] = useState('');
@@ -65,6 +66,7 @@ function Dashboard() {
             (async () => {
                 const admin = await fetchIsAdmin(user.id);
                 setIsAdmin(admin);
+                fetchIsSuperAdmin(user.id).then(setIsSuperAdmin);
                 fetchAreas(admin);
                 fetchAllTasks();
             })();
@@ -545,7 +547,7 @@ function Dashboard() {
                             initiatives={initiatives}
                             onOpen={(projectId) => navigate(`/project/${projectId}`)}
                             onBoard={() => setActiveView('tablero')}
-                            isAdmin={isAdmin}
+                            isAdmin={isSuperAdmin}
                             onAdmin={() => navigate('/admin')}
                         />
                     ) : activeView === 'tablero' ? (
@@ -553,7 +555,7 @@ function Dashboard() {
                             initiatives={initiatives}
                             onOpen={(projectId) => navigate(`/project/${projectId}`)}
                             onList={() => setActiveView('iniciativas')}
-                            isAdmin={isAdmin}
+                            isAdmin={isSuperAdmin}
                             onAdmin={() => navigate('/admin')}
                         />
                     ) : activeView === 'owners' ? (

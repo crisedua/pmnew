@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Shield, ShieldCheck, Search } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { fetchIsAdmin } from '../lib/admin';
+import { fetchIsSuperAdmin } from '../lib/admin';
 import AppHeader from '../components/AppHeader';
 import './Admin.css';
 
@@ -25,9 +25,9 @@ function Admin() {
             navigate('/login');
             return;
         }
-        const admin = await fetchIsAdmin(user.id);
-        if (!admin) {
-            // Solo los administradores pueden acceder
+        const superAdmin = await fetchIsSuperAdmin(user.id);
+        if (!superAdmin) {
+            // Solo el super administrador gestiona usuarios
             navigate('/dashboard');
             return;
         }
