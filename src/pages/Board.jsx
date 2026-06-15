@@ -8,7 +8,6 @@ import './Board.css';
 
 function Board() {
     const navigate = useNavigate();
-    const [comisiones, setComisiones] = useState([]);
     const [projectKpis, setProjectKpis] = useState([]);
     const [comisionKpis, setComisionKpis] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -24,18 +23,13 @@ function Board() {
             return;
         }
 
-        const { data: ams } = await supabase
-            .from('area_members')
-            .select('areas ( id, name )')
-            .eq('user_id', user.id);
-        const coms = (ams || []).map(a => a.areas).filter(Boolean);
-
+        // Las comisiones se derivan de kpi_comision, que respeta RLS: los
+        // admins ven todas; los demás, solo las suyas.
         const [pk, ck] = await Promise.all([
             fetchAllProjectKpis(),
             fetchAllComisionKpis(),
         ]);
 
-        setComisiones(coms);
         setProjectKpis(pk);
         setComisionKpis(ck);
         setLoading(false);
@@ -59,11 +53,11 @@ function Board() {
     projectKpis.forEach(p => {
         (byComision[p.comision_id] = byComision[p.comision_id] || []).push(p);
     });
-    // Asegura una columna por cada comisión del usuario (aunque no tenga proyectos)
-    const columns = comisiones.map(c => ({
-        id: c.id,
-        name: c.name,
-        projects: (byComision[c.id] || []).sort((a, b) => a.avance_pct - b.avance_pct),
+    // Una columna por comisión (de kpi_comision; respeta RLS de admins).
+    const columns = comisionKpis.map(c => ({
+        id: c.comision_id,
+        name: c.comision_nombre,
+        projects: (byComision[c.comision_id] || []).sort((a, b) => a.avance_pct - b.avance_pct),
     }));
 
     return (

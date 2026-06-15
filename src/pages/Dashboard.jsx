@@ -62,8 +62,12 @@ function Dashboard() {
 
     useEffect(() => {
         if (user) {
-            fetchAreas();
-            fetchAllTasks();
+            (async () => {
+                const admin = await fetchIsAdmin(user.id);
+                setIsAdmin(admin);
+                fetchAreas(admin);
+                fetchAllTasks();
+            })();
         }
     }, [user]);
 
@@ -88,35 +92,44 @@ function Dashboard() {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
             setUser(user);
-            setIsAdmin(await fetchIsAdmin(user.id));
         } else {
             navigate('/login');
         }
     };
 
-    const fetchAreas = async () => {
+    const fetchAreas = async (admin = isAdmin) => {
         try {
-            const { data, error } = await supabase
-                .from('area_members')
-                .select(`
-                    area_id,
-                    role,
-                    areas (
-                        id,
-                        name,
-                        description,
-                        share_token,
-                        created_by
-                    )
-                `)
-                .eq('user_id', user.id);
+            let areasList = [];
 
-            if (error) throw error;
-
-            const areasList = data.map(item => ({
-                ...item.areas,
-                role: item.role
-            }));
+            if (admin) {
+                // Los admins de plataforma ven TODAS las comisiones, no solo
+                // las de las que son miembros. Requiere la política RLS
+                // "Admins can view all areas" (supabase-admin-visibility.sql).
+                const { data, error } = await supabase
+                    .from('areas')
+                    .select('id, name, description, share_token, created_by');
+                if (error) throw error;
+                areasList = (data || []).map(a => ({ ...a, role: 'owner' }));
+            } else {
+                const { data, error } = await supabase
+                    .from('area_members')
+                    .select(`
+                        area_id,
+                        role,
+                        areas (
+                            id,
+                            name,
+                            description,
+                            share_token,
+                            created_by
+                        )
+                    `)
+                    .eq('user_id', user.id);
+                if (error) throw error;
+                areasList = data
+                    .map(item => ({ ...item.areas, role: item.role }))
+                    .filter(a => a && a.id);
+            }
 
             setAreas(areasList);
 

@@ -293,3 +293,29 @@ DROP POLICY IF EXISTS "Creators or admins can delete areas" ON public.areas;
 CREATE POLICY "Creators or admins can delete areas"
 ON public.areas FOR DELETE TO authenticated
 USING ( created_by = auth.uid() OR public.is_platform_admin() );
+
+
+-- ============================================================
+-- 6. VISIBILIDAD TOTAL PARA ADMINS DE PLATAFORMA
+--    Políticas aditivas: los admins ven todas las comisiones,
+--    proyectos y tareas, aunque no sean miembros.
+-- ============================================================
+DROP POLICY IF EXISTS "Admins can view all areas" ON public.areas;
+CREATE POLICY "Admins can view all areas"
+ON public.areas FOR SELECT TO authenticated
+USING ( public.is_platform_admin() );
+
+DROP POLICY IF EXISTS "Admins can view all projects" ON public.projects;
+CREATE POLICY "Admins can view all projects"
+ON public.projects FOR SELECT TO authenticated
+USING ( public.is_platform_admin() );
+
+DROP POLICY IF EXISTS "Admins can view all tasks" ON public.tasks;
+CREATE POLICY "Admins can view all tasks"
+ON public.tasks FOR SELECT TO authenticated
+USING ( public.is_platform_admin() );
+
+DROP POLICY IF EXISTS "Admins can view all area members" ON public.area_members;
+CREATE POLICY "Admins can view all area members"
+ON public.area_members FOR SELECT TO authenticated
+USING ( public.is_platform_admin() );
