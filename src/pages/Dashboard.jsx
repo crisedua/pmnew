@@ -64,10 +64,13 @@ function Dashboard() {
     useEffect(() => {
         if (user) {
             (async () => {
-                const admin = await fetchIsAdmin(user.id);
+                const [admin, superAdmin] = await Promise.all([
+                    fetchIsAdmin(user.id),
+                    fetchIsSuperAdmin(user.id),
+                ]);
                 setIsAdmin(admin);
-                fetchIsSuperAdmin(user.id).then(setIsSuperAdmin);
-                fetchAreas(admin);
+                setIsSuperAdmin(superAdmin);
+                fetchAreas(superAdmin);
                 fetchAllTasks();
             })();
         }
@@ -99,14 +102,13 @@ function Dashboard() {
         }
     };
 
-    const fetchAreas = async (admin = isAdmin) => {
+    const fetchAreas = async (seeAll = isSuperAdmin) => {
         try {
             let areasList = [];
 
-            if (admin) {
-                // Los admins de plataforma ven TODAS las comisiones, no solo
-                // las de las que son miembros. Requiere la política RLS
-                // "Admins can view all areas" (supabase-admin-visibility.sql).
+            if (seeAll) {
+                // Solo el SUPER ADMIN ve todas las comisiones (para gestionarlas).
+                // Los admins normales y usuarios ven solo las asignadas.
                 const { data, error } = await supabase
                     .from('areas')
                     .select('id, name, description, share_token, created_by');

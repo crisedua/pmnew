@@ -160,3 +160,73 @@
     color: var(--text-secondary, #94a3b8);
     padding: 1.5rem;
 }
+
+/* Gestión de comisiones por usuario */
+.btn-comisiones {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: #f0f4f9;
+    border: 1px solid #dce4ee;
+    color: #24528f;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.btn-comisiones:hover {
+    background: #e2ecf7;
+}
+
+.comision-checklist {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    max-height: 320px;
+    overflow-y: auto;
+}
+
+.comision-check {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    width: 100%;
+    text-align: left;
+    padding: 0.6rem 0.7rem;
+    border: 1px solid #dce4ee;
+    border-radius: 8px;
+    background: #fff;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #1f2937;
+}
+
+.comision-check:hover {
+    background: #f0f4f9;
+}
+
+.comision-check.checked {
+    border-color: #24528f;
+    background: #eef4fb;
+}
+
+.comision-check-box {
+    width: 20px;
+    height: 20px;
+    border-radius: 5px;
+    border: 1.5px solid #c2cfe0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    flex-shrink: 0;
+}
+
+.comision-check.checked .comision-check-box {
+    background: #24528f;
+    border-color: #24528f;
+}
+
+.comision-check-name {
+    flex: 1;
+}
