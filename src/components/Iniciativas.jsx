@@ -48,7 +48,7 @@ function Iniciativas({ initiatives = [], onOpen, onBoard, isAdmin, onAdmin }) {
     // Pre-computa estado y línea de cada iniciativa.
     const rows = useMemo(() => initiatives.map(it => {
         const tasks = it.tasks || [];
-        const estado = getInitiativeEstado(tasks);
+        const estado = getInitiativeEstado(tasks, it);
         const blocked = tasks.filter(t => t.health === 'red').length;
         return {
             ...it,

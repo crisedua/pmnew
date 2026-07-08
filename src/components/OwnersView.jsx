@@ -47,7 +47,7 @@ function OwnersView({ initiatives = [], onOpen }) {
 
                             <div className="owner-items">
                                 {owner.items.map(it => {
-                                    const estado = ESTADOS[getInitiativeEstado(it.tasks || [])];
+                                    const estado = ESTADOS[getInitiativeEstado(it.tasks || [], it)];
                                     return (
                                         <div
                                             className="owner-item"

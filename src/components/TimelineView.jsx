@@ -67,7 +67,7 @@ function TimelineView({ initiatives = [], onOpen }) {
                     </div>
 
                     {rows.map(it => {
-                        const estado = ESTADOS[getInitiativeEstado(it.tasks || [])];
+                        const estado = ESTADOS[getInitiativeEstado(it.tasks || [], it)];
                         const color = lineaColor(it.linea);
                         const s = it.start || it.end;
                         const e = it.end || it.start;

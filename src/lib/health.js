@@ -78,8 +78,15 @@ export const ESTADOS = {
     bloqueada: { key: 'bloqueada', label: 'Bloqueada', color: '#ef4444' },
 };
 
-/** Estado agregado de una iniciativa (sin_iniciar|en_curso|en_riesgo|bloqueada). */
-export function getInitiativeEstado(tasks = []) {
+/**
+ * Estado agregado de una iniciativa (sin_iniciar|en_curso|en_riesgo|bloqueada).
+ * Si el proyecto tiene un estado fijado manualmente (estado_manual) tiene
+ * prioridad; en otro caso se calcula según el avance de las tareas.
+ */
+export function getInitiativeEstado(tasks = [], project = null) {
+    if (project && project.estado_manual && ESTADOS[project.estado_manual]) {
+        return project.estado_manual;
+    }
     if (!tasks || tasks.length === 0) return 'sin_iniciar';
     const progress = taskProgress(tasks);
     const anyInProgress = tasks.some(t => t.status && t.status !== 'To Do' && t.status !== 'Complete');

@@ -16,7 +16,7 @@ function KpisView({ initiatives = [], onOpen }) {
         let blocked = 0;
         const rows = initiatives.map(it => {
             const tasks = it.tasks || [];
-            const estado = getInitiativeEstado(tasks);
+            const estado = getInitiativeEstado(tasks, it);
             const progress = taskProgress(tasks);
             counts[estado] += 1;
             progressSum += progress;

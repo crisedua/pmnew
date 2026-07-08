@@ -32,7 +32,7 @@ function lastActivityLabel(tasks = []) {
 function IniciativasBoard({ initiatives = [], onOpen, onList, isAdmin, onAdmin }) {
     const byEstado = { sin_iniciar: [], en_curso: [], en_riesgo: [], bloqueada: [] };
     initiatives.forEach(it => {
-        byEstado[getInitiativeEstado(it.tasks || [])].push(it);
+        byEstado[getInitiativeEstado(it.tasks || [], it)].push(it);
     });
 
     return (

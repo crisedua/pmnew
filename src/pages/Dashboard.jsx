@@ -206,7 +206,7 @@ function Dashboard() {
             }
             const { data, error } = await supabase
                 .from('projects')
-                .select('id, name, area_id, status, codigo, linea, owner_name, owner_email, responsible_email, created_at, updated_at, tasks(id, status, health, last_progress_at, updated_at, created_at)')
+                .select('id, name, area_id, status, estado_manual, codigo, linea, owner_name, owner_email, responsible_email, created_at, updated_at, tasks(id, status, health, last_progress_at, updated_at, created_at)')
                 .in('area_id', areaIds);
 
             if (error) throw error;

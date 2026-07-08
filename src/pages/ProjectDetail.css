@@ -361,7 +361,8 @@
 }
 
 .ih-field input,
-.ih-field textarea {
+.ih-field textarea,
+.ih-field select {
     border: 1px solid #dce4ee;
     border-radius: 8px;
     padding: 0.55rem 0.7rem;
@@ -375,7 +376,8 @@
 .ih-field textarea { resize: vertical; }
 
 .ih-field input:focus,
-.ih-field textarea:focus {
+.ih-field textarea:focus,
+.ih-field select:focus {
     outline: none;
     border-color: #24528f;
     box-shadow: 0 0 0 3px rgba(36, 82, 143, 0.12);

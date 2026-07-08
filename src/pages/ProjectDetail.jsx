@@ -107,6 +107,7 @@ function ProjectDetail() {
             description: project.description || '',
             start_date: project.start_date || '',
             due_date: project.due_date || '',
+            estado_manual: project.estado_manual || '',
         });
         setEditing(true);
     };
@@ -124,6 +125,7 @@ function ProjectDetail() {
                     description: editForm.description || null,
                     start_date: editForm.start_date || null,
                     due_date: editForm.due_date || null,
+                    estado_manual: editForm.estado_manual || null,
                 })
                 .eq('id', id)
                 .select();
@@ -300,7 +302,7 @@ function ProjectDetail() {
 
             {/* Ficha de la iniciativa (estilo prototipo) */}
             {(() => {
-                const estado = ESTADOS[getInitiativeEstado(tasks)];
+                const estado = ESTADOS[getInitiativeEstado(tasks, project)];
                 const owner = project.owner_name || project.responsible_email;
                 const lineaCode = project.linea ? project.linea.split(/\s+/)[0] : null;
                 const inicio = formatLongDate(project.start_date);
@@ -565,6 +567,18 @@ function ProjectDetail() {
                                         onChange={(e) => setEditForm({ ...editForm, due_date: e.target.value })}
                                     />
                                 </label>
+                                <label className="ih-field">
+                                    <span>Estado</span>
+                                    <select
+                                        value={editForm.estado_manual || ''}
+                                        onChange={(e) => setEditForm({ ...editForm, estado_manual: e.target.value })}
+                                    >
+                                        <option value="">Automático (según tareas)</option>
+                                        {Object.values(ESTADOS).map(s => (
+                                            <option key={s.key} value={s.key}>{s.label}</option>
+                                        ))}
+                                    </select>
+                                </label>
                                 <label className="ih-field ih-field-full">
                                     <span>Descripción</span>
                                     <textarea
@@ -626,7 +640,8 @@ function ProjectDetail() {
                             </div>
 
                             <p className="ih-form-note">
-                                El estado se calcula automáticamente según el avance de las tareas.
+                                En "Automático", el estado se calcula según el avance de las tareas.
+                                Elige un estado para fijarlo manualmente.
                             </p>
                         </div>
                         <div className="ih-modal-foot">
