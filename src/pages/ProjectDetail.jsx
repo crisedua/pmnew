@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { LogOut, Trash2, X, Pencil, UserPlus, User, Mail } from 'lucide-react';
+import { LogOut, Trash2, X, Pencil, UserPlus, User, Mail, FileDown } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import AppHeader from '../components/AppHeader';
 import ProjectSummary from '../components/ProjectSummary';
@@ -12,6 +12,7 @@ import Traceability from '../components/Traceability';
 import { getUserAreaRole, canEdit, ESTADOS, getInitiativeEstado, lineaColor } from '../lib/health';
 import { fetchIsAdmin } from '../lib/admin';
 import { avatarColor, initials } from '../lib/avatar';
+import { exportProjectPdf } from '../lib/projectReport';
 import './ProjectDetail.css';
 
 function formatLongDate(value) {
@@ -320,6 +321,13 @@ function ProjectDetail() {
                                     <span className="ih-estado-dot" style={{ background: estado.color }} />
                                     {estado.label}
                                 </span>
+                                <button
+                                    className="ih-edit-btn ih-pdf-btn"
+                                    onClick={() => exportProjectPdf({ project, tasks, assignees })}
+                                    title="Exportar resumen en PDF"
+                                >
+                                    <FileDown size={14} /> Exportar PDF
+                                </button>
                                 {(isAdmin || canEdit(role)) && (
                                     <button className="ih-edit-btn" onClick={openEdit}>
                                         <Pencil size={14} /> Editar

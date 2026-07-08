@@ -337,6 +337,18 @@
     border-color: #24528f;
 }
 
+/* El primero de la fila empuja a la derecha; el siguiente sólo deja un gap */
+.ih-pdf-btn + .ih-edit-btn { margin-left: 0.5rem; }
+
+.ih-pdf-btn {
+    color: #47566b;
+    border-color: #dce4ee;
+}
+.ih-pdf-btn:hover {
+    background: #f0f4f9;
+    border-color: #b9c6da;
+}
+
 /* Formulario de edición */
 .ih-edit .ih-modal-body { white-space: normal; }
 
