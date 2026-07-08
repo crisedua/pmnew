@@ -54,6 +54,7 @@ function TasksView({ tasks, projectId, onTasksUpdate, canEdit = false, canCreate
         const map = {
             'In Progress': 'status-in-progress',
             'To Do': 'status-pending',
+            'On Hold': 'status-on-hold',
             'Complete': 'status-complete'
         };
         return map[status] || '';
@@ -63,6 +64,7 @@ function TasksView({ tasks, projectId, onTasksUpdate, canEdit = false, canCreate
         const map = {
             'In Progress': 'En Progreso',
             'To Do': 'Pendiente',
+            'On Hold': 'En Espera',
             'Complete': 'Completada'
         };
         return map[status] || status;
@@ -223,13 +225,15 @@ function TasksView({ tasks, projectId, onTasksUpdate, canEdit = false, canCreate
     const tasksByStatus = {
         'To Do': filteredTasks.filter(t => t.status === 'To Do'),
         'In Progress': filteredTasks.filter(t => t.status === 'In Progress'),
+        'On Hold': filteredTasks.filter(t => t.status === 'On Hold'),
         'Complete': filteredTasks.filter(t => t.status === 'Complete')
     };
 
     const columnLabels = {
-        'To Do': 'To Do',
-        'In Progress': 'In Progress',
-        'Complete': 'Complete'
+        'To Do': 'Pendiente',
+        'In Progress': 'En Progreso',
+        'On Hold': 'En Espera',
+        'Complete': 'Completada'
     };
 
     return (
@@ -476,6 +480,7 @@ function TasksView({ tasks, projectId, onTasksUpdate, canEdit = false, canCreate
                                     >
                                         <option value="To Do">Pendiente</option>
                                         <option value="In Progress">En Progreso</option>
+                                        <option value="On Hold">En Espera</option>
                                         <option value="Complete">Completada</option>
                                     </select>
                                 </div>
@@ -593,6 +598,7 @@ function TasksView({ tasks, projectId, onTasksUpdate, canEdit = false, canCreate
                                     >
                                         <option value="To Do">Pendiente</option>
                                         <option value="In Progress">En Progreso</option>
+                                        <option value="On Hold">En Espera</option>
                                         <option value="Complete">Completada</option>
                                     </select>
                                 </div>

@@ -308,6 +308,15 @@
     font-weight: 600;
 }
 
+.status-on-hold {
+    background: #ede9fe;
+    color: #7c3aed;
+    padding: 0.25rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
 .status-complete {
     background: #dcfce7;
     color: #16a34a;

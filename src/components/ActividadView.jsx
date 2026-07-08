@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase';
 import { HEALTH } from '../lib/health';
 import './ActividadView.css';
 
-const STATUS_LABEL = { 'To Do': 'Pendiente', 'In Progress': 'En Progreso', 'Complete': 'Completada' };
+const STATUS_LABEL = { 'To Do': 'Pendiente', 'In Progress': 'En Progreso', 'On Hold': 'En Espera', 'Complete': 'Completada' };
 const statusLabel = (s) => STATUS_LABEL[s] || s || '—';
 const healthLabel = (h) => (h && HEALTH[h] ? HEALTH[h].label : 'Automático');
 const personName = (p) => p?.full_name || p?.email || 'Alguien';

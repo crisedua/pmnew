@@ -7,6 +7,7 @@ import './Traceability.css';
 const statusLabel = (s) => ({
     'To Do': 'Pendiente',
     'In Progress': 'En Progreso',
+    'On Hold': 'En Espera',
     'Complete': 'Completada',
 }[s] || s || '—');
 

@@ -5,6 +5,7 @@ import { ESTADOS, getInitiativeEstado, taskProgress, getTaskHealth, HEALTH } fro
 const STATUS_LABEL = {
     'To Do': 'Por hacer',
     'In Progress': 'En progreso',
+    'On Hold': 'En espera',
     'Complete': 'Completada',
 };
 
@@ -73,6 +74,7 @@ export function buildProjectReportHtml({ project, tasks = [], assignees = [] }) 
     const total = tasks.length;
     const completadas = tasks.filter(t => t.status === 'Complete').length;
     const enProgreso = tasks.filter(t => t.status === 'In Progress').length;
+    const enEspera = tasks.filter(t => t.status === 'On Hold').length;
     const porHacer = tasks.filter(t => t.status === 'To Do').length;
     const bloqueadas = tasks.filter(t => getTaskHealth(t) === 'red').length;
     const progress = taskProgress(tasks);
@@ -188,7 +190,7 @@ export function buildProjectReportHtml({ project, tasks = [], assignees = [] }) 
     .bar { height: 10px; background: #eef2f8; border-radius: 999px; overflow: hidden; }
     .bar > span { display: block; height: 100%; background: linear-gradient(90deg, #22c55e, #16a34a); }
 
-    .stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+    .stats { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
     .stat { background: #f6f8fc; border: 1px solid #e6ecf5; border-radius: 10px; padding: 12px 8px; text-align: center; }
     .stat-value { font-size: 22px; font-weight: 800; line-height: 1; }
     .stat-label { font-size: 10px; color: #64748b; margin-top: 5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; }
@@ -211,6 +213,7 @@ export function buildProjectReportHtml({ project, tasks = [], assignees = [] }) 
     .pill { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 10px; font-weight: 700; }
     .pill.status.to-do { background: #eef2f8; color: #64748b; }
     .pill.status.in-progress { background: #dbeafe; color: #1d4ed8; }
+    .pill.status.on-hold { background: #ede9fe; color: #7c3aed; }
     .pill.status.complete { background: #dcfce7; color: #15803d; }
 
     .muted { color: #94a3b8; font-style: italic; margin: 4px 0; }
@@ -258,6 +261,7 @@ export function buildProjectReportHtml({ project, tasks = [], assignees = [] }) 
             ${statTile('Total', total, '#24528f')}
             ${statTile('Completadas', completadas, '#16a34a')}
             ${statTile('En progreso', enProgreso, '#1d4ed8')}
+            ${statTile('En espera', enEspera, '#7c3aed')}
             ${statTile('Por hacer', porHacer, '#64748b')}
             ${statTile('Bloqueadas', bloqueadas, '#dc2626')}
         </div>
