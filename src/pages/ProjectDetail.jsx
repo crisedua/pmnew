@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { LogOut, Trash2, X, Pencil } from 'lucide-react';
+import { LogOut, Trash2, X, Pencil, UserPlus, User, Mail } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import AppHeader from '../components/AppHeader';
 import ProjectSummary from '../components/ProjectSummary';
@@ -42,6 +42,8 @@ function ProjectDetail() {
     const [editing, setEditing] = useState(false);
     const [editForm, setEditForm] = useState({});
     const [savingEdit, setSavingEdit] = useState(false);
+    const [newAssignee, setNewAssignee] = useState({ name: '', email: '' });
+    const [savingAssignee, setSavingAssignee] = useState(false);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -139,6 +141,49 @@ function ProjectDetail() {
             alert('Error al guardar: ' + (err.message || JSON.stringify(err)));
         } finally {
             setSavingEdit(false);
+        }
+    };
+
+    const handleAddAssignee = async (e) => {
+        e.preventDefault();
+        if (!newAssignee.name.trim() && !newAssignee.email.trim()) return;
+        setSavingAssignee(true);
+        try {
+            const { data, error } = await supabase
+                .from('project_assignees')
+                .insert({
+                    project_id: id,
+                    name: newAssignee.name.trim() || null,
+                    email: newAssignee.email.trim() || null,
+                })
+                .select();
+            if (error) throw error;
+            // Con RLS, un INSERT sin permiso afecta 0 filas sin lanzar error.
+            if (!data || data.length === 0) {
+                alert('No tienes permisos para asignar personas a esta iniciativa.');
+                return;
+            }
+            setNewAssignee({ name: '', email: '' });
+            await fetchProjectData();
+        } catch (err) {
+            console.error('Error adding assignee:', err);
+            alert('Error al asignar persona: ' + (err.message || JSON.stringify(err)));
+        } finally {
+            setSavingAssignee(false);
+        }
+    };
+
+    const handleRemoveAssignee = async (assigneeId) => {
+        try {
+            const { error } = await supabase
+                .from('project_assignees')
+                .delete()
+                .eq('id', assigneeId);
+            if (error) throw error;
+            await fetchProjectData();
+        } catch (err) {
+            console.error('Error removing assignee:', err);
+            alert('Error al quitar persona: ' + (err.message || JSON.stringify(err)));
         }
     };
 
@@ -529,6 +574,57 @@ function ProjectDetail() {
                                     />
                                 </label>
                             </div>
+
+                            <div className="ih-team-edit">
+                                <span className="ih-team-edit-label">Equipo</span>
+                                {assignees.length === 0 ? (
+                                    <p className="ih-muted ih-team-empty">Sin equipo asignado.</p>
+                                ) : (
+                                    <div className="ih-team-edit-list">
+                                        {assignees.map(a => (
+                                            <div key={a.id} className="ih-team-edit-chip">
+                                                <User size={14} />
+                                                <span className="ih-team-edit-name">{a.name || a.email}</span>
+                                                {a.email && a.name && (
+                                                    <span className="ih-team-edit-email">
+                                                        <Mail size={12} /> {a.email}
+                                                    </span>
+                                                )}
+                                                <button
+                                                    type="button"
+                                                    className="ih-team-edit-remove"
+                                                    title="Quitar"
+                                                    onClick={() => handleRemoveAssignee(a.id)}
+                                                >
+                                                    <Trash2 size={13} />
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                                <form className="ih-team-edit-form" onSubmit={handleAddAssignee}>
+                                    <input
+                                        type="text"
+                                        placeholder="Nombre"
+                                        value={newAssignee.name}
+                                        onChange={(e) => setNewAssignee({ ...newAssignee, name: e.target.value })}
+                                    />
+                                    <input
+                                        type="email"
+                                        placeholder="email@ejemplo.com"
+                                        value={newAssignee.email}
+                                        onChange={(e) => setNewAssignee({ ...newAssignee, email: e.target.value })}
+                                    />
+                                    <button
+                                        type="submit"
+                                        className="ih-btn-primary ih-team-edit-add"
+                                        disabled={savingAssignee || (!newAssignee.name.trim() && !newAssignee.email.trim())}
+                                    >
+                                        <UserPlus size={16} /> {savingAssignee ? 'Asignando…' : 'Asignar'}
+                                    </button>
+                                </form>
+                            </div>
+
                             <p className="ih-form-note">
                                 El estado se calcula automáticamente según el avance de las tareas.
                             </p>

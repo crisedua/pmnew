@@ -387,6 +387,98 @@
     color: #9aa7b8;
 }
 
+/* Edición de equipo dentro del modal */
+.ih-team-edit {
+    margin-top: 1.4rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid #eef2f8;
+}
+
+.ih-team-edit-label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #5b6b80;
+    margin-bottom: 0.6rem;
+}
+
+.ih-team-empty { margin: 0 0 0.75rem; }
+
+.ih-team-edit-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.ih-team-edit-chip {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 0.6rem;
+    background: #f6f8fc;
+    border: 1px solid #e6ecf5;
+    border-radius: 8px;
+    color: #24528f;
+    font-size: 0.85rem;
+}
+
+.ih-team-edit-name { font-weight: 600; color: #1f2937; }
+
+.ih-team-edit-email {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: #7a92a9;
+    font-size: 0.78rem;
+}
+
+.ih-team-edit-remove {
+    margin-left: auto;
+    border: none;
+    background: transparent;
+    color: #c05656;
+    cursor: pointer;
+    display: flex;
+    padding: 0.25rem;
+    border-radius: 6px;
+}
+
+.ih-team-edit-remove:hover { background: #fbecec; }
+
+.ih-team-edit-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.ih-team-edit-form input {
+    flex: 1 1 140px;
+    border: 1px solid #dce4ee;
+    border-radius: 8px;
+    padding: 0.55rem 0.7rem;
+    font-size: 0.9rem;
+    color: #1f2937;
+    font-family: inherit;
+    background: #fff;
+}
+
+.ih-team-edit-form input:focus {
+    outline: none;
+    border-color: #24528f;
+    box-shadow: 0 0 0 3px rgba(36, 82, 143, 0.12);
+}
+
+.ih-team-edit-add {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    white-space: nowrap;
+}
+
+.ih-team-edit-add:disabled { opacity: 0.5; cursor: not-allowed; }
+
 .ih-modal-foot {
     display: flex;
     justify-content: flex-end;
