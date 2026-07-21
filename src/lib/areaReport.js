@@ -2,6 +2,16 @@
 // y tareas para responder "¿cómo vamos hoy?".
 import { ESTADOS, getInitiativeEstado, taskProgress, getTaskHealth } from './health';
 
+const STATUS_LABEL = {
+    'To Do': 'Por hacer',
+    'In Progress': 'En progreso',
+    'On Hold': 'En espera',
+    'Complete': 'Completada',
+};
+
+// Orden de las columnas del tablero, para listar las tareas igual que en la app.
+const STATUS_ORDER = { 'To Do': 0, 'In Progress': 1, 'On Hold': 2 };
+
 const DAY = 1000 * 60 * 60 * 24;
 
 function esc(v) {
@@ -47,7 +57,7 @@ export function buildAreaStats(initiatives = []) {
             if (t.status === 'Complete') lineaBucket.done += 1;
 
             if (t.status !== 'Complete') {
-                const who = t.assignee_name || t.assignee_email || 'Sin responsable';
+                const who = t.assignee_name || t.assignee_email || 'Sin asignar';
                 if (!porResponsable.has(who)) porResponsable.set(who, { who, abiertas: 0, bloqueadas: 0, atrasadas: 0 });
                 const b = porResponsable.get(who);
                 b.abiertas += 1;
@@ -108,8 +118,29 @@ export function buildAreaStats(initiatives = []) {
     };
 }
 
-export function buildAreaReportHtml({ area, initiatives = [], summary = [] }) {
+export function buildAreaReportHtml({ area, initiatives = [] }) {
     const s = buildAreaStats(initiatives);
+
+    // Tareas abiertas listadas tal cual, agrupadas por iniciativa.
+    const taskSections = s.rows.map(r => {
+        const abiertas = (r.tasks || [])
+            .filter(t => t.status !== 'Complete')
+            .sort((a, b) => (STATUS_ORDER[a.status] ?? 9) - (STATUS_ORDER[b.status] ?? 9));
+        if (!abiertas.length) return '';
+        return `<section class="task-group">
+            <h3 class="ini-name">${esc(r.name)} <span class="count">${abiertas.length}</span></h3>
+            <table>
+                <thead><tr><th>Tarea</th><th class="col-asignado">Asignado a</th><th class="col-estado">Estado</th></tr></thead>
+                <tbody>${abiertas.map(t => `<tr>
+                    <td class="t-title">${esc(t.title || 'Sin título')}</td>
+                    <td class="col-asignado">${t.assignee_name || t.assignee_email
+                        ? esc(t.assignee_name || t.assignee_email)
+                        : '<span class="muted">Sin asignar</span>'}</td>
+                    <td class="col-estado"><span class="pill status ${esc((t.status || '').replace(/\s+/g, '-').toLowerCase())}">${esc(STATUS_LABEL[t.status] || t.status || '—')}</span></td>
+                </tr>`).join('')}</tbody>
+            </table>
+        </section>`;
+    }).filter(Boolean).join('');
     const now = new Date();
     const generado = now.toLocaleDateString('es-CL', { day: '2-digit', month: 'long', year: 'numeric' })
         + ' · ' + now.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
@@ -200,11 +231,15 @@ export function buildAreaReportHtml({ area, initiatives = [], summary = [] }) {
     .mini-bar > span { display: block; height: 100%; background: #22c55e; }
     .mini-pct { font-size: 10px; color: #64748b; font-weight: 600; }
 
-    .ai { background: #f6f9fd; border: 1px solid #e0e9f6; border-left: 3px solid #24528f; border-radius: 10px; padding: 14px 16px; }
-    .ai h2 { border-bottom: none; margin-bottom: 6px; padding-bottom: 0; }
-    .bullets { margin: 0; padding-left: 18px; }
-    .bullets li { margin-bottom: 6px; color: #26374f; font-size: 11.5px; line-height: 1.5; }
-    .bullets li:last-child { margin-bottom: 0; }
+    .task-group { margin: 0 0 14px; page-break-inside: avoid; }
+    .ini-name { font-size: 11.5px; color: #16243a; margin: 0 0 6px; display: flex; justify-content: space-between; }
+    .ini-name .count { color: #94a3b8; }
+    .col-estado { width: 100px; }
+    .col-asignado { width: 150px; color: #47566b; }
+    .pill { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 9.5px; font-weight: 700; }
+    .pill.status.to-do { background: #eef2f8; color: #64748b; }
+    .pill.status.in-progress { background: #dbeafe; color: #1d4ed8; }
+    .pill.status.on-hold { background: #ede9fe; color: #7c3aed; }
 
     .muted { color: #94a3b8; font-style: italic; }
     footer { margin-top: 24px; padding-top: 10px; border-top: 1px solid #e6ecf5; font-size: 9.5px; color: #94a3b8; display: flex; justify-content: space-between; }
@@ -247,10 +282,10 @@ export function buildAreaReportHtml({ area, initiatives = [], summary = [] }) {
         <div class="legend">${estadoRow}</div>
     </section>
 
-    ${summary.length ? `<section class="ai">
-        <h2>Resumen ejecutivo</h2>
-        <ul class="bullets">${summary.map(b => `<li>${esc(b)}</li>`).join('')}</ul>
-    </section>` : ''}
+    <section>
+        <h2>Tareas pendientes y en progreso <span class="count">${s.abiertas.length}</span></h2>
+        ${taskSections || '<p class="muted">No hay tareas pendientes ni en progreso.</p>'}
+    </section>
 
     <section>
         <h2>Iniciativas <span class="count">${s.rows.length}</span></h2>
@@ -261,9 +296,9 @@ export function buildAreaReportHtml({ area, initiatives = [], summary = [] }) {
     </section>
 
     <section>
-        <h2>Carga por responsable</h2>
+        <h2>Carga por persona</h2>
         ${s.responsables.length ? `<table>
-            <thead><tr><th>Responsable</th><th>Abiertas</th><th>Bloqueadas</th><th>Atrasadas</th></tr></thead>
+            <thead><tr><th>Asignado a</th><th>Abiertas</th><th>Bloqueadas</th><th>Atrasadas</th></tr></thead>
             <tbody>${responsableRows}</tbody>
         </table>` : '<p class="muted">Sin tareas abiertas.</p>'}
     </section>

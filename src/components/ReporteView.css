@@ -170,78 +170,43 @@
     font-style: italic;
 }
 
-/* Resumen ejecutivo (IA) */
-.rep-ai {
-    background: #f6f9fd;
-    border-color: #e0e9f6;
-    border-left: 3px solid #24528f;
-}
+/* Grupos de tareas por iniciativa */
+.rep-group { margin-bottom: 1.25rem; }
+.rep-group:last-child { margin-bottom: 0; }
 
-.rep-regen {
-    margin-left: auto;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    border: 1px solid #dce4ee;
-    background: #fff;
+.rep-ini {
+    margin: 0 0 0.4rem;
+    font-size: 0.875rem;
     color: #24528f;
-    font-size: 0.75rem;
-    font-weight: 600;
-    padding: 0.3rem 0.65rem;
-    border-radius: 7px;
     cursor: pointer;
-}
-
-.rep-regen:hover:not(:disabled) { background: #e8f0fa; border-color: #24528f; }
-.rep-regen:disabled { opacity: 0.6; cursor: not-allowed; }
-
-.spin { animation: rep-spin 1s linear infinite; }
-@keyframes rep-spin { to { transform: rotate(360deg); } }
-
-.rep-bullets {
-    margin: 0;
-    padding-left: 1.15rem;
-}
-
-.rep-bullets li {
-    margin-bottom: 0.5rem;
-    color: #26374f;
-    font-size: 0.9rem;
-    line-height: 1.55;
-}
-
-.rep-bullets li:last-child { margin-bottom: 0; }
-
-.rep-error {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
-    margin: 0;
-    color: #c05656;
-    font-size: 0.85rem;
+    gap: 0.5rem;
 }
 
-/* Skeleton mientras carga la IA */
-.rep-skeleton { display: flex; flex-direction: column; gap: 0.55rem; }
+.rep-ini:hover { text-decoration: underline; }
 
-.rep-skeleton span {
-    display: block;
-    height: 12px;
-    border-radius: 6px;
-    background: linear-gradient(90deg, #e8eef7 25%, #f3f7fc 50%, #e8eef7 75%);
-    background-size: 200% 100%;
-    animation: rep-shimmer 1.3s infinite;
+.rep-count-sm {
+    background: #eef2f8;
+    color: #5b6b80;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.05rem 0.45rem;
+    border-radius: 999px;
 }
 
-.rep-skeleton span:nth-child(1) { width: 92%; }
-.rep-skeleton span:nth-child(2) { width: 85%; }
-.rep-skeleton span:nth-child(3) { width: 96%; }
-.rep-skeleton span:nth-child(4) { width: 70%; }
-
-@keyframes rep-shimmer {
-    from { background-position: 200% 0; }
-    to { background-position: -200% 0; }
+.rep-pill {
+    display: inline-block;
+    padding: 0.1rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    white-space: nowrap;
 }
+
+.rep-pill.to-do { background: #eef2f8; color: #64748b; }
+.rep-pill.in-progress { background: #dbeafe; color: #1d4ed8; }
+.rep-pill.on-hold { background: #ede9fe; color: #7c3aed; }
 
 /* Tablas */
 .rep-table {

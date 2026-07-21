@@ -1,45 +1,33 @@
-import React, { useMemo, useState, useEffect, useCallback } from 'react';
-import { FileDown, Sparkles, RefreshCw, AlertCircle } from 'lucide-react';
+import React, { useMemo } from 'react';
+import { FileDown } from 'lucide-react';
 import { ESTADOS } from '../lib/health';
 import { buildAreaStats, exportAreaPdf } from '../lib/areaReport';
-import { generateAreaSummary } from '../lib/areaSummary';
 import './ReporteView.css';
+
+const STATUS_LABEL = {
+    'To Do': 'Por hacer',
+    'In Progress': 'En progreso',
+    'On Hold': 'En espera',
+    'Complete': 'Completada',
+};
+
+// Mismo orden que las columnas del tablero.
+const STATUS_ORDER = { 'To Do': 0, 'In Progress': 1, 'On Hold': 2 };
+
+const statusClass = (s) => `rep-pill ${(s || '').replace(/\s+/g, '-').toLowerCase()}`;
 
 function ReporteView({ initiatives = [], area, onOpen }) {
     const s = useMemo(() => buildAreaStats(initiatives), [initiatives]);
 
-    const [summary, setSummary] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
-
-    const runSummary = useCallback(async () => {
-        if (!initiatives.length) {
-            setSummary([]);
-            return;
-        }
-        setLoading(true);
-        setError(null);
-        try {
-            const bullets = await generateAreaSummary({ area, initiatives, stats: s });
-            setSummary(bullets);
-        } catch (err) {
-            console.error('Error generando resumen:', err);
-            setError(
-                `No se pudo generar el resumen con IA (${err?.message || 'error desconocido'}). ` +
-                'Verifica que OPENAI_API_KEY esté configurada en Vercel.'
-            );
-        } finally {
-            setLoading(false);
-        }
-    }, [area, initiatives, s]);
-
-    // Genera el resumen al entrar a la comisión (una vez por comisión).
-    useEffect(() => {
-        setSummary([]);
-        setError(null);
-        if (initiatives.length) runSummary();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [area?.id, initiatives.length]);
+    // Tareas abiertas por iniciativa, tal cual están registradas.
+    const grupos = useMemo(() => s.rows
+        .map(r => ({
+            ...r,
+            abiertas: (r.tasks || [])
+                .filter(t => t.status !== 'Complete')
+                .sort((a, b) => (STATUS_ORDER[a.status] ?? 9) - (STATUS_ORDER[b.status] ?? 9)),
+        }))
+        .filter(r => r.abiertas.length > 0), [s.rows]);
 
     return (
         <div className="reporte-view">
@@ -50,10 +38,7 @@ function ReporteView({ initiatives = [], area, onOpen }) {
                         {area?.name || 'Comisión'} · {s.totalIniciativas} iniciativas · {s.totalTasks} tareas
                     </p>
                 </div>
-                <button
-                    className="rep-pdf"
-                    onClick={() => exportAreaPdf({ area, initiatives, summary })}
-                >
+                <button className="rep-pdf" onClick={() => exportAreaPdf({ area, initiatives })}>
                     <FileDown size={16} /> Exportar PDF
                 </button>
             </div>
@@ -84,48 +69,42 @@ function ReporteView({ initiatives = [], area, onOpen }) {
                 </div>
             </div>
 
-            {/* Resumen ejecutivo generado con IA */}
-            <section className="rep-block rep-ai">
+            {/* Tareas abiertas, tal cual, agrupadas por iniciativa */}
+            <section className="rep-block">
                 <div className="rep-block-head">
-                    <Sparkles size={16} />
-                    <h3>Resumen ejecutivo</h3>
-                    <button
-                        className="rep-regen"
-                        onClick={runSummary}
-                        disabled={loading || !initiatives.length}
-                        title="Regenerar resumen"
-                    >
-                        <RefreshCw size={14} className={loading ? 'spin' : ''} />
-                        {loading ? 'Generando…' : 'Regenerar'}
-                    </button>
+                    <h3>Tareas pendientes y en progreso</h3>
+                    <span className="rep-count">{s.abiertas.length}</span>
                 </div>
 
-                {loading && summary.length === 0 && (
-                    <div className="rep-skeleton">
-                        <span /><span /><span /><span />
+                {grupos.length === 0 ? (
+                    <p className="rep-empty">No hay tareas pendientes ni en progreso.</p>
+                ) : grupos.map(g => (
+                    <div className="rep-group" key={g.id}>
+                        <h4 className="rep-ini" onClick={() => onOpen?.(g.id)}>
+                            {g.name} <span className="rep-count-sm">{g.abiertas.length}</span>
+                        </h4>
+                        <table className="rep-table">
+                            <thead>
+                                <tr><th>Tarea</th><th>Asignado a</th><th>Estado</th></tr>
+                            </thead>
+                            <tbody>
+                                {g.abiertas.map(t => (
+                                    <tr key={t.id}>
+                                        <td className="rep-strong">{t.title || 'Sin título'}</td>
+                                        <td>
+                                            {t.assignee_name || t.assignee_email
+                                                || <span className="rep-muted">Sin asignar</span>}
+                                        </td>
+                                        <td><span className={statusClass(t.status)}>{STATUS_LABEL[t.status] || t.status}</span></td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
-                )}
-
-                {error && (
-                    <p className="rep-error"><AlertCircle size={14} /> {error}</p>
-                )}
-
-                {!loading && !error && summary.length === 0 && (
-                    <p className="rep-empty">
-                        {initiatives.length
-                            ? 'Sin resumen todavía. Usa "Regenerar" para crearlo.'
-                            : 'Esta comisión aún no tiene iniciativas que resumir.'}
-                    </p>
-                )}
-
-                {summary.length > 0 && (
-                    <ul className="rep-bullets">
-                        {summary.map((b, i) => <li key={i}>{b}</li>)}
-                    </ul>
-                )}
+                ))}
             </section>
 
-            {/* Panorama por iniciativa (una línea cada una, sin detalle de tareas) */}
+            {/* Panorama por iniciativa */}
             <section className="rep-block">
                 <div className="rep-block-head">
                     <h3>Iniciativas</h3>
