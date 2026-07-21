@@ -1,21 +1,6 @@
 // Genera un resumen imprimible (PDF vía "Guardar como PDF" del navegador)
-// de una iniciativa: estado actual, avance, equipo y qué falta por hacer.
-import { ESTADOS, getInitiativeEstado, taskProgress, getTaskHealth, HEALTH } from './health';
-
-const STATUS_LABEL = {
-    'To Do': 'Por hacer',
-    'In Progress': 'En progreso',
-    'On Hold': 'En espera',
-    'Complete': 'Completada',
-};
-
-const HEALTH_LABEL = {
-    green: 'A tiempo',
-    yellow: 'Atención',
-    red: 'Bloqueada',
-};
-
-const SEVERITY = { red: 0, yellow: 1, green: 2 };
+// de una iniciativa: ficha, avance, equipo y estado actual en viñetas.
+import { ESTADOS, getInitiativeEstado, taskProgress, getTaskHealth } from './health';
 
 function esc(value) {
     if (value === null || value === undefined) return '';
@@ -34,13 +19,6 @@ function fmtDate(value) {
     return d.toLocaleDateString('es-CL', { day: '2-digit', month: 'long', year: 'numeric' });
 }
 
-function fmtShort(value) {
-    if (!value) return '—';
-    const d = new Date(value);
-    if (Number.isNaN(d.getTime())) return '—';
-    return d.toLocaleDateString('es-CL', { day: '2-digit', month: 'short', year: 'numeric' });
-}
-
 function initials(text) {
     if (!text) return '?';
     const parts = String(text).trim().split(/\s+/);
@@ -49,23 +27,7 @@ function initials(text) {
     return (a + b).toUpperCase() || '?';
 }
 
-function taskRow(t) {
-    const health = getTaskHealth(t);
-    const hc = HEALTH[health]?.color || '#94a3b8';
-    const responsable = t.assignee_name || t.assignee_email || '—';
-    const prioridad = t.priority || '—';
-    return `
-        <tr>
-            <td class="t-title">${esc(t.title || 'Sin título')}</td>
-            <td>${esc(responsable)}</td>
-            <td><span class="pill status ${esc((t.status || '').replace(/\s+/g, '-').toLowerCase())}">${esc(STATUS_LABEL[t.status] || t.status || '—')}</span></td>
-            <td>${esc(prioridad)}</td>
-            <td>${esc(fmtShort(t.due_date))}</td>
-            <td><span class="dot" style="background:${hc}"></span>${esc(HEALTH_LABEL[health] || '')}</td>
-        </tr>`;
-}
-
-export function buildProjectReportHtml({ project, tasks = [], assignees = [] }) {
+export function buildProjectReportHtml({ project, tasks = [], assignees = [], summary = [] }) {
     const estadoKey = getInitiativeEstado(tasks, project);
     const estado = ESTADOS[estadoKey] || ESTADOS.sin_iniciar;
     const owner = project.owner_name || project.responsible_email || '—';
@@ -78,18 +40,6 @@ export function buildProjectReportHtml({ project, tasks = [], assignees = [] }) 
     const porHacer = tasks.filter(t => t.status === 'To Do').length;
     const bloqueadas = tasks.filter(t => getTaskHealth(t) === 'red').length;
     const progress = taskProgress(tasks);
-
-    const pendientes = tasks
-        .filter(t => t.status !== 'Complete')
-        .sort((a, b) => {
-            const sa = SEVERITY[getTaskHealth(a)] ?? 3;
-            const sb = SEVERITY[getTaskHealth(b)] ?? 3;
-            if (sa !== sb) return sa - sb;
-            const da = a.due_date ? new Date(a.due_date).getTime() : Infinity;
-            const db = b.due_date ? new Date(b.due_date).getTime() : Infinity;
-            return da - db;
-        });
-    const hechas = tasks.filter(t => t.status === 'Complete');
 
     const now = new Date();
     const generado = now.toLocaleDateString('es-CL', { day: '2-digit', month: 'long', year: 'numeric' })
@@ -114,26 +64,6 @@ export function buildProjectReportHtml({ project, tasks = [], assignees = [] }) 
             </div>`).join('')}</div>`
         : `<p class="muted">Sin equipo asignado todavía.</p>`;
 
-    const pendientesTable = pendientes.length
-        ? `<table>
-                <thead>
-                    <tr><th>Tarea</th><th>Responsable</th><th>Estado</th><th>Prioridad</th><th>Vence</th><th>Semáforo</th></tr>
-                </thead>
-                <tbody>${pendientes.map(taskRow).join('')}</tbody>
-           </table>`
-        : `<p class="muted">No hay tareas pendientes registradas.</p>`;
-
-    const hechasTable = hechas.length
-        ? `<table>
-                <thead><tr><th>Tarea</th><th>Responsable</th><th>Completada</th></tr></thead>
-                <tbody>${hechas.map(t => `
-                    <tr>
-                        <td class="t-title done">${esc(t.title || 'Sin título')}</td>
-                        <td>${esc(t.assignee_name || t.assignee_email || '—')}</td>
-                        <td>${esc(fmtShort(t.updated_at || t.due_date))}</td>
-                    </tr>`).join('')}</tbody>
-           </table>`
-        : `<p class="muted">Aún no hay tareas completadas.</p>`;
 
     const inicio = fmtDate(project.start_date) || 'Por definir';
     const cierre = fmtDate(project.due_date) || 'Por definir';
@@ -216,6 +146,12 @@ export function buildProjectReportHtml({ project, tasks = [], assignees = [] }) 
     .pill.status.on-hold { background: #ede9fe; color: #7c3aed; }
     .pill.status.complete { background: #dcfce7; color: #15803d; }
 
+    .ai { background: #f6f9fd; border: 1px solid #e0e9f6; border-left: 3px solid #24528f; border-radius: 10px; padding: 14px 16px; }
+    .ai h2 { border-bottom: none; margin-bottom: 6px; padding-bottom: 0; }
+    .bullets { margin: 0; padding-left: 18px; }
+    .bullets li { margin-bottom: 6px; color: #26374f; font-size: 12px; line-height: 1.5; }
+    .bullets li:last-child { margin-bottom: 0; }
+
     .muted { color: #94a3b8; font-style: italic; margin: 4px 0; }
 
     footer { margin-top: 26px; padding-top: 12px; border-top: 1px solid #e6ecf5; font-size: 10px; color: #94a3b8; display: flex; justify-content: space-between; }
@@ -272,15 +208,10 @@ export function buildProjectReportHtml({ project, tasks = [], assignees = [] }) 
         ${assigneeChips}
     </section>
 
-    <section>
-        <h2>Qué falta por hacer</h2>
-        ${pendientesTable}
-    </section>
-
-    <section>
-        <h2>Completadas</h2>
-        ${hechasTable}
-    </section>
+    ${summary.length ? `<section class="ai">
+        <h2>Estado actual</h2>
+        <ul class="bullets">${summary.map(b => `<li>${esc(b)}</li>`).join('')}</ul>
+    </section>` : ''}
 
     <footer>
         <span>${esc(project.name || 'Iniciativa')}</span>
@@ -291,7 +222,10 @@ export function buildProjectReportHtml({ project, tasks = [], assignees = [] }) 
 </html>`;
 }
 
-/** Abre el resumen en una ventana nueva y lanza el diálogo de impresión (Guardar como PDF). */
+/**
+ * Abre el resumen en una ventana nueva y lanza el diálogo de impresión.
+ * Si se entrega `summary`, se incluye como "Estado actual" en viñetas.
+ */
 export function exportProjectPdf(data) {
     const html = buildProjectReportHtml(data);
     const win = window.open('', '_blank');

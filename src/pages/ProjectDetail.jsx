@@ -13,6 +13,7 @@ import { getUserAreaRole, canEdit, ESTADOS, getInitiativeEstado, lineaColor } fr
 import { fetchIsAdmin } from '../lib/admin';
 import { avatarColor, initials } from '../lib/avatar';
 import { exportProjectPdf } from '../lib/projectReport';
+import { generateProjectSummary } from '../lib/projectSummary';
 import './ProjectDetail.css';
 
 function formatLongDate(value) {
@@ -45,6 +46,7 @@ function ProjectDetail() {
     const [savingEdit, setSavingEdit] = useState(false);
     const [newAssignee, setNewAssignee] = useState({ name: '', email: '' });
     const [savingAssignee, setSavingAssignee] = useState(false);
+    const [exportingPdf, setExportingPdf] = useState(false);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -145,6 +147,21 @@ function ProjectDetail() {
         } finally {
             setSavingEdit(false);
         }
+    };
+
+    // Genera el resumen con IA y luego abre el PDF. Si la IA falla,
+    // igual exportamos el reporte (sin la sección de estado actual).
+    const handleExportPdf = async () => {
+        setExportingPdf(true);
+        let summary = [];
+        try {
+            summary = await generateProjectSummary({ project, tasks, assignees });
+        } catch (err) {
+            console.error('No se pudo generar el resumen con IA:', err);
+        } finally {
+            setExportingPdf(false);
+        }
+        exportProjectPdf({ project, tasks, assignees, summary });
     };
 
     const handleAddAssignee = async (e) => {
@@ -323,10 +340,12 @@ function ProjectDetail() {
                                 </span>
                                 <button
                                     className="ih-edit-btn ih-pdf-btn"
-                                    onClick={() => exportProjectPdf({ project, tasks, assignees })}
+                                    onClick={handleExportPdf}
+                                    disabled={exportingPdf}
                                     title="Exportar resumen en PDF"
                                 >
-                                    <FileDown size={14} /> Exportar PDF
+                                    <FileDown size={14} />
+                                    {exportingPdf ? 'Generando…' : 'Exportar PDF'}
                                 </button>
                                 {(isAdmin || canEdit(role)) && (
                                     <button className="ih-edit-btn" onClick={openEdit}>
