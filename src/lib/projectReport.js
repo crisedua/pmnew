@@ -162,7 +162,8 @@ export function buildProjectReportHtml({ project, tasks = [], assignees = [] }) 
     .pill.status.complete { background: #dcfce7; color: #15803d; }
 
     h2 .count { color: #94a3b8; font-weight: 700; }
-    .col-estado { width: 120px; }
+    .col-estado { width: 110px; }
+    .col-asignado { width: 160px; color: #47566b; }
 
     .muted { color: #94a3b8; font-style: italic; margin: 4px 0; }
 
@@ -233,9 +234,12 @@ export function buildProjectReportHtml({ project, tasks = [], assignees = [] }) 
     <section>
         <h2>Tareas pendientes y en progreso <span class="count">${abiertas.length}</span></h2>
         ${abiertas.length ? `<table>
-            <thead><tr><th>Tarea</th><th class="col-estado">Estado</th></tr></thead>
+            <thead><tr><th>Tarea</th><th class="col-asignado">Asignado a</th><th class="col-estado">Estado</th></tr></thead>
             <tbody>${abiertas.map(t => `<tr>
                 <td class="t-title">${esc(t.title || 'Sin título')}</td>
+                <td class="col-asignado">${t.assignee_name || t.assignee_email
+                    ? esc(t.assignee_name || t.assignee_email)
+                    : '<span class="muted">Sin asignar</span>'}</td>
                 <td class="col-estado"><span class="pill status ${esc((t.status || '').replace(/\s+/g, '-').toLowerCase())}">${esc(STATUS_LABEL[t.status] || t.status || '—')}</span></td>
             </tr>`).join('')}</tbody>
         </table>` : '<p class="muted">No hay tareas pendientes ni en progreso.</p>'}
