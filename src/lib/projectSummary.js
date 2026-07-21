@@ -49,7 +49,7 @@ export function buildProjectSummaryContext({ project, tasks = [] }) {
         lines.push(
             `${i + 1}. [PENDIENTE — todavía NO ocurrió] "${clip(t.title, 200)}"` +
             ` | estado: ${STATUS_LABEL[t.status] || t.status}` +
-            ` | responsable: ${t.assignee_name || t.assignee_email || 'ninguno'}` +
+            ` | asignada a: ${t.assignee_name || t.assignee_email || 'nadie'}` +
             ` | prioridad: ${t.priority || 'no definida'}` +
             ` | vence: ${t.due_date || 'sin fecha'}` +
             (flags.length ? ` | ALERTAS: ${flags.join(', ')}` : '')
@@ -89,6 +89,21 @@ Ejemplo de lo que NO debes hacer:
   Tarea: "Felipe Cruz va a confirmar uso de sala Mutual de Seguros"
   INCORRECTO: "Felipe Cruz confirma el uso de la sala Mutual de Seguros." (afirma que ya ocurrió)
   CORRECTO: "Felipe Cruz aún debe confirmar el uso de la sala Mutual de Seguros."
+
+REGLA CRÍTICA — NO INTERPRETES ROLES NI CAUSAS.
+El campo "responsable" indica únicamente a quién está asignada la tarea en la herramienta.
+NO asumas que esa persona es el sujeto de la acción descrita en el título: puede ser
+la contraparte, el destinatario o simplemente quien hace seguimiento.
+Nunca le atribuyas acciones, omisiones, intenciones ni estados (por ejemplo, "no respondió",
+"está en licencia", "no ha recibido respuesta") salvo que la tarea lo diga literalmente.
+Tampoco inventes relaciones causales ("ya que...", "debido a...", "porque...") que no estén escritas.
+Cuando el título ya describe la situación, repítela tal cual en vez de reinterpretarla.
+
+  Tarea: "Reintentar contacto (sin respuesta al 2/7)" | responsable: Macarena Rosenkranz
+  INCORRECTO: "Macarena Rosenkranz aún debe reintentar contacto, ya que no ha recibido
+               respuesta." (asume que ella hace el contacto y le atribuye la falta de respuesta)
+  CORRECTO: "Sigue pendiente reintentar el contacto, sin respuesta al 2/7; la tarea está
+             asignada a Macarena Rosenkranz."
 
 - Devuelve SOLO las viñetas, una por línea, empezando con "- ". Sin título ni cierre.`;
 

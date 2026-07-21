@@ -80,6 +80,10 @@ Reglas estrictas:
 - CRÍTICO: las tareas listadas están ABIERTAS (pendientes). Nunca las describas como
   hechas, confirmadas o cerradas. Ejemplo: si la tarea dice "va a confirmar la sede",
   escribe "aún debe confirmar la sede", NO "confirma la sede".
+- CRÍTICO: "resp." indica sólo a quién está asignada la tarea, no necesariamente quién
+  ejecuta la acción del título (puede ser la contraparte o quien hace seguimiento).
+  No le atribuyas acciones, omisiones ni estados que la tarea no diga literalmente,
+  ni inventes causas ("ya que...", "debido a..."). Repite la situación tal como está escrita.
 - Prioriza: qué avanza, qué está detenido y por qué, qué decisión se necesita, qué vence pronto, dónde falta responsable.
 - Menciona nombres de iniciativas o personas solo cuando aporte (máximo lo justo).
 - Si algo no se puede afirmar con los datos, no lo inventes.
