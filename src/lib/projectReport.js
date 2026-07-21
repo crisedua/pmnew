@@ -2,6 +2,16 @@
 // de una iniciativa: ficha, avance, equipo y estado actual en viñetas.
 import { ESTADOS, getInitiativeEstado, taskProgress, getTaskHealth } from './health';
 
+const STATUS_LABEL = {
+    'To Do': 'Por hacer',
+    'In Progress': 'En progreso',
+    'On Hold': 'En espera',
+    'Complete': 'Completada',
+};
+
+// Orden de las columnas del tablero, para listar las tareas igual que en la app.
+const STATUS_ORDER = { 'To Do': 0, 'In Progress': 1, 'On Hold': 2 };
+
 function esc(value) {
     if (value === null || value === undefined) return '';
     return String(value)
@@ -27,7 +37,7 @@ function initials(text) {
     return (a + b).toUpperCase() || '?';
 }
 
-export function buildProjectReportHtml({ project, tasks = [], assignees = [], summary = [], summaryIsFallback = false }) {
+export function buildProjectReportHtml({ project, tasks = [], assignees = [] }) {
     const estadoKey = getInitiativeEstado(tasks, project);
     const estado = ESTADOS[estadoKey] || ESTADOS.sin_iniciar;
     const owner = project.owner_name || project.responsible_email || '—';
@@ -40,6 +50,11 @@ export function buildProjectReportHtml({ project, tasks = [], assignees = [], su
     const porHacer = tasks.filter(t => t.status === 'To Do').length;
     const bloqueadas = tasks.filter(t => getTaskHealth(t) === 'red').length;
     const progress = taskProgress(tasks);
+
+    // Tareas abiertas, en el mismo orden que las columnas del tablero.
+    const abiertas = tasks
+        .filter(t => t.status !== 'Complete')
+        .sort((a, b) => (STATUS_ORDER[a.status] ?? 9) - (STATUS_ORDER[b.status] ?? 9));
 
     const now = new Date();
     const generado = now.toLocaleDateString('es-CL', { day: '2-digit', month: 'long', year: 'numeric' })
@@ -146,12 +161,8 @@ export function buildProjectReportHtml({ project, tasks = [], assignees = [], su
     .pill.status.on-hold { background: #ede9fe; color: #7c3aed; }
     .pill.status.complete { background: #dcfce7; color: #15803d; }
 
-    .ai { background: #f6f9fd; border: 1px solid #e0e9f6; border-left: 3px solid #24528f; border-radius: 10px; padding: 14px 16px; }
-    .ai h2 { border-bottom: none; margin-bottom: 6px; padding-bottom: 0; }
-    .bullets { margin: 0; padding-left: 18px; }
-    .bullets li { margin-bottom: 6px; color: #26374f; font-size: 12px; line-height: 1.5; }
-    .bullets li:last-child { margin-bottom: 0; }
-    .ai-note { margin: 10px 0 0; font-size: 10px; color: #94a3b8; font-style: italic; }
+    h2 .count { color: #94a3b8; font-weight: 700; }
+    .col-estado { width: 120px; }
 
     .muted { color: #94a3b8; font-style: italic; margin: 4px 0; }
 
@@ -219,11 +230,16 @@ export function buildProjectReportHtml({ project, tasks = [], assignees = [], su
         ${assigneeChips}
     </section>
 
-    ${summary.length ? `<section class="ai">
-        <h2>Estado actual</h2>
-        <ul class="bullets">${summary.map(b => `<li>${esc(b)}</li>`).join('')}</ul>
-        ${summaryIsFallback ? '<p class="ai-note">Resumen calculado automáticamente (la IA no estaba disponible).</p>' : ''}
-    </section>` : ''}
+    <section>
+        <h2>Tareas pendientes y en progreso <span class="count">${abiertas.length}</span></h2>
+        ${abiertas.length ? `<table>
+            <thead><tr><th>Tarea</th><th class="col-estado">Estado</th></tr></thead>
+            <tbody>${abiertas.map(t => `<tr>
+                <td class="t-title">${esc(t.title || 'Sin título')}</td>
+                <td class="col-estado"><span class="pill status ${esc((t.status || '').replace(/\s+/g, '-').toLowerCase())}">${esc(STATUS_LABEL[t.status] || t.status || '—')}</span></td>
+            </tr>`).join('')}</tbody>
+        </table>` : '<p class="muted">No hay tareas pendientes ni en progreso.</p>'}
+    </section>
 
     <footer>
         <span>${esc(project.name || 'Iniciativa')}</span>
@@ -243,7 +259,7 @@ export function buildProjectReportHtml({ project, tasks = [], assignees = [], su
 
 /**
  * Abre el resumen en una ventana nueva y lanza el diálogo de impresión.
- * Si se entrega `summary`, se incluye como "Estado actual" en viñetas.
+ * Lista las tareas abiertas tal cual (título y estado), sin interpretación.
  */
 export function exportProjectPdf(data) {
     const html = buildProjectReportHtml(data);

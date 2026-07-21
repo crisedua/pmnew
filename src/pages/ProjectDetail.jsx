@@ -13,7 +13,6 @@ import { getUserAreaRole, canEdit, ESTADOS, getInitiativeEstado, lineaColor } fr
 import { fetchIsAdmin } from '../lib/admin';
 import { avatarColor, initials } from '../lib/avatar';
 import { exportProjectPdf } from '../lib/projectReport';
-import { generateProjectSummary, buildFallbackSummary } from '../lib/projectSummary';
 import './ProjectDetail.css';
 
 function formatLongDate(value) {
@@ -46,7 +45,6 @@ function ProjectDetail() {
     const [savingEdit, setSavingEdit] = useState(false);
     const [newAssignee, setNewAssignee] = useState({ name: '', email: '' });
     const [savingAssignee, setSavingAssignee] = useState(false);
-    const [exportingPdf, setExportingPdf] = useState(false);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -147,30 +145,6 @@ function ProjectDetail() {
         } finally {
             setSavingEdit(false);
         }
-    };
-
-    // Genera el resumen con IA y luego abre el PDF. Si la IA falla, avisamos
-    // y exportamos igual con un resumen calculado (sin IA).
-    const handleExportPdf = async () => {
-        setExportingPdf(true);
-        let summary = [];
-        let aiFailed = false;
-        try {
-            summary = await generateProjectSummary({ project, tasks, assignees });
-        } catch (err) {
-            console.error('No se pudo generar el resumen con IA:', err);
-            aiFailed = true;
-            summary = buildFallbackSummary({ tasks });
-            alert(
-                'No se pudo generar el resumen con IA:\n\n' +
-                (err?.message || 'Error desconocido') +
-                '\n\nSe exportará el reporte con un resumen calculado. ' +
-                'Revisa que la variable OPENAI_API_KEY esté configurada en Vercel.'
-            );
-        } finally {
-            setExportingPdf(false);
-        }
-        exportProjectPdf({ project, tasks, assignees, summary, summaryIsFallback: aiFailed });
     };
 
     const handleAddAssignee = async (e) => {
@@ -349,12 +323,10 @@ function ProjectDetail() {
                                 </span>
                                 <button
                                     className="ih-edit-btn ih-pdf-btn"
-                                    onClick={handleExportPdf}
-                                    disabled={exportingPdf}
+                                    onClick={() => exportProjectPdf({ project, tasks, assignees })}
                                     title="Exportar resumen en PDF"
                                 >
-                                    <FileDown size={14} />
-                                    {exportingPdf ? 'Generando…' : 'Exportar PDF'}
+                                    <FileDown size={14} /> Exportar PDF
                                 </button>
                                 {(isAdmin || canEdit(role)) && (
                                     <button className="ih-edit-btn" onClick={openEdit}>
