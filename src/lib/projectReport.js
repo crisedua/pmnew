@@ -156,9 +156,19 @@ export function buildProjectReportHtml({ project, tasks = [], assignees = [], su
     .muted { color: #94a3b8; font-style: italic; margin: 4px 0; }
 
     footer { margin-top: 26px; padding-top: 12px; border-top: 1px solid #e6ecf5; font-size: 10px; color: #94a3b8; display: flex; justify-content: space-between; }
+
+    /* Botón de respaldo por si el diálogo de impresión no se abre solo */
+    .print-bar { position: fixed; top: 12px; right: 12px; z-index: 10; }
+    .print-bar button {
+        font: inherit; font-size: 12px; font-weight: 600; cursor: pointer;
+        background: #24528f; color: #fff; border: none;
+        border-radius: 8px; padding: 8px 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    @media print { .print-bar { display: none !important; } }
 </style>
 </head>
 <body>
+<div class="print-bar"><button onclick="window.print()">Imprimir / Guardar PDF</button></div>
 <div class="doc">
     <header class="cover">
         <div class="brand">ASIVA · Resumen de iniciativa</div>
@@ -220,6 +230,13 @@ export function buildProjectReportHtml({ project, tasks = [], assignees = [], su
         <span>Generado el ${esc(generado)}</span>
     </footer>
 </div>
+<script>
+    // El documento se imprime a sí mismo: así el diálogo bloquea esta ventana
+    // y no el hilo principal de la aplicación que la abrió.
+    window.addEventListener('load', function () {
+        setTimeout(function () { window.print(); }, 300);
+    });
+</script>
 </body>
 </html>`;
 }
@@ -238,6 +255,6 @@ export function exportProjectPdf(data) {
     win.document.write(html);
     win.document.close();
     win.focus();
-    // Espera al layout/fuentes antes de imprimir.
-    win.onload = () => setTimeout(() => win.print(), 200);
+    // El propio documento se imprime (ver PRINT_SCRIPT). No llamamos win.print()
+    // desde aquí: print() es síncrono y bloquearía el hilo principal de la app.
 }

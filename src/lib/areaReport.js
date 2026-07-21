@@ -208,8 +208,18 @@ export function buildAreaReportHtml({ area, initiatives = [], summary = [] }) {
 
     .muted { color: #94a3b8; font-style: italic; }
     footer { margin-top: 24px; padding-top: 10px; border-top: 1px solid #e6ecf5; font-size: 9.5px; color: #94a3b8; display: flex; justify-content: space-between; }
+
+    .print-bar { position: fixed; top: 12px; right: 12px; z-index: 10; }
+    .print-bar button {
+        font: inherit; font-size: 12px; font-weight: 600; cursor: pointer;
+        background: #24528f; color: #fff; border: none;
+        border-radius: 8px; padding: 8px 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    @media print { .print-bar { display: none !important; } }
 </style></head>
-<body><div class="doc">
+<body>
+<div class="print-bar"><button onclick="window.print()">Imprimir / Guardar PDF</button></div>
+<div class="doc">
     <header class="cover">
         <div class="brand">ASIVA · Reporte de estado</div>
         <h1>${esc(area?.name || 'Comisión')}</h1>
@@ -270,7 +280,14 @@ export function buildAreaReportHtml({ area, initiatives = [], summary = [] }) {
         <span>${esc(area?.name || 'Comisión')} · Reporte de estado</span>
         <span>Generado el ${esc(generado)}</span>
     </footer>
-</div></body></html>`;
+</div>
+<script>
+    // Se imprime a sí mismo para no bloquear el hilo de la aplicación.
+    window.addEventListener('load', function () {
+        setTimeout(function () { window.print(); }, 300);
+    });
+</script>
+</body></html>`;
 }
 
 /** Abre el reporte de la comisión e invoca el diálogo de impresión (Guardar como PDF). */
@@ -284,5 +301,6 @@ export function exportAreaPdf(data) {
     win.document.write(html);
     win.document.close();
     win.focus();
-    win.onload = () => setTimeout(() => win.print(), 200);
+    // El propio documento se imprime; no llamamos win.print() desde aquí porque
+    // print() es síncrono y bloquearía el hilo principal de la aplicación.
 }
