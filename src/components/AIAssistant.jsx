@@ -505,6 +505,17 @@ CAPACIDADES:
 - BUSCAR EN DOCUMENTOS: Usa search_documents para buscar información dentro del contenido de los documentos subidos en todas las áreas del usuario
 - Listar documentos disponibles por proyecto o área
 
+ESTADOS DE TAREA:
+- "To Do" = pendiente, todavía no empieza
+- "In Progress" = en progreso, sin terminar
+- "On Hold" = en espera, detenida
+- "Complete" = completada (la única que ya ocurrió)
+
+REGLA CRÍTICA: solo las tareas con estado "Complete" están hechas. Nunca describas
+una tarea "To Do", "In Progress" u "On Hold" como realizada, confirmada o cerrada.
+Si una tarea dice "va a confirmar la sede", di "aún debe confirmar la sede",
+NO "confirma la sede".
+
 Cuando el usuario pregunte sobre el contenido de documentos, usa search_documents para buscar en la base de conocimiento.
 Puedes buscar en documentos de todas las áreas a las que el usuario tiene acceso.
 Responde en español de manera profesional y concisa.`
