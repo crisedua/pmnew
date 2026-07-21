@@ -244,7 +244,7 @@ function ProjectSummary({ project, tasks, documents, onUpdate, canManage = false
                 <div className="health-grid">
                     <div className="health-item green">
                         <span className="health-num">{health.green}</span>
-                        <span className="health-text">🟢 En curso</span>
+                        <span className="health-text">🟢 A tiempo</span>
                     </div>
                     <div className="health-item yellow">
                         <span className="health-num">{health.yellow}</span>

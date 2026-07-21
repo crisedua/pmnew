@@ -10,7 +10,7 @@ const STATUS_LABEL = {
 };
 
 const HEALTH_LABEL = {
-    green: 'En curso',
+    green: 'A tiempo',
     yellow: 'Atención',
     red: 'Bloqueada',
 };

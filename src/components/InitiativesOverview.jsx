@@ -83,7 +83,7 @@ function InitiativesOverview({ projects = [], kpisById = {}, onOpen }) {
                                     <span className="initiative-progress-label">{progress}% · {tasks.length} tareas</span>
                                 </div>
                                 <div className="initiative-counts">
-                                    <span className="count-pill green" title="En curso">🟢 {counts.green}</span>
+                                    <span className="count-pill green" title="A tiempo">🟢 {counts.green}</span>
                                     <span className="count-pill yellow" title="Advertencia">🟡 {counts.yellow}</span>
                                     <span className="count-pill red" title="Bloqueada">🔴 {counts.red}</span>
                                     {kpi && kpi.actividades_vencidas > 0 && (

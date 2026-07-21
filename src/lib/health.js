@@ -6,7 +6,7 @@ import { supabase } from './supabase';
 export const STALE_DAYS = 14;
 
 export const HEALTH = {
-    green: { key: 'green', label: 'En curso', color: '#22c55e', emoji: '🟢' },
+    green: { key: 'green', label: 'A tiempo', color: '#22c55e', emoji: '🟢' },
     yellow: { key: 'yellow', label: 'Advertencia', color: '#f59e0b', emoji: '🟡' },
     red: { key: 'red', label: 'Bloqueada', color: '#ef4444', emoji: '🔴' },
 };
