@@ -262,15 +262,21 @@ export function buildProjectReportHtml({ project, tasks = [], assignees = [] }) 
  * Lista las tareas abiertas tal cual (título y estado), sin interpretación.
  */
 export function exportProjectPdf(data) {
-    const html = buildProjectReportHtml(data);
-    const win = window.open('', '_blank');
-    if (!win) {
-        alert('Habilita las ventanas emergentes para exportar el PDF.');
-        return;
+    try {
+        // Blob URL en vez de document.write: el reporte se abre como un documento
+        // independiente, sin tocar el documento ni el hilo de la aplicación.
+        const html = buildProjectReportHtml(data);
+        const url = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
+        const win = window.open(url, '_blank');
+        if (!win) {
+            URL.revokeObjectURL(url);
+            alert('Habilita las ventanas emergentes para exportar el PDF.');
+            return;
+        }
+        // El documento se imprime solo (script inline). Liberamos la URL después.
+        setTimeout(() => URL.revokeObjectURL(url), 60000);
+    } catch (err) {
+        console.error('Error al generar el PDF:', err);
+        alert('No se pudo generar el PDF: ' + (err?.message || 'error desconocido'));
     }
-    win.document.write(html);
-    win.document.close();
-    win.focus();
-    // El propio documento se imprime (ver PRINT_SCRIPT). No llamamos win.print()
-    // desde aquí: print() es síncrono y bloquearía el hilo principal de la app.
 }

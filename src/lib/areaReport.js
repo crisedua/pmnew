@@ -292,15 +292,20 @@ export function buildAreaReportHtml({ area, initiatives = [], summary = [] }) {
 
 /** Abre el reporte de la comisión e invoca el diálogo de impresión (Guardar como PDF). */
 export function exportAreaPdf(data) {
-    const html = buildAreaReportHtml(data);
-    const win = window.open('', '_blank');
-    if (!win) {
-        alert('Habilita las ventanas emergentes para exportar el PDF.');
-        return;
+    try {
+        // Blob URL en vez de document.write: documento independiente, sin tocar
+        // el documento ni el hilo de la aplicación.
+        const html = buildAreaReportHtml(data);
+        const url = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
+        const win = window.open(url, '_blank');
+        if (!win) {
+            URL.revokeObjectURL(url);
+            alert('Habilita las ventanas emergentes para exportar el PDF.');
+            return;
+        }
+        setTimeout(() => URL.revokeObjectURL(url), 60000);
+    } catch (err) {
+        console.error('Error al generar el PDF:', err);
+        alert('No se pudo generar el PDF: ' + (err?.message || 'error desconocido'));
     }
-    win.document.write(html);
-    win.document.close();
-    win.focus();
-    // El propio documento se imprime; no llamamos win.print() desde aquí porque
-    // print() es síncrono y bloquearía el hilo principal de la aplicación.
 }
