@@ -16,6 +16,7 @@ import OwnersView from '../components/OwnersView';
 import KpisView from '../components/KpisView';
 import TimelineView from '../components/TimelineView';
 import ActividadView from '../components/ActividadView';
+import ReporteView from '../components/ReporteView';
 import Placeholder from '../components/Placeholder';
 import { fetchIsAdmin, fetchIsSuperAdmin } from '../lib/admin';
 import { fetchProjectKpis, fetchComisionKpi } from '../lib/kpis';
@@ -206,7 +207,7 @@ function Dashboard() {
             }
             const { data, error } = await supabase
                 .from('projects')
-                .select('id, name, area_id, status, estado_manual, codigo, linea, owner_name, owner_email, responsible_email, created_at, updated_at, tasks(id, status, health, last_progress_at, updated_at, created_at)')
+                .select('id, name, area_id, description, status, estado_manual, codigo, linea, owner_name, owner_email, responsible_email, start_date, due_date, created_at, updated_at, tasks(id, title, description, status, priority, health, health_note, assignee_name, assignee_email, due_date, last_progress_at, updated_at, created_at)')
                 .in('area_id', areaIds);
 
             if (error) throw error;
@@ -585,7 +586,11 @@ function Dashboard() {
                     ) : activeView === 'decisiones' ? (
                         <Placeholder title="Decisiones" subtitle="Bitácora de decisiones tomadas por la comisión." />
                     ) : activeView === 'reporte' ? (
-                        <Placeholder title="Reporte" subtitle="Reporte ejecutivo del avance de la comisión." />
+                        <ReporteView
+                            initiatives={initiatives}
+                            area={selectedArea}
+                            onOpen={(projectId) => navigate(`/project/${projectId}`)}
+                        />
                     ) : (
                         <>
                             <h1 className="page-title">
