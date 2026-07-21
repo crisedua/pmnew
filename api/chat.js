@@ -5,10 +5,14 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+    // Vercel expone todas las variables del proyecto a las funciones serverless,
+    // así que aceptamos ambos nombres (el prefijo VITE_ es sólo convención de Vite).
+    const OPENAI_API_KEY = process.env.OPENAI_API_KEY || process.env.VITE_OPENAI_API_KEY;
 
     if (!OPENAI_API_KEY) {
-        return res.status(500).json({ error: 'OpenAI API key not configured' });
+        return res.status(500).json({
+            error: 'OpenAI API key not configured. Define OPENAI_API_KEY (o VITE_OPENAI_API_KEY) en las variables de entorno de Vercel y vuelve a desplegar.',
+        });
     }
 
     try {
