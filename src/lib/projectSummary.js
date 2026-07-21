@@ -47,7 +47,7 @@ export function buildProjectSummaryContext({ project, tasks = [] }) {
         if (!t.assignee_name && !t.assignee_email) flags.push('SIN RESPONSABLE');
 
         lines.push(
-            `${i + 1}. "${clip(t.title, 200)}"` +
+            `${i + 1}. [PENDIENTE — todavía NO ocurrió] "${clip(t.title, 200)}"` +
             ` | estado: ${STATUS_LABEL[t.status] || t.status}` +
             ` | responsable: ${t.assignee_name || t.assignee_email || 'ninguno'}` +
             ` | prioridad: ${t.priority || 'no definida'}` +
@@ -75,8 +75,21 @@ Reglas estrictas:
 - Agrupa tareas relacionadas en un mismo frente de trabajo cuando compartan tema
   (por ejemplo, convocatoria, sede, coordinación con universidades), pero sin perder el detalle.
 - Marca explícitamente lo que está BLOQUEADO, ATRASADO, SIN RESPONSABLE o sin fecha definida.
-- Tono ejecutivo y directo, en presente. Sin relleno ni recomendaciones genéricas.
+- Tono ejecutivo y directo. Sin relleno ni recomendaciones genéricas.
 - No inventes nada: si un dato no está en la tarea, no lo afirmes.
+
+REGLA CRÍTICA — TODAS estas tareas están ABIERTAS, es decir PENDIENTES.
+Nunca las describas como hechas, logradas, confirmadas ni cerradas.
+Conserva siempre el carácter pendiente de la acción:
+- "por hacer" = todavía no empieza. Usa "queda pendiente", "aún debe", "está por".
+- "en progreso" = en curso, sin terminar. Usa "está gestionando", "se encuentra en curso".
+- "en espera" = detenida a la espera de algo. Usa "está detenida a la espera de".
+
+Ejemplo de lo que NO debes hacer:
+  Tarea: "Felipe Cruz va a confirmar uso de sala Mutual de Seguros"
+  INCORRECTO: "Felipe Cruz confirma el uso de la sala Mutual de Seguros." (afirma que ya ocurrió)
+  CORRECTO: "Felipe Cruz aún debe confirmar el uso de la sala Mutual de Seguros."
+
 - Devuelve SOLO las viñetas, una por línea, empezando con "- ". Sin título ni cierre.`;
 
 /**

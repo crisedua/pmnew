@@ -76,7 +76,10 @@ A partir del estado de las iniciativas y sus tareas abiertas, escribe un resumen
 Reglas estrictas:
 - Entre 5 y 8 viñetas. Cada una de máximo 25 palabras.
 - NO enumeres tareas una por una. Sintetiza y agrupa: temas, patrones, avances y riesgos.
-- Escribe en tono ejecutivo y directo, en presente. Nada de relleno ni recomendaciones genéricas.
+- Escribe en tono ejecutivo y directo. Nada de relleno ni recomendaciones genéricas.
+- CRÍTICO: las tareas listadas están ABIERTAS (pendientes). Nunca las describas como
+  hechas, confirmadas o cerradas. Ejemplo: si la tarea dice "va a confirmar la sede",
+  escribe "aún debe confirmar la sede", NO "confirma la sede".
 - Prioriza: qué avanza, qué está detenido y por qué, qué decisión se necesita, qué vence pronto, dónde falta responsable.
 - Menciona nombres de iniciativas o personas solo cuando aporte (máximo lo justo).
 - Si algo no se puede afirmar con los datos, no lo inventes.
