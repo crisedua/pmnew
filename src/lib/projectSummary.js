@@ -16,68 +16,67 @@ const clip = (text, max) => {
     return t.length > max ? `${t.slice(0, max)}…` : t;
 };
 
-/** Contexto compacto de la iniciativa para el modelo. */
-export function buildProjectSummaryContext({ project, tasks = [], assignees = [] }) {
+/**
+ * Contexto para el modelo. Solo incluye las tareas ABIERTAS
+ * (por hacer / en progreso / en espera): el resumen debe describir
+ * el trabajo vivo, no lo ya completado.
+ */
+export function buildProjectSummaryContext({ project, tasks = [] }) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
     const abiertas = tasks.filter(t => t.status !== 'Complete');
-    const hechas = tasks.filter(t => t.status === 'Complete');
 
     const lines = [];
     lines.push(`Iniciativa: ${project.name}`);
-    lines.push(`Código: ${project.codigo || 's/código'} · Línea: ${project.linea || 'sin línea'}`);
-    lines.push(`Owner: ${project.owner_name || project.owner_email || 'sin owner'}`);
-    if (project.start_date) lines.push(`Inicio: ${project.start_date}`);
-    if (project.due_date) lines.push(`Cierre estimado: ${project.due_date}`);
-    if (assignees.length) lines.push(`Equipo: ${assignees.map(a => a.name || a.email).join(', ')}`);
-    if (project.description) lines.push(`Descripción: ${clip(project.description, 600)}`);
-    lines.push(
-        `Avance: ${taskProgress(tasks)}% (${hechas.length} de ${tasks.length} tareas completadas, ` +
-        `${abiertas.length} abiertas).`
-    );
+    lines.push(`Tareas abiertas: ${abiertas.length} de ${tasks.length}.`);
     lines.push('');
 
-    if (abiertas.length) {
-        lines.push('Tareas abiertas:');
-        abiertas.forEach(t => {
-            const h = getTaskHealth(t);
-            const flags = [];
-            if (h === 'red') flags.push('BLOQUEADA');
-            if (h === 'yellow') flags.push('sin avance reciente');
-            if (t.due_date && new Date(t.due_date) < today) flags.push('ATRASADA');
-            if (!t.assignee_name && !t.assignee_email) flags.push('sin responsable');
-            lines.push(
-                `- ${clip(t.title, 120)} (${STATUS_LABEL[t.status] || t.status}` +
-                `${t.assignee_name || t.assignee_email ? `, resp. ${t.assignee_name || t.assignee_email}` : ''}` +
-                `${t.due_date ? `, vence ${t.due_date}` : ''}` +
-                `${flags.length ? `, ${flags.join(', ')}` : ''})` +
-                `${t.health_note ? ` — nota: ${clip(t.health_note, 120)}` : ''}`
-            );
-        });
-    } else {
-        lines.push('Tareas abiertas: ninguna.');
+    if (!abiertas.length) {
+        lines.push('No hay tareas abiertas.');
+        return lines.join('\n');
     }
 
-    if (hechas.length) {
-        lines.push('');
-        lines.push(`Tareas completadas (${hechas.length}): ${hechas.map(t => clip(t.title, 80)).join('; ')}`);
-    }
+    lines.push('TAREAS ABIERTAS (única fuente para el resumen):');
+    abiertas.forEach((t, i) => {
+        const h = getTaskHealth(t);
+        const flags = [];
+        if (h === 'red') flags.push('BLOQUEADA');
+        if (h === 'yellow') flags.push('sin avance en 2+ semanas');
+        if (t.due_date && new Date(t.due_date) < today) flags.push('ATRASADA');
+        if (!t.assignee_name && !t.assignee_email) flags.push('SIN RESPONSABLE');
+
+        lines.push(
+            `${i + 1}. "${clip(t.title, 200)}"` +
+            ` | estado: ${STATUS_LABEL[t.status] || t.status}` +
+            ` | responsable: ${t.assignee_name || t.assignee_email || 'ninguno'}` +
+            ` | prioridad: ${t.priority || 'no definida'}` +
+            ` | vence: ${t.due_date || 'sin fecha'}` +
+            (flags.length ? ` | ALERTAS: ${flags.join(', ')}` : '')
+        );
+        if (t.description) lines.push(`   detalle: ${clip(t.description, 300)}`);
+        if (t.health_note) lines.push(`   nota de estado: ${clip(t.health_note, 200)}`);
+    });
 
     return lines.join('\n');
 }
 
 const SYSTEM_PROMPT = `Eres un analista de proyectos que redacta el estado de una iniciativa en español para un reporte ejecutivo.
 
-A partir de la descripción de la iniciativa y sus tareas, escribe en VIÑETAS qué está pasando ahora.
+Se te entrega ÚNICAMENTE la lista de tareas abiertas (por hacer, en progreso y en espera).
+Escribe en VIÑETAS, con detalle concreto, qué está pasando con ese trabajo.
 
 Reglas estrictas:
-- Entre 4 y 6 viñetas. Cada una de máximo 25 palabras.
-- NO enumeres las tareas una por una. Sintetiza y agrupa por tema o frente de trabajo.
+- Entre 6 y 10 viñetas. Cada una de máximo 35 palabras.
+- Usa EXCLUSIVAMENTE la información de esas tareas. No hables del avance porcentual,
+  ni de tareas completadas, ni de la descripción general de la iniciativa.
+- Sé específico: nombra el trabajo concreto, quién es el responsable y la fecha comprometida
+  cuando exista. Ese detalle es lo que se espera del reporte.
+- Agrupa tareas relacionadas en un mismo frente de trabajo cuando compartan tema
+  (por ejemplo, convocatoria, sede, coordinación con universidades), pero sin perder el detalle.
+- Marca explícitamente lo que está BLOQUEADO, ATRASADO, SIN RESPONSABLE o sin fecha definida.
 - Tono ejecutivo y directo, en presente. Sin relleno ni recomendaciones genéricas.
-- Prioriza: en qué va la iniciativa, qué frentes avanzan, qué está detenido o atrasado y por qué, qué vence pronto, qué falta definir.
-- Menciona personas solo cuando aporte (por ejemplo, si concentran el trabajo o hay algo sin responsable).
-- No inventes nada que no esté en los datos.
+- No inventes nada: si un dato no está en la tarea, no lo afirmes.
 - Devuelve SOLO las viñetas, una por línea, empezando con "- ". Sin título ni cierre.`;
 
 /**
@@ -123,8 +122,8 @@ export function buildFallbackSummary({ tasks = [] }) {
 }
 
 /** Devuelve un array de viñetas con el estado actual de la iniciativa. */
-export async function generateProjectSummary({ project, tasks, assignees }) {
-    const context = buildProjectSummaryContext({ project, tasks, assignees });
+export async function generateProjectSummary({ project, tasks }) {
+    const context = buildProjectSummaryContext({ project, tasks });
 
     const message = await callOpenAI([
         { role: 'system', content: SYSTEM_PROMPT },
