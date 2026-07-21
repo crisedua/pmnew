@@ -24,7 +24,10 @@ function ReporteView({ initiatives = [], area, onOpen }) {
             setSummary(bullets);
         } catch (err) {
             console.error('Error generando resumen:', err);
-            setError('No se pudo generar el resumen. Revisa la configuración de la IA e inténtalo de nuevo.');
+            setError(
+                `No se pudo generar el resumen con IA (${err?.message || 'error desconocido'}). ` +
+                'Verifica que OPENAI_API_KEY esté configurada en Vercel.'
+            );
         } finally {
             setLoading(false);
         }

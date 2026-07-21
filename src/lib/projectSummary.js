@@ -80,6 +80,48 @@ Reglas estrictas:
 - No inventes nada que no esté en los datos.
 - Devuelve SOLO las viñetas, una por línea, empezando con "- ". Sin título ni cierre.`;
 
+/**
+ * Resumen calculado sin IA. Se usa como respaldo cuando /api/chat no está
+ * disponible, para que el reporte nunca salga vacío.
+ */
+export function buildFallbackSummary({ tasks = [] }) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const abiertas = tasks.filter(t => t.status !== 'Complete');
+    const hechas = tasks.filter(t => t.status === 'Complete');
+    const enProgreso = tasks.filter(t => t.status === 'In Progress').length;
+    const enEspera = tasks.filter(t => t.status === 'On Hold').length;
+    const porHacer = tasks.filter(t => t.status === 'To Do').length;
+    const bloqueadas = abiertas.filter(t => getTaskHealth(t) === 'red');
+    const atrasadas = abiertas.filter(t => t.due_date && new Date(t.due_date) < today);
+    const estancadas = abiertas.filter(t => getTaskHealth(t) === 'yellow');
+    const sinResp = abiertas.filter(t => !t.assignee_name && !t.assignee_email);
+
+    const bullets = [];
+    bullets.push(`Avance ${taskProgress(tasks)}%: ${hechas.length} de ${tasks.length} tareas completadas.`);
+    if (abiertas.length) {
+        bullets.push(
+            `${abiertas.length} tareas abiertas: ${enProgreso} en progreso, ` +
+            `${porHacer} por hacer, ${enEspera} en espera.`
+        );
+    }
+    if (bloqueadas.length) bullets.push(`${bloqueadas.length} tarea(s) bloqueada(s) requieren decisión.`);
+    if (atrasadas.length) bullets.push(`${atrasadas.length} tarea(s) pasaron su fecha de vencimiento.`);
+    if (estancadas.length) bullets.push(`${estancadas.length} tarea(s) sin avance en las últimas dos semanas.`);
+    if (sinResp.length) bullets.push(`${sinResp.length} tarea(s) abierta(s) sin responsable asignado.`);
+
+    const proximas = abiertas
+        .filter(t => t.due_date && new Date(t.due_date) >= today)
+        .sort((a, b) => new Date(a.due_date) - new Date(b.due_date));
+    if (proximas.length) {
+        const p = proximas[0];
+        bullets.push(`Próximo vencimiento: ${clip(p.title, 70)} (${p.due_date}).`);
+    }
+
+    return bullets;
+}
+
 /** Devuelve un array de viñetas con el estado actual de la iniciativa. */
 export async function generateProjectSummary({ project, tasks, assignees }) {
     const context = buildProjectSummaryContext({ project, tasks, assignees });

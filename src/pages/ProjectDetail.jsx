@@ -13,7 +13,7 @@ import { getUserAreaRole, canEdit, ESTADOS, getInitiativeEstado, lineaColor } fr
 import { fetchIsAdmin } from '../lib/admin';
 import { avatarColor, initials } from '../lib/avatar';
 import { exportProjectPdf } from '../lib/projectReport';
-import { generateProjectSummary } from '../lib/projectSummary';
+import { generateProjectSummary, buildFallbackSummary } from '../lib/projectSummary';
 import './ProjectDetail.css';
 
 function formatLongDate(value) {
@@ -149,19 +149,28 @@ function ProjectDetail() {
         }
     };
 
-    // Genera el resumen con IA y luego abre el PDF. Si la IA falla,
-    // igual exportamos el reporte (sin la sección de estado actual).
+    // Genera el resumen con IA y luego abre el PDF. Si la IA falla, avisamos
+    // y exportamos igual con un resumen calculado (sin IA).
     const handleExportPdf = async () => {
         setExportingPdf(true);
         let summary = [];
+        let aiFailed = false;
         try {
             summary = await generateProjectSummary({ project, tasks, assignees });
         } catch (err) {
             console.error('No se pudo generar el resumen con IA:', err);
+            aiFailed = true;
+            summary = buildFallbackSummary({ tasks });
+            alert(
+                'No se pudo generar el resumen con IA:\n\n' +
+                (err?.message || 'Error desconocido') +
+                '\n\nSe exportará el reporte con un resumen calculado. ' +
+                'Revisa que la variable OPENAI_API_KEY esté configurada en Vercel.'
+            );
         } finally {
             setExportingPdf(false);
         }
-        exportProjectPdf({ project, tasks, assignees, summary });
+        exportProjectPdf({ project, tasks, assignees, summary, summaryIsFallback: aiFailed });
     };
 
     const handleAddAssignee = async (e) => {

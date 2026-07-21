@@ -27,7 +27,7 @@ function initials(text) {
     return (a + b).toUpperCase() || '?';
 }
 
-export function buildProjectReportHtml({ project, tasks = [], assignees = [], summary = [] }) {
+export function buildProjectReportHtml({ project, tasks = [], assignees = [], summary = [], summaryIsFallback = false }) {
     const estadoKey = getInitiativeEstado(tasks, project);
     const estado = ESTADOS[estadoKey] || ESTADOS.sin_iniciar;
     const owner = project.owner_name || project.responsible_email || '—';
@@ -151,6 +151,7 @@ export function buildProjectReportHtml({ project, tasks = [], assignees = [], su
     .bullets { margin: 0; padding-left: 18px; }
     .bullets li { margin-bottom: 6px; color: #26374f; font-size: 12px; line-height: 1.5; }
     .bullets li:last-child { margin-bottom: 0; }
+    .ai-note { margin: 10px 0 0; font-size: 10px; color: #94a3b8; font-style: italic; }
 
     .muted { color: #94a3b8; font-style: italic; margin: 4px 0; }
 
@@ -211,6 +212,7 @@ export function buildProjectReportHtml({ project, tasks = [], assignees = [], su
     ${summary.length ? `<section class="ai">
         <h2>Estado actual</h2>
         <ul class="bullets">${summary.map(b => `<li>${esc(b)}</li>`).join('')}</ul>
+        ${summaryIsFallback ? '<p class="ai-note">Resumen calculado automáticamente (la IA no estaba disponible).</p>' : ''}
     </section>` : ''}
 
     <footer>
