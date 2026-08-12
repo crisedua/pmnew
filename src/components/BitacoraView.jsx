@@ -9,10 +9,10 @@ import './BitacoraView.css';
 
 // Columnas fijas de la bitácora (coinciden con la planilla original).
 const COLUMNS = [
-    { key: 'universidad', label: 'Universidad', width: '150px' },
-    { key: 'nombre', label: 'Nombre', width: '150px' },
-    { key: 'modalidad', label: 'Modalidad', width: '120px' },
-    { key: 'estado', label: 'Estado', width: '140px' },
+    { key: 'universidad', label: 'Universidad', width: '140px' },
+    { key: 'nombre', label: 'Nombre', width: '210px' },
+    { key: 'modalidad', label: 'Modalidad', width: '130px' },
+    { key: 'estado', label: 'Estado', width: '190px' },
     { key: 'notas', label: 'Notas', width: 'auto', multiline: true },
 ];
 

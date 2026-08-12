@@ -454,7 +454,7 @@ function ProjectDetail() {
             </div>
 
             {/* Tab Content */}
-            <main className="container">
+            <main className={`container ${activeTab === 'bitacora' ? 'container-full' : ''}`}>
                 <div className="tab-content">
                     {activeTab === 'resumen' && (
                         <ProjectSummary

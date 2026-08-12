@@ -4,6 +4,11 @@
     background: #f0f4f9;
 }
 
+/* La Bitácora usa todo el ancho de la pantalla (tabla amplia). */
+.container-full {
+    max-width: none;
+}
+
 /* Header - Glassmorphism & Premium Feel */
 .project-header {
     padding: 1rem 0;
