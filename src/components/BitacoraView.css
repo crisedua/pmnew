@@ -142,6 +142,34 @@
 
 .bit-pre { white-space: pre-wrap; }
 
+/* Columna de bandera urgente */
+.bit-col-flag {
+    width: 42px;
+    text-align: center;
+    vertical-align: middle !important;
+}
+
+.bit-col-flag > svg { vertical-align: middle; opacity: 0.85; }
+
+.bit-flag {
+    border: none;
+    background: transparent;
+    color: #c4ccd8;
+    cursor: pointer;
+    padding: 0.3rem;
+    border-radius: 6px;
+    display: inline-flex;
+    vertical-align: middle;
+}
+
+.bit-flag:hover:not(:disabled) { background: #fdeeee; color: #dc2626; }
+.bit-flag:disabled { cursor: default; }
+.bit-flag.on { color: #dc2626; }
+.bit-flag.on svg { fill: #dc2626; }
+
+.bit-table tbody tr.urgent td { background: #fff6f6; }
+.bit-table tbody tr.urgent td:first-child { box-shadow: inset 3px 0 0 #dc2626; }
+
 /* Columna de acciones */
 .bit-col-actions {
     width: 62px;

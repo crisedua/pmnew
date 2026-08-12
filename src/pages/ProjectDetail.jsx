@@ -4,7 +4,6 @@ import { LogOut, Trash2, X, Pencil, UserPlus, User, Mail, FileDown } from 'lucid
 import { supabase } from '../lib/supabase';
 import AppHeader from '../components/AppHeader';
 import ProjectSummary from '../components/ProjectSummary';
-import TasksView from '../components/TasksView';
 import DocumentsTab from '../components/DocumentsTab';
 import TeamTab from '../components/TeamTab';
 import AIAssistant from '../components/AIAssistant';
@@ -36,6 +35,7 @@ function ProjectDetail() {
     const [team, setTeam] = useState([]);
     const [assignees, setAssignees] = useState([]);
     const [invitations, setInvitations] = useState([]);
+    const [urgentCount, setUrgentCount] = useState(0);
     const [user, setUser] = useState(null);
     const [role, setRole] = useState(null);
     const [isAdmin, setIsAdmin] = useState(false);
@@ -51,7 +51,18 @@ function ProjectDetail() {
     useEffect(() => {
         checkUser();
         fetchProjectData();
+        fetchUrgentCount();
     }, [id]);
+
+    // Nº de filas de bitácora marcadas como urgentes (para la pestaña Urgente).
+    const fetchUrgentCount = async () => {
+        const { count, error } = await supabase
+            .from('bitacora_entries')
+            .select('id', { count: 'exact', head: true })
+            .eq('project_id', id)
+            .eq('urgente', true);
+        if (!error) setUrgentCount(count || 0);
+    };
 
     const checkUser = async () => {
         const { data: { user } } = await supabase.auth.getUser();
@@ -231,10 +242,10 @@ function ProjectDetail() {
 
     const tabs = [
         { id: 'resumen', label: 'Resumen', count: null },
-        { id: 'tareas', label: 'Tareas', count: tasks.length },
         { id: 'documentos', label: 'Documentos', count: documents.length },
         { id: 'equipo', label: 'Equipo', count: team.length },
         { id: 'bitacora', label: 'Bitácora', count: null },
+        { id: 'urgente', label: 'Urgente', count: urgentCount || null },
         { id: 'trazabilidad', label: 'Trazabilidad', count: null },
     ];
 
@@ -465,15 +476,6 @@ function ProjectDetail() {
                             canManage={isAdmin || role === 'owner'}
                         />
                     )}
-                    {activeTab === 'tareas' && (
-                        <TasksView
-                            tasks={tasks}
-                            projectId={id}
-                            onTasksUpdate={fetchProjectData}
-                            canEdit={isAdmin || canEdit(role)}
-                            canCreate={isAdmin}
-                        />
-                    )}
                     {activeTab === 'documentos' && (
                         <DocumentsTab
                             documents={documents}
@@ -496,6 +498,17 @@ function ProjectDetail() {
                             title="Bitácora"
                             subtitle={project.name}
                             canEdit={isAdmin || canEdit(role)}
+                            onRowsChange={fetchUrgentCount}
+                        />
+                    )}
+                    {activeTab === 'urgente' && (
+                        <BitacoraView
+                            projectId={id}
+                            title="Urgente"
+                            subtitle={project.name}
+                            canEdit={isAdmin || canEdit(role)}
+                            onlyUrgent
+                            onRowsChange={fetchUrgentCount}
                         />
                     )}
                     {activeTab === 'trazabilidad' && user && (

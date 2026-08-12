@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Plus, Trash2, RefreshCw, Lock, Check } from 'lucide-react';
+import { Plus, Trash2, RefreshCw, Lock, Check, Flag } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { getUserAreaRole, canEdit as roleCanEdit } from '../lib/health';
 import './BitacoraView.css';
@@ -25,7 +25,7 @@ const autoSize = (el) => {
     el.style.height = `${el.scrollHeight}px`;
 };
 
-function BitacoraView({ area, projectId, title, subtitle, isAdmin = false, canEdit: canEditProp }) {
+function BitacoraView({ area, projectId, title, subtitle, isAdmin = false, canEdit: canEditProp, onlyUrgent = false, onRowsChange }) {
     const [rows, setRows] = useState([]);
     const [loading, setLoading] = useState(true);
     const [canEdit, setCanEdit] = useState(canEditProp ?? isAdmin);
@@ -114,6 +114,31 @@ function BitacoraView({ area, projectId, title, subtitle, isAdmin = false, canEd
         }
     };
 
+    // Marca/desmarca una fila como urgente.
+    const toggleUrgent = async (row) => {
+        const next = !row.urgente;
+        setRows(rs => rs.map(r => (r.id === row.id ? { ...r, urgente: next } : r)));
+        try {
+            const { data, error } = await supabase
+                .from('bitacora_entries')
+                .update({ urgente: next, updated_at: new Date().toISOString() })
+                .eq('id', row.id)
+                .select();
+            if (error) throw error;
+            if (!data || data.length === 0) {
+                alert('No se pudo marcar: no tienes permisos para editar la bitácora.');
+                setRows(rs => rs.map(r => (r.id === row.id ? { ...r, urgente: !next } : r)));
+                return;
+            }
+            persisted.current[row.id] = { ...data[0] };
+            onRowsChange?.();
+        } catch (err) {
+            console.error('Error marcando urgente:', err);
+            setRows(rs => rs.map(r => (r.id === row.id ? { ...r, urgente: !next } : r)));
+            alert('Error al marcar urgente: ' + (err.message || JSON.stringify(err)));
+        }
+    };
+
     const addRow = async () => {
         const posicion = rows.length ? Math.max(...rows.map(r => r.posicion || 0)) + 1 : 0;
         try {
@@ -128,6 +153,7 @@ function BitacoraView({ area, projectId, title, subtitle, isAdmin = false, canEd
             }
             persisted.current[data[0].id] = { ...data[0] };
             setRows(rs => [...rs, data[0]]);
+            onRowsChange?.();
         } catch (err) {
             console.error('Error agregando fila:', err);
             alert('Error al agregar fila: ' + (err.message || JSON.stringify(err)));
@@ -148,11 +174,15 @@ function BitacoraView({ area, projectId, title, subtitle, isAdmin = false, canEd
                 return;
             }
             setRows(rs => rs.filter(r => r.id !== id));
+            onRowsChange?.();
         } catch (err) {
             console.error('Error eliminando fila:', err);
             alert('Error al eliminar: ' + (err.message || JSON.stringify(err)));
         }
     };
+
+    const shown = onlyUrgent ? rows.filter(r => r.urgente) : rows;
+    const colCount = 1 + COLUMNS.length + (canEdit ? 1 : 0);
 
     return (
         <div className="bitacora-view">
@@ -160,7 +190,7 @@ function BitacoraView({ area, projectId, title, subtitle, isAdmin = false, canEd
                 <div>
                     <h1 className="bit-title">{title || 'Bitácora'}</h1>
                     <p className="bit-sub">
-                        {subtitle || area?.name || 'Comisión'} · {rows.length} registro{rows.length !== 1 ? 's' : ''}
+                        {subtitle || area?.name || 'Comisión'} · {shown.length} {onlyUrgent ? 'urgente' : 'registro'}{shown.length !== 1 ? 's' : ''}
                         {!canEdit && <span className="bit-readonly"><Lock size={12} /> Solo lectura</span>}
                     </p>
                 </div>
@@ -168,7 +198,7 @@ function BitacoraView({ area, projectId, title, subtitle, isAdmin = false, canEd
                     <button className="bit-btn ghost" onClick={fetchRows} title="Actualizar">
                         <RefreshCw size={15} className={loading ? 'spin' : ''} /> Actualizar
                     </button>
-                    {canEdit && (
+                    {canEdit && !onlyUrgent && (
                         <button className="bit-btn primary" onClick={addRow}>
                             <Plus size={16} /> Agregar fila
                         </button>
@@ -180,22 +210,35 @@ function BitacoraView({ area, projectId, title, subtitle, isAdmin = false, canEd
                 <table className="bit-table">
                     <thead>
                         <tr>
+                            <th className="bit-col-flag" title="Urgente"><Flag size={13} /></th>
                             {COLUMNS.map(c => <th key={c.key} style={{ width: c.width }}>{c.label}</th>)}
                             {canEdit && <th className="bit-col-actions" />}
                         </tr>
                     </thead>
                     <tbody>
-                        {rows.length === 0 && !loading && (
+                        {shown.length === 0 && !loading && (
                             <tr>
-                                <td className="bit-empty" colSpan={COLUMNS.length + (canEdit ? 1 : 0)}>
-                                    {canEdit
-                                        ? 'Sin registros. Usa "Agregar fila" para empezar la bitácora.'
-                                        : 'Esta comisión aún no tiene bitácora.'}
+                                <td className="bit-empty" colSpan={colCount}>
+                                    {onlyUrgent
+                                        ? 'No hay elementos marcados como urgentes.'
+                                        : canEdit
+                                            ? 'Sin registros. Usa "Agregar fila" para empezar la bitácora.'
+                                            : 'Esta comisión aún no tiene bitácora.'}
                                 </td>
                             </tr>
                         )}
-                        {rows.map(row => (
-                            <tr key={row.id} className={savingId === row.id ? 'saving' : ''}>
+                        {shown.map(row => (
+                            <tr key={row.id} className={`${savingId === row.id ? 'saving' : ''} ${row.urgente ? 'urgent' : ''}`}>
+                                <td className="bit-col-flag">
+                                    <button
+                                        className={`bit-flag ${row.urgente ? 'on' : ''}`}
+                                        onClick={() => canEdit ? toggleUrgent(row) : undefined}
+                                        title={row.urgente ? 'Quitar urgente' : 'Marcar urgente'}
+                                        disabled={!canEdit}
+                                    >
+                                        <Flag size={15} />
+                                    </button>
+                                </td>
                                 {COLUMNS.map(c => (
                                     <td key={c.key} className={c.multiline ? 'bit-notes' : ''}>
                                         {canEdit ? (
