@@ -12,7 +12,6 @@ const COLUMNS = [
     { key: 'universidad', label: 'Universidad', width: '130px' },
     { key: 'nombre', label: 'Nombre', width: '190px' },
     { key: 'modalidad', label: 'Modalidad', width: '120px' },
-    { key: 'estado', label: 'Estado', width: '180px' },
     { key: 'estudiantes', label: 'Estudiantes', width: '200px', multiline: true },
     { key: 'notas', label: 'Notas', width: 'auto', multiline: true },
 ];
