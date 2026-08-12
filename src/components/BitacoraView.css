@@ -152,9 +152,9 @@
 .bit-col-flag > svg { vertical-align: middle; opacity: 0.85; }
 
 .bit-flag {
-    border: none;
-    background: transparent;
-    color: #c4ccd8;
+    border: 1px solid #dce4ee;
+    background: #fff;
+    color: #7a92a9;
     cursor: pointer;
     padding: 0.3rem;
     border-radius: 6px;
@@ -162,9 +162,9 @@
     vertical-align: middle;
 }
 
-.bit-flag:hover:not(:disabled) { background: #fdeeee; color: #dc2626; }
-.bit-flag:disabled { cursor: default; }
-.bit-flag.on { color: #dc2626; }
+.bit-flag:hover:not(:disabled) { background: #fdeeee; border-color: #f3c6c6; color: #dc2626; }
+.bit-flag:disabled { cursor: default; opacity: 0.6; }
+.bit-flag.on { color: #dc2626; border-color: #f3c6c6; background: #fdeeee; }
 .bit-flag.on svg { fill: #dc2626; }
 
 .bit-table tbody tr.urgent td { background: #fff6f6; }
