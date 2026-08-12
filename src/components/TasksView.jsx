@@ -23,6 +23,7 @@ function TasksView({ tasks, projectId, onTasksUpdate, canEdit = false, canCreate
         priority: 'Media',
         assignee_name: '',
         assignee_email: '',
+        fecha_solicitud: '',
         due_date: ''
     });
     const [newTask, setNewTask] = useState({
@@ -32,6 +33,7 @@ function TasksView({ tasks, projectId, onTasksUpdate, canEdit = false, canCreate
         priority: 'Media',
         assignee_name: '',
         assignee_email: '',
+        fecha_solicitud: '',
         due_date: ''
     });
 
@@ -89,6 +91,7 @@ function TasksView({ tasks, projectId, onTasksUpdate, canEdit = false, canCreate
                     priority: newTask.priority,
                     assignee_name: newTask.assignee_name,
                     assignee_email: newTask.assignee_email,
+                    fecha_solicitud: newTask.fecha_solicitud || null,
                     due_date: newTask.due_date || null
                 })
                 .select();
@@ -108,6 +111,7 @@ function TasksView({ tasks, projectId, onTasksUpdate, canEdit = false, canCreate
                 priority: 'Media',
                 assignee_name: '',
                 assignee_email: '',
+                fecha_solicitud: '',
                 due_date: ''
             });
             setShowTaskModal(false);
@@ -132,6 +136,7 @@ function TasksView({ tasks, projectId, onTasksUpdate, canEdit = false, canCreate
             priority: task.priority || 'Media',
             assignee_name: task.assignee_name || '',
             assignee_email: task.assignee_email || '',
+            fecha_solicitud: task.fecha_solicitud ? formatDate(task.fecha_solicitud) : '',
             due_date: task.due_date ? formatDate(task.due_date) : ''
         });
         setEditingTask(task);
@@ -150,6 +155,7 @@ function TasksView({ tasks, projectId, onTasksUpdate, canEdit = false, canCreate
                     priority: editForm.priority,
                     assignee_name: editForm.assignee_name,
                     assignee_email: editForm.assignee_email,
+                    fecha_solicitud: editForm.fecha_solicitud || null,
                     due_date: editForm.due_date || null,
                     updated_at: new Date().toISOString()
                 })
@@ -546,14 +552,25 @@ function TasksView({ tasks, projectId, onTasksUpdate, canEdit = false, canCreate
                                 />
                             </div>
 
-                            <div className="form-group">
-                                <label>Fecha límite</label>
-                                <input
-                                    type="date"
-                                    value={newTask.due_date}
-                                    onChange={(e) => setNewTask({ ...newTask, due_date: e.target.value })}
-                                    disabled={isCreating}
-                                />
+                            <div className="form-row">
+                                <div className="form-group">
+                                    <label>Fecha solicitud</label>
+                                    <input
+                                        type="date"
+                                        value={newTask.fecha_solicitud}
+                                        onChange={(e) => setNewTask({ ...newTask, fecha_solicitud: e.target.value })}
+                                        disabled={isCreating}
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label>Fecha límite</label>
+                                    <input
+                                        type="date"
+                                        value={newTask.due_date}
+                                        onChange={(e) => setNewTask({ ...newTask, due_date: e.target.value })}
+                                        disabled={isCreating}
+                                    />
+                                </div>
                             </div>
                         </div>
 
@@ -662,14 +679,25 @@ function TasksView({ tasks, projectId, onTasksUpdate, canEdit = false, canCreate
                                 />
                             </div>
 
-                            <div className="form-group">
-                                <label>Fecha límite</label>
-                                <input
-                                    type="date"
-                                    value={editForm.due_date}
-                                    onChange={(e) => setEditForm({ ...editForm, due_date: e.target.value })}
-                                    disabled={isUpdating}
-                                />
+                            <div className="form-row">
+                                <div className="form-group">
+                                    <label>Fecha solicitud</label>
+                                    <input
+                                        type="date"
+                                        value={editForm.fecha_solicitud}
+                                        onChange={(e) => setEditForm({ ...editForm, fecha_solicitud: e.target.value })}
+                                        disabled={isUpdating}
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label>Fecha límite</label>
+                                    <input
+                                        type="date"
+                                        value={editForm.due_date}
+                                        onChange={(e) => setEditForm({ ...editForm, due_date: e.target.value })}
+                                        disabled={isUpdating}
+                                    />
+                                </div>
                             </div>
                         </div>
 
