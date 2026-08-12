@@ -12,12 +12,11 @@ const COLUMNS = [
     { key: 'universidad', label: 'Universidad', width: '150px' },
     { key: 'nombre', label: 'Nombre', width: '150px' },
     { key: 'modalidad', label: 'Modalidad', width: '120px' },
-    { key: 'disponibilidad', label: 'Disponibilidad (día y hora)', width: '150px' },
     { key: 'estado', label: 'Estado', width: '140px' },
     { key: 'notas', label: 'Notas', width: 'auto', multiline: true },
 ];
 
-const EMPTY = { universidad: '', nombre: '', modalidad: '', disponibilidad: '', estado: '', notas: '' };
+const EMPTY = { universidad: '', nombre: '', modalidad: '', estado: '', notas: '' };
 
 function BitacoraView({ area, projectId, title, subtitle, isAdmin = false, canEdit: canEditProp }) {
     const [rows, setRows] = useState([]);
