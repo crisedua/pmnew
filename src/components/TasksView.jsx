@@ -79,7 +79,7 @@ function TasksView({ tasks, projectId, onTasksUpdate, canEdit = false, canCreate
         setIsCreating(true);
 
         try {
-            const { error } = await supabase
+            const { data, error } = await supabase
                 .from('tasks')
                 .insert({
                     project_id: projectId,
@@ -90,9 +90,15 @@ function TasksView({ tasks, projectId, onTasksUpdate, canEdit = false, canCreate
                     assignee_name: newTask.assignee_name,
                     assignee_email: newTask.assignee_email,
                     due_date: newTask.due_date || null
-                });
+                })
+                .select();
 
             if (error) throw error;
+            // Con RLS, un INSERT sin permiso afecta 0 filas sin lanzar error.
+            if (!data || data.length === 0) {
+                alert('No se creó: no tienes permisos para crear tareas en esta iniciativa.');
+                return;
+            }
 
             // Reset form
             setNewTask({
@@ -135,7 +141,7 @@ function TasksView({ tasks, projectId, onTasksUpdate, canEdit = false, canCreate
         if (!editingTask || !editForm.title.trim()) return;
         setIsUpdating(true);
         try {
-            const { error } = await supabase
+            const { data, error } = await supabase
                 .from('tasks')
                 .update({
                     title: editForm.title,
@@ -147,9 +153,16 @@ function TasksView({ tasks, projectId, onTasksUpdate, canEdit = false, canCreate
                     due_date: editForm.due_date || null,
                     updated_at: new Date().toISOString()
                 })
-                .eq('id', editingTask.id);
+                .eq('id', editingTask.id)
+                .select();
 
             if (error) throw error;
+            // Con RLS, un UPDATE sin permiso afecta 0 filas sin lanzar error:
+            // sin esta comprobación el modal se cerraba como si hubiera guardado.
+            if (!data || data.length === 0) {
+                alert('No se guardó: no tienes permisos para editar esta tarea.');
+                return;
+            }
 
             setEditingTask(null);
             if (onTasksUpdate) await onTasksUpdate();
@@ -167,12 +180,18 @@ function TasksView({ tasks, projectId, onTasksUpdate, canEdit = false, canCreate
         }
 
         try {
-            const { error } = await supabase
+            const { data, error } = await supabase
                 .from('tasks')
                 .delete()
-                .eq('id', taskId);
+                .eq('id', taskId)
+                .select();
 
             if (error) throw error;
+            // Con RLS, un DELETE sin permiso afecta 0 filas sin lanzar error.
+            if (!data || data.length === 0) {
+                alert('No se eliminó: no tienes permisos para borrar esta tarea.');
+                return;
+            }
 
             if (onTasksUpdate) {
                 await onTasksUpdate();
@@ -193,16 +212,22 @@ function TasksView({ tasks, projectId, onTasksUpdate, canEdit = false, canCreate
         if (!healthTask) return;
         setSavingHealth(true);
         try {
-            const { error } = await supabase
+            const { data, error } = await supabase
                 .from('tasks')
                 .update({
                     health: healthForm.health || null,
                     health_note: healthForm.health_note || null,
                     updated_at: new Date().toISOString()
                 })
-                .eq('id', healthTask.id);
+                .eq('id', healthTask.id)
+                .select();
 
             if (error) throw error;
+            // Con RLS, un UPDATE sin permiso afecta 0 filas sin lanzar error.
+            if (!data || data.length === 0) {
+                alert('No se guardó: no tienes permisos para editar esta tarea.');
+                return;
+            }
 
             setHealthTask(null);
             if (onTasksUpdate) await onTasksUpdate();

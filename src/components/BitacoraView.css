@@ -1,0 +1,175 @@
+.bitacora-view {
+    padding: 0.5rem 0 3rem;
+}
+
+/* Barra superior */
+.bit-bar {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.bit-title {
+    margin: 0;
+    font-size: 1.6rem;
+    color: #16243a;
+}
+
+.bit-sub {
+    margin: 0.25rem 0 0;
+    color: #7a92a9;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.bit-readonly {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: #94a3b8;
+    background: #f1f5f9;
+    padding: 0.1rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 600;
+}
+
+.bit-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.bit-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.5rem 0.9rem;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 1px solid #dce4ee;
+    transition: background 0.15s, border-color 0.15s;
+    white-space: nowrap;
+}
+
+.bit-btn.ghost { background: #fff; color: #47566b; }
+.bit-btn.ghost:hover { background: #f0f4f9; }
+.bit-btn.primary { background: #24528f; color: #fff; border-color: #24528f; }
+.bit-btn.primary:hover { background: #1a3d6e; }
+
+.spin { animation: bit-spin 1s linear infinite; }
+@keyframes bit-spin { to { transform: rotate(360deg); } }
+
+/* Tabla */
+.bit-table-wrap {
+    overflow-x: auto;
+    background: #fff;
+    border: 1px solid #e6ecf5;
+    border-radius: 12px;
+}
+
+.bit-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+    min-width: 900px;
+}
+
+.bit-table thead th {
+    position: sticky;
+    top: 0;
+    text-align: left;
+    background: #24528f;
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 0.7rem 0.75rem;
+    z-index: 1;
+}
+
+.bit-table tbody td {
+    border-bottom: 1px solid #eef2f8;
+    border-right: 1px solid #f2f5fa;
+    padding: 0;
+    vertical-align: top;
+}
+
+.bit-table tbody tr:hover td { background: #fafcff; }
+.bit-table tbody tr.saving td { background: #fffdf3; }
+
+.bit-table input,
+.bit-table textarea {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font: inherit;
+    color: #26374f;
+    padding: 0.6rem 0.75rem;
+    resize: vertical;
+    outline: none;
+}
+
+.bit-table input:focus,
+.bit-table textarea:focus {
+    background: #eef5ff;
+    box-shadow: inset 0 0 0 2px #24528f;
+    border-radius: 4px;
+}
+
+.bit-table textarea {
+    min-height: 3rem;
+    line-height: 1.4;
+    font-size: 0.8rem;
+}
+
+.bit-notes { min-width: 320px; }
+
+/* Solo lectura */
+.bit-table td > span {
+    display: block;
+    padding: 0.6rem 0.75rem;
+    color: #33445c;
+}
+
+.bit-pre { white-space: pre-wrap; }
+
+/* Columna de acciones */
+.bit-col-actions {
+    width: 62px;
+    text-align: center;
+    vertical-align: middle !important;
+    white-space: nowrap;
+}
+
+.bit-del {
+    border: none;
+    background: transparent;
+    color: #c05656;
+    cursor: pointer;
+    padding: 0.35rem;
+    border-radius: 6px;
+    vertical-align: middle;
+}
+
+.bit-del:hover { background: #fbecec; }
+
+.bit-saved {
+    color: #16a34a;
+    vertical-align: middle;
+    margin-right: 0.25rem;
+}
+
+.bit-empty {
+    padding: 2rem !important;
+    text-align: center;
+    color: #9aa7b8;
+    font-style: italic;
+}
