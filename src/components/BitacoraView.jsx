@@ -9,14 +9,22 @@ import './BitacoraView.css';
 
 // Columnas fijas de la bitácora (coinciden con la planilla original).
 const COLUMNS = [
-    { key: 'universidad', label: 'Universidad', width: '140px' },
-    { key: 'nombre', label: 'Nombre', width: '210px' },
-    { key: 'modalidad', label: 'Modalidad', width: '130px' },
-    { key: 'estado', label: 'Estado', width: '190px' },
+    { key: 'universidad', label: 'Universidad', width: '130px' },
+    { key: 'nombre', label: 'Nombre', width: '190px' },
+    { key: 'modalidad', label: 'Modalidad', width: '120px' },
+    { key: 'estado', label: 'Estado', width: '180px' },
+    { key: 'estudiantes', label: 'Estudiantes', width: '200px', multiline: true },
     { key: 'notas', label: 'Notas', width: 'auto', multiline: true },
 ];
 
-const EMPTY = { universidad: '', nombre: '', modalidad: '', estado: '', notas: '' };
+const EMPTY = { universidad: '', nombre: '', modalidad: '', estado: '', estudiantes: '', notas: '' };
+
+// Ajusta la altura de un textarea a su contenido (sin scrollbar interno).
+const autoSize = (el) => {
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight}px`;
+};
 
 function BitacoraView({ area, projectId, title, subtitle, isAdmin = false, canEdit: canEditProp }) {
     const [rows, setRows] = useState([]);
@@ -194,9 +202,10 @@ function BitacoraView({ area, projectId, title, subtitle, isAdmin = false, canEd
                                         {canEdit ? (
                                             c.multiline ? (
                                                 <textarea
+                                                    ref={autoSize}
                                                     value={row[c.key] || ''}
-                                                    rows={2}
-                                                    onChange={e => editCell(row.id, c.key, e.target.value)}
+                                                    rows={1}
+                                                    onChange={e => { editCell(row.id, c.key, e.target.value); autoSize(e.target); }}
                                                     onBlur={() => saveCell(row, c.key)}
                                                 />
                                             ) : (

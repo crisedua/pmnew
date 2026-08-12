@@ -113,7 +113,7 @@
     font: inherit;
     color: #26374f;
     padding: 0.6rem 0.75rem;
-    resize: vertical;
+    resize: none;
     outline: none;
 }
 
@@ -125,9 +125,10 @@
 }
 
 .bit-table textarea {
-    min-height: 3rem;
-    line-height: 1.4;
+    line-height: 1.45;
     font-size: 0.8rem;
+    overflow: hidden;
+    display: block;
 }
 
 .bit-notes { min-width: 320px; }
