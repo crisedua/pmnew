@@ -9,6 +9,7 @@ import DocumentsTab from '../components/DocumentsTab';
 import TeamTab from '../components/TeamTab';
 import AIAssistant from '../components/AIAssistant';
 import Traceability from '../components/Traceability';
+import BitacoraView from '../components/BitacoraView';
 import { getUserAreaRole, canEdit, ESTADOS, getInitiativeEstado, lineaColor } from '../lib/health';
 import { fetchIsAdmin } from '../lib/admin';
 import { avatarColor, initials } from '../lib/avatar';
@@ -233,6 +234,7 @@ function ProjectDetail() {
         { id: 'tareas', label: 'Tareas', count: tasks.length },
         { id: 'documentos', label: 'Documentos', count: documents.length },
         { id: 'equipo', label: 'Equipo', count: team.length },
+        { id: 'bitacora', label: 'Bitácora', count: null },
         { id: 'trazabilidad', label: 'Trazabilidad', count: null },
     ];
 
@@ -486,6 +488,14 @@ function ProjectDetail() {
                             projectId={id}
                             onUpdate={fetchProjectData}
                             canInvite={isAdmin}
+                        />
+                    )}
+                    {activeTab === 'bitacora' && (
+                        <BitacoraView
+                            projectId={id}
+                            title="Bitácora"
+                            subtitle={project.name}
+                            canEdit={isAdmin || canEdit(role)}
                         />
                     )}
                     {activeTab === 'trazabilidad' && user && (

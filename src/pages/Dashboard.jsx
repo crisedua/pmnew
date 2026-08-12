@@ -5,7 +5,7 @@ import {
     Search, Bell, FileText, LayoutDashboard, Inbox, BarChart3,
     Settings, FolderPlus, CheckSquare, UserPlus, HelpCircle,
     Check, Calendar, Flag, Trash2, ListChecks,
-    LayoutGrid, Activity, Video, Shield, Users, File, Clock, BookOpen
+    LayoutGrid, Activity, Video, Shield, Users, File, Clock
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import AIAssistant from '../components/AIAssistant';
@@ -17,7 +17,6 @@ import KpisView from '../components/KpisView';
 import TimelineView from '../components/TimelineView';
 import ActividadView from '../components/ActividadView';
 import ReporteView from '../components/ReporteView';
-import BitacoraView from '../components/BitacoraView';
 import Placeholder from '../components/Placeholder';
 import { fetchIsAdmin, fetchIsSuperAdmin } from '../lib/admin';
 import { fetchProjectKpis, fetchComisionKpi } from '../lib/kpis';
@@ -465,13 +464,6 @@ function Dashboard() {
                         Reporte
                     </a>
                     <a
-                        className={`nav-item ${activeView === 'bitacora' ? 'active' : ''}`}
-                        onClick={() => setActiveView('bitacora')}
-                    >
-                        <BookOpen size={18} />
-                        Bitácora
-                    </a>
-                    <a
                         className={`nav-item ${activeView === 'actividad' ? 'active' : ''}`}
                         onClick={() => setActiveView('actividad')}
                     >
@@ -598,11 +590,6 @@ function Dashboard() {
                             initiatives={initiatives}
                             area={selectedArea}
                             onOpen={(projectId) => navigate(`/project/${projectId}`)}
-                        />
-                    ) : activeView === 'bitacora' ? (
-                        <BitacoraView
-                            area={selectedArea}
-                            isAdmin={isSuperAdmin}
                         />
                     ) : (
                         <>

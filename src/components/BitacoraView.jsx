@@ -4,6 +4,9 @@ import { supabase } from '../lib/supabase';
 import { getUserAreaRole, canEdit as roleCanEdit } from '../lib/health';
 import './BitacoraView.css';
 
+// La bitácora puede vivir a nivel de comisión (areaId) o de iniciativa
+// (projectId). Se pasa exactamente uno de los dos como scope.
+
 // Columnas fijas de la bitácora (coinciden con la planilla original).
 const COLUMNS = [
     { key: 'universidad', label: 'Universidad', width: '150px' },
@@ -16,10 +19,10 @@ const COLUMNS = [
 
 const EMPTY = { universidad: '', nombre: '', modalidad: '', disponibilidad: '', estado: '', notas: '' };
 
-function BitacoraView({ area, isAdmin = false }) {
+function BitacoraView({ area, projectId, title, subtitle, isAdmin = false, canEdit: canEditProp }) {
     const [rows, setRows] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [canEdit, setCanEdit] = useState(isAdmin);
+    const [canEdit, setCanEdit] = useState(canEditProp ?? isAdmin);
     const [savingId, setSavingId] = useState(null);
     const [savedId, setSavedId] = useState(null);
     const savedTimer = useRef(null);
@@ -27,14 +30,17 @@ function BitacoraView({ area, isAdmin = false }) {
     const persisted = useRef({});
 
     const areaId = area?.id;
+    // Columna y valor con que se filtra/inserta: por iniciativa o por comisión.
+    const scopeCol = projectId ? 'project_id' : 'area_id';
+    const scopeVal = projectId || areaId;
 
     const fetchRows = useCallback(async () => {
-        if (!areaId) return;
+        if (!scopeVal) return;
         setLoading(true);
         const { data, error } = await supabase
             .from('bitacora_entries')
             .select('*')
-            .eq('area_id', areaId)
+            .eq(scopeCol, scopeVal)
             .order('posicion', { ascending: true })
             .order('created_at', { ascending: true });
         if (error) {
@@ -45,12 +51,14 @@ function BitacoraView({ area, isAdmin = false }) {
             persisted.current = Object.fromEntries((data || []).map(r => [r.id, { ...r }]));
         }
         setLoading(false);
-    }, [areaId]);
+    }, [scopeCol, scopeVal]);
 
     useEffect(() => { fetchRows(); }, [fetchRows]);
 
-    // Resuelve permiso de edición para la comisión actual.
+    // Permiso de edición: si el padre lo entrega, se respeta; si no, se
+    // resuelve por el rol del usuario en la comisión.
     useEffect(() => {
+        if (canEditProp !== undefined) { setCanEdit(canEditProp); return; }
         let active = true;
         (async () => {
             if (isAdmin) { setCanEdit(true); return; }
@@ -60,7 +68,7 @@ function BitacoraView({ area, isAdmin = false }) {
             if (active) setCanEdit(roleCanEdit(role));
         })();
         return () => { active = false; };
-    }, [areaId, isAdmin]);
+    }, [areaId, isAdmin, canEditProp]);
 
     const flashSaved = (id) => {
         setSavedId(id);
@@ -105,7 +113,7 @@ function BitacoraView({ area, isAdmin = false }) {
         try {
             const { data, error } = await supabase
                 .from('bitacora_entries')
-                .insert({ area_id: areaId, posicion, ...EMPTY })
+                .insert({ [scopeCol]: scopeVal, posicion, ...EMPTY })
                 .select();
             if (error) throw error;
             if (!data || data.length === 0) {
@@ -144,9 +152,9 @@ function BitacoraView({ area, isAdmin = false }) {
         <div className="bitacora-view">
             <div className="bit-bar">
                 <div>
-                    <h1 className="bit-title">Bitácora</h1>
+                    <h1 className="bit-title">{title || 'Bitácora'}</h1>
                     <p className="bit-sub">
-                        {area?.name || 'Comisión'} · {rows.length} registro{rows.length !== 1 ? 's' : ''}
+                        {subtitle || area?.name || 'Comisión'} · {rows.length} registro{rows.length !== 1 ? 's' : ''}
                         {!canEdit && <span className="bit-readonly"><Lock size={12} /> Solo lectura</span>}
                     </p>
                 </div>
