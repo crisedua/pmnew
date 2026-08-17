@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Plus, Trash2, RefreshCw, Lock, Check, Flag } from 'lucide-react';
+import { Plus, Trash2, RefreshCw, Lock, Check, Flag, FileDown } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { getUserAreaRole, canEdit as roleCanEdit } from '../lib/health';
+import { exportBitacoraPdf } from '../lib/bitacoraReport';
 import './BitacoraView.css';
 
 // La bitácora puede vivir a nivel de comisión (areaId) o de iniciativa
@@ -197,6 +198,13 @@ function BitacoraView({ area, projectId, title, subtitle, isAdmin = false, canEd
                 <div className="bit-actions">
                     <button className="bit-btn ghost" onClick={fetchRows} title="Actualizar">
                         <RefreshCw size={15} className={loading ? 'spin' : ''} /> Actualizar
+                    </button>
+                    <button
+                        className="bit-btn ghost"
+                        onClick={() => exportBitacoraPdf({ title: title || 'Bitácora', subtitle: subtitle || area?.name, rows: shown })}
+                        title="Exportar a PDF"
+                    >
+                        <FileDown size={15} /> Exportar PDF
                     </button>
                     {canEdit && !onlyUrgent && (
                         <button className="bit-btn primary" onClick={addRow}>
